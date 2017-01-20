@@ -6,7 +6,7 @@ This puppet module is used to install and configure the Confluent Platform. The 
 
 1. The only tested operating system is Centos 7. 
 1. Yum repositories are not created.
-
+1. Kerberos? haha you're funny
 
 ### Usage
 
