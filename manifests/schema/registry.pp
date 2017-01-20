@@ -1,3 +1,32 @@
+# Class is used to install
+#
+# @example Installation through class.
+#       class {'confluent::schema::registry':
+#         schemaregistry_settings => {
+#           'kafkastore.connection.url' => {
+#             'value' => 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
+#           },
+#         },
+#         java_settings => {
+#           'SCHEMA_REGISTRY_HEAP_OPTS' => {
+#             'value' => '-Xmx1024M'
+#           }
+#         }
+#       }
+#
+# @example Hiera based installation
+#    include ::confluent::schema::registry
+#
+#    confluent::schema::registry::schemaregistry_settings:
+#      kafkastore.connection.url:
+#        value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
+#    confluent::schema::registry::java_settings:
+#      SCHEMA_REGISTRY_HEAP_OPTS:
+#        value: -Xmx1024M
+#
+# @param schemaregistry_user System user to run the schema registry service as.
+# @param schemaregistry_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
+# @param java_settings Path to the connect properties file.
 class confluent::schema::registry (
   $schemaregistry_user = 'schemaregistry',
   $schemaregistry_settings = { },

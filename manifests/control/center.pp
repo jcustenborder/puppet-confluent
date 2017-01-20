@@ -1,7 +1,48 @@
+# Class is used to install
+#
+# @example Installation through class.
+#     class {'confluent::control::center':
+#       control_center_settings => {
+#         'zookeeper.connect' => {
+#           'value' => 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
+#         },
+#         'bootstrap.servers' => {
+#           'value' => 'kafka-01.example.com:9092,kafka-02.example.com:9092,kafka-03.example.com:9092'
+#         },
+#         'confluent.controlcenter.connect.cluster' => {
+#           'value' => 'kafka-connect-01.example.com:8083,kafka-connect-02.example.com:8083,kafka-connect-03.example.com:8083'
+#         }
+#       },
+#       java_settings => {
+#         'CONTROL_CENTER_HEAP_OPTS' => {
+#           'value' => '-Xmx6g'
+#         }
+#       }
+#     }
+#
+# @example Hiera based installation
+#      include ::confluent::control::center
+#
+#      confluent::control::center::control_center_settings:
+#        zookeeper.connect:
+#          value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
+#        bootstrap.servers:
+#          value: 'kafka-01.example.com:9092,kafka-02.example.com:9092,kafka-03.example.com:9092'
+#        confluent.controlcenter.connect.cluster:
+#          value: 'kafka-connect-01:8083,kafka-connect-02:8083,kafka-connect-03:8083'
+#      confluent::control::center::java_settings:
+#        CONTROL_CENTER_HEAP_OPTS:
+#          value: -Xmx6g
+#
+# @param control_center_user System user to run Confluent Control Center as.
+# @param control_center_settings Settings to put in the environment file used to pass environment variables to the Confluent Control Center startup scripts.
+# @param java_settings Path to the connect properties file.
+# @param control_center_properties_path Path to the properties file for Confluent Control Center
 class confluent::control::center (
   $control_center_user = 'c3',
   $control_center_settings = { },
-  $java_settings = { }
+  $java_settings = { },
+  $control_center_properties_path='/etc/kafka/server.properties'
 ) {
   validate_hash($control_center_settings)
   validate_hash($java_settings)
@@ -46,11 +87,9 @@ class confluent::control::center (
     ensure => latest
   } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'control-center-setting' |>
 
-  $control_center_properties = '/etc/confluent-control-center/control-center.properties'
-
   $ensure_control_center_settings_defaults={
     'ensure' => 'present',
-    'path'   => $control_center_properties,
+    'path'   => $control_center_properties_path,
     'application' => 'control-center'
   }
 
