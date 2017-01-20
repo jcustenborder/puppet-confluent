@@ -74,10 +74,69 @@
 <div class="docstring">
   <div class="discussion">
     
+<p>Class is used to install</p>
+
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Installation through class.</p>
+</div></p>
+      
+      <pre class="example code"><code>class{&#39;confluent::kafka::connect::distributed&#39;:
+  connect_settings =&gt; {
+    &#39;bootstrap.servers&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
+    },
+    &#39;key.converter&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;io.confluent.connect.avro.AvroConverter&#39;
+    },
+    &#39;value.converter&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;io.confluent.connect.avro.AvroConverter&#39;
+    },
+    &#39;key.converter.schema.registry.url&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;http://schema-registry-01:8081&#39;
+    },
+    &#39;value.converter.schema.registry.url&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;http://schema-registry-01:8081&#39;
+    },
+  },
+  java_settings =&gt; {
+    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
+    }
+  }
+}</code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Hiera based installation</p>
+</div></p>
+      
+      <pre class="example code"><code>include ::confluent::kafka::connect::distributed
+
+ confluent::kafka::connect::distributed::connect_settings:
+   &#39;bootstrap.servers&#39;:
+     value: &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
+   &#39;key.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;value.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;key.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;
+   &#39;value.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;
+ confluent::kafka::connect::distributed::connect_settings:java_settings:
+   KAFKA_HEAP_OPTS:
+     value: &#39;-Xmx4000M&#39;</code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -90,6 +149,11 @@
       
         <em class="default">(defaults to: <tt>{ }</tt>)</em>
       
+      
+        &mdash;
+        <div class='inline'>
+<p>Settings to pass to the Kafka Connect properties file.</p>
+</div>
       
     </li>
   
@@ -104,6 +168,12 @@
         <em class="default">(defaults to: <tt>{ }</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>Settings to put in the environment file used to pass environment variables
+to the kafka startup scripts.</p>
+</div>
+      
     </li>
   
     <li>
@@ -117,6 +187,11 @@
         <em class="default">(defaults to: <tt>&#39;/etc/kafka/connect-distributed.properties&#39;</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>Path to the connect properties file.</p>
+</div>
+      
     </li>
   
 </ul>
@@ -129,55 +204,6 @@
         <pre class="lines">
 
 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43
-44
-45
-46
-47
-48
-49
 50
 51
 52
@@ -190,10 +216,59 @@
 59
 60
 61
-62</pre>
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/kafka/connect/distributed.pp', line 1</span>
+        <pre class="code"><span class="info file"># File 'manifests/kafka/connect/distributed.pp', line 50</span>
 
 class confluent::kafka::connect::distributed (
   $connect_settings = { },
@@ -264,7 +339,7 @@ class confluent::kafka::connect::distributed (
 </div>
 
       <div id="footer">
-  Generated on Fri Jan 20 16:15:16 2017 by
+  Generated on Fri Jan 20 17:14:07 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

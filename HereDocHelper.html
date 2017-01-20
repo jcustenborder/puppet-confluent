@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: HereDocHelper
+  
+    &mdash; Documentation by YARD 0.9.8
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "HereDocHelper";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (H)</a> &raquo;
+    
+    
+    <span class="title">HereDocHelper</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: HereDocHelper
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">Object</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">HereDocHelper</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/heredoc_helper.rb</dd>
+  </dl>
+  
+</div>
+
+
+  <h2>Constant Summary</h2>
+  <dl class="constants">
+    
+      <dt id="HEREDOC_START-constant" class="">HEREDOC_START =
+        <div class="docstring">
+  <div class="discussion">
+    
+<p>Sometimes the YARD parser returns Heredoc strings that start with
+<code>&lt;-</code> instead of <code>&lt;&lt;-</code>.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div>
+      </dt>
+      <dd><pre class="code"><span class='tstring'><span class='regexp_beg'>/</span><span class='tstring_content'>^&lt;?&lt;-</span><span class='regexp_end'>/</span></span></pre></dd>
+    
+  </dl>
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#is_heredoc%3F-instance_method" title="#is_heredoc? (instance method)">#<strong>is_heredoc?</strong>(str)  &#x21d2; Boolean </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'></div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_element-instance_method" title="#process_element (instance method)">#<strong>process_element</strong>(ele)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Turns an entry in the method parameter list into a string.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_heredoc-instance_method" title="#process_heredoc (instance method)">#<strong>process_heredoc</strong>(source)  &#x21d2; String </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Cleans up and formats Heredoc contents parsed by YARD.</p>
+</div></span>
+  
+</li>
+
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#process_parameters-instance_method" title="#process_parameters (instance method)">#<strong>process_parameters</strong>(statement)  &#x21d2; (String, Hash{String =&gt; String}) </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Extracts the Puppet function name and options hash from the parsed
+definition.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="is_heredoc?-instance_method">
+  
+    #<strong>is_heredoc?</strong>(str)  &#x21d2; <tt>Boolean</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>Boolean</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+41
+42
+43</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File '/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/heredoc_helper.rb', line 41</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_is_heredoc?'>is_heredoc?</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+  <span class='const'><span class='object_link'><a href="#HEREDOC_START-constant" title="HereDocHelper::HEREDOC_START (constant)">HEREDOC_START</a></span></span><span class='period'>.</span><span class='id identifier rubyid_match'>match</span><span class='lparen'>(</span><span class='id identifier rubyid_str'>str</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_element-instance_method">
+  
+    #<strong>process_element</strong>(ele)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Turns an entry in the method parameter list into a string.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>ele</span>
+      
+      
+        <span class='type'>(<tt>YARD::Parser::Ruby::AstNode</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File '/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/heredoc_helper.rb', line 49</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_element'>process_element</span><span class='lparen'>(</span><span class='id identifier rubyid_ele'>ele</span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_ele'>ele</span> <span class='op'>=</span> <span class='id identifier rubyid_ele'>ele</span><span class='period'>.</span><span class='id identifier rubyid_jump'>jump</span><span class='lparen'>(</span><span class='symbol'>:ident</span><span class='comma'>,</span> <span class='symbol'>:string_content</span><span class='rparen'>)</span>
+
+  <span class='kw'>case</span> <span class='id identifier rubyid_ele'>ele</span><span class='period'>.</span><span class='id identifier rubyid_type'>type</span>
+  <span class='kw'>when</span> <span class='symbol'>:ident</span>
+    <span class='id identifier rubyid_ele'>ele</span><span class='period'>.</span><span class='id identifier rubyid_source'>source</span>
+  <span class='kw'>when</span> <span class='symbol'>:string_content</span>
+    <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_ele'>ele</span><span class='period'>.</span><span class='id identifier rubyid_source'>source</span>
+    <span class='kw'>if</span> <span class='id identifier rubyid_is_heredoc?'>is_heredoc?</span> <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span>
+      <span class='id identifier rubyid_process_heredoc'>process_heredoc</span><span class='lparen'>(</span><span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span><span class='rparen'>)</span>
+    <span class='kw'>else</span>
+      <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span>
+    <span class='kw'>end</span>
+  <span class='kw'>end</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_heredoc-instance_method">
+  
+    #<strong>process_heredoc</strong>(source)  &#x21d2; <tt>String</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Cleans up and formats Heredoc contents parsed by YARD.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  <p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>source</span>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>String</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File '/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/heredoc_helper.rb', line 69</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_heredoc'>process_heredoc</span><span class='lparen'>(</span><span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span><span class='rparen'>)</span>
+  <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span> <span class='op'>=</span> <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span><span class='period'>.</span><span class='id identifier rubyid_lines'>lines</span><span class='period'>.</span><span class='id identifier rubyid_to_a'>to_a</span>
+
+  <span class='comment'># YARD adds a line of source context on either side of the Heredoc
+</span>  <span class='comment'># contents.
+</span>  <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span><span class='period'>.</span><span class='id identifier rubyid_shift'>shift</span>
+  <span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span><span class='period'>.</span><span class='id identifier rubyid_pop'>pop</span>
+
+  <span class='comment'># This utility method normalizes indentation and trims whitespace.
+</span>  <span class='const'>Puppet</span><span class='op'>::</span><span class='const'>Util</span><span class='op'>::</span><span class='const'>Docs</span><span class='period'>.</span><span class='id identifier rubyid_scrub'>scrub</span><span class='lparen'>(</span><span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span><span class='period'>.</span><span class='id identifier rubyid_join'>join</span><span class='rparen'>)</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+      <div class="method_details ">
+  <h3 class="signature " id="process_parameters-instance_method">
+  
+    #<strong>process_parameters</strong>(statement)  &#x21d2; <tt>(String, Hash{String =&gt; String})</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Extracts the Puppet function name and options hash from the parsed
+definition.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+<p class="tag_title">Returns:</p>
+<ul class="return">
+  
+    <li>
+      
+      
+        <span class='type'>(<tt>(String, Hash{String =&gt; String})</tt>)</span>
+      
+      
+      
+    </li>
+  
+</ul>
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File '/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/heredoc_helper.rb', line 14</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_process_parameters'>process_parameters</span><span class='lparen'>(</span><span class='id identifier rubyid_statement'>statement</span><span class='rparen'>)</span>
+  <span class='comment'># Passing `false` to prameters excludes the block param from the returned
+</span>  <span class='comment'># list.
+</span>  <span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_statement'>statement</span><span class='period'>.</span><span class='id identifier rubyid_parameters'>parameters</span><span class='lparen'>(</span><span class='kw'>false</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_compact'>compact</span>
+
+  <span class='id identifier rubyid_name'>name</span> <span class='op'>=</span> <span class='id identifier rubyid_process_element'>process_element</span><span class='lparen'>(</span><span class='id identifier rubyid_name'>name</span><span class='rparen'>)</span>
+
+  <span class='comment'># Don&#39;t try to process options if we don&#39;t have any
+</span>  <span class='kw'>if</span> <span class='op'>!</span><span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_nil?'>nil?</span>
+    <span class='id identifier rubyid_opts'>opts</span> <span class='op'>=</span> <span class='id identifier rubyid_opts'>opts</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span> <span class='kw'>do</span> <span class='op'>|</span><span class='id identifier rubyid_tuple'>tuple</span><span class='op'>|</span>
+      <span class='comment'># Jump down into the S-Expression that represents a hashrocket, `=&gt;`,
+</span>      <span class='comment'># and the values on either side of it.
+</span>      <span class='id identifier rubyid_tuple'>tuple</span><span class='period'>.</span><span class='id identifier rubyid_jump'>jump</span><span class='lparen'>(</span><span class='symbol'>:assoc</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_map'>map</span><span class='lbrace'>{</span><span class='op'>|</span><span class='id identifier rubyid_e'>e</span><span class='op'>|</span> <span class='id identifier rubyid_process_element'>process_element</span><span class='lparen'>(</span><span class='id identifier rubyid_e'>e</span><span class='rparen'>)</span><span class='rbrace'>}</span>
+    <span class='kw'>end</span>
+
+    <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='const'>Hash</span><span class='lbracket'>[</span><span class='id identifier rubyid_opts'>opts</span><span class='rbracket'>]</span>
+  <span class='kw'>else</span>
+    <span class='id identifier rubyid_options'>options</span> <span class='op'>=</span> <span class='lbrace'>{</span><span class='rbrace'>}</span>
+  <span class='kw'>end</span>
+
+  <span class='lbracket'>[</span><span class='id identifier rubyid_name'>name</span><span class='comma'>,</span> <span class='id identifier rubyid_options'>options</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jan 20 16:38:48 2017 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.8 (ruby-2.3.1).
+</div>
+
+    </div>
+  </body>
+</html>

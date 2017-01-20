@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>
+  Class: Puppet4xFunctionHandler
+  
+    &mdash; Documentation by YARD 0.9.8
+  
+</title>
+
+  <link rel="stylesheet" href="css/style.css" type="text/css" charset="utf-8" />
+
+  <link rel="stylesheet" href="css/common.css" type="text/css" charset="utf-8" />
+
+<script type="text/javascript" charset="utf-8">
+  pathId = "Puppet4xFunctionHandler";
+  relpath = '';
+</script>
+
+
+  <script type="text/javascript" charset="utf-8" src="js/jquery.js"></script>
+
+  <script type="text/javascript" charset="utf-8" src="js/app.js"></script>
+
+
+  </head>
+  <body>
+    <div class="nav_wrap">
+      <iframe id="nav" src="class_list.html?1"></iframe>
+      <div id="resizer"></div>
+    </div>
+
+    <div id="main" tabindex="-1">
+      <div id="header">
+        <div id="menu">
+  
+    <a href="_index.html">Index (P)</a> &raquo;
+    
+    
+    <span class="title">Puppet4xFunctionHandler</span>
+  
+</div>
+
+        <div id="search">
+  
+    <a class="full_list_link" id="class_list_link"
+        href="class_list.html">
+
+        <svg width="24" height="24">
+          <rect x="0" y="4" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="12" width="24" height="4" rx="1" ry="1"></rect>
+          <rect x="0" y="20" width="24" height="4" rx="1" ry="1"></rect>
+        </svg>
+    </a>
+  
+</div>
+        <div class="clear"></div>
+      </div>
+
+      <div id="content"><h1>Class: Puppet4xFunctionHandler
+  
+  
+  
+</h1>
+<div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>
+      <span class="inheritName">YARD::Handlers::Ruby::Base</span>
+      
+        <ul class="fullTree">
+          <li>Object</li>
+          
+            <li class="next">YARD::Handlers::Ruby::Base</li>
+          
+            <li class="next">Puppet4xFunctionHandler</li>
+          
+        </ul>
+        <a href="#" class="inheritanceTree">show all</a>
+      
+    </dd>
+  </dl>
+  
+
+  
+  
+  
+  
+  <dl>
+      <dt>Includes:</dt>
+      <dd><span class='object_link'><a href="PuppetX/PuppetLabs/Strings/YARD/CodeObjects.html" title="PuppetX::PuppetLabs::Strings::YARD::CodeObjects (module)">PuppetX::PuppetLabs::Strings::YARD::CodeObjects</a></span></dd>
+  </dl>
+  
+  
+
+  
+
+  
+  <dl>
+    <dt>Defined in:</dt>
+    <dd>/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/puppet_4x_function_handler.rb</dd>
+  </dl>
+  
+</div>
+
+
+
+
+
+
+
+
+  
+    <h2>
+      Instance Method Summary
+      <small><a href="#" class="summary_toggle">collapse</a></small>
+    </h2>
+
+    <ul class="summary">
+      
+        <li class="public ">
+  <span class="summary_signature">
+    
+      <a href="#extract_type_from_command-instance_method" title="#extract_type_from_command (instance method)">#<strong>extract_type_from_command</strong>(command)  &#x21d2; Object </a>
+    
+
+    
+  </span>
+  
+  
+  
+  
+  
+  
+  
+
+  
+    <span class="summary_desc"><div class='inline'>
+<p>Given a command node which represents code like this: param &#39;<a
+href="Type">Optional</a>&#39;, :value_type Extract the type name and type
+signature and return them as a array.</p>
+</div></span>
+  
+</li>
+
+      
+    </ul>
+  
+
+
+  
+  
+  
+  
+  
+  
+  
+
+  <div id="instance_method_details" class="method_details_list">
+    <h2>Instance Method Details</h2>
+
+    
+      <div class="method_details first">
+  <h3 class="signature first" id="extract_type_from_command-instance_method">
+  
+    #<strong>extract_type_from_command</strong>(command)  &#x21d2; <tt>Object</tt> 
+  
+
+  
+
+  
+</h3><div class="docstring">
+  <div class="discussion">
+    
+<p>Given a command node which represents code like this: param &#39;<a
+href="Type">Optional</a>&#39;, :value_type Extract the type name and type
+signature and return them as a array.</p>
+
+
+  </div>
+</div>
+<div class="tags">
+  
+
+</div><table class="source_code">
+  <tr>
+    <td>
+      <pre class="lines">
+
+
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42</pre>
+    </td>
+    <td>
+      <pre class="code"><span class="info file"># File '/Users/jeremy/.puppetlabs/etc/code/modules/strings/lib/puppet_x/puppetlabs/strings/yard/handlers/puppet_4x_function_handler.rb', line 29</span>
+
+<span class='kw'>def</span> <span class='id identifier rubyid_extract_type_from_command'>extract_type_from_command</span> <span class='id identifier rubyid_command'>command</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>2</span> <span class='kw'>or</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='period'>.</span><span class='id identifier rubyid_length'>length</span> <span class='op'>&lt;</span> <span class='int'>2</span>
+  <span class='id identifier rubyid_type_specifier'>type_specifier</span> <span class='op'>=</span> <span class='id identifier rubyid_command'>command</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='lbracket'>[</span><span class='int'>1</span><span class='rbracket'>]</span>
+  <span class='comment'># the parameter signature is the first child of the specifier and an
+</span>  <span class='comment'># identifier. Jump to the content inside the quotes and convert it to a
+</span>  <span class='comment'># string.
+</span>  <span class='id identifier rubyid_param_signature'>param_signature</span> <span class='op'>=</span> <span class='id identifier rubyid_type_specifier'>type_specifier</span><span class='period'>.</span><span class='id identifier rubyid_children'>children</span><span class='lbracket'>[</span><span class='int'>0</span><span class='rbracket'>]</span><span class='period'>.</span><span class='id identifier rubyid_jump'>jump</span><span class='lparen'>(</span><span class='symbol'>:tstring_content</span><span class='rparen'>)</span><span class='period'>.</span><span class='id identifier rubyid_source'><span class='object_link'><a href="top-level-namespace.html#source-instance_method" title="#source (method)">source</a></span></span>
+  <span class='comment'># The parameter name is the second child of the specifier and a symbol.
+</span>  <span class='comment'># convert it to a string.
+</span>  <span class='id identifier rubyid_param_name_ident'>param_name_ident</span> <span class='op'>=</span> <span class='id identifier rubyid_type_specifier'>type_specifier</span><span class='period'>.</span><span class='id identifier rubyid_jump'>jump</span> <span class='symbol'>:ident</span>
+  <span class='kw'>return</span> <span class='lbracket'>[</span><span class='rbracket'>]</span> <span class='kw'>if</span> <span class='id identifier rubyid_param_name_ident'>param_name_ident</span> <span class='op'>==</span> <span class='id identifier rubyid_type_specifier'>type_specifier</span>
+  <span class='id identifier rubyid_param_name'>param_name</span> <span class='op'>=</span> <span class='id identifier rubyid_param_name_ident'>param_name_ident</span><span class='period'>.</span><span class='id identifier rubyid_source'>source</span>
+  <span class='lbracket'>[</span><span class='id identifier rubyid_param_name'>param_name</span><span class='comma'>,</span> <span class='id identifier rubyid_param_signature'>param_signature</span><span class='rbracket'>]</span>
+<span class='kw'>end</span></pre>
+    </td>
+  </tr>
+</table>
+</div>
+    
+  </div>
+
+</div>
+
+      <div id="footer">
+  Generated on Fri Jan 20 16:38:49 2017 by
+  <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
+  0.9.8 (ruby-2.3.1).
+</div>
+
+    </div>
+  </body>
+</html>

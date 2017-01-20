@@ -74,10 +74,49 @@
 <div class="docstring">
   <div class="discussion">
     
+<p>Class is used to install</p>
+
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
+  
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Installation through class.</p>
+</div></p>
+      
+      <pre class="example code"><code>class {&#39;confluent::schema::registry&#39;:
+  schemaregistry_settings =&gt; {
+    &#39;kafkastore.connection.url&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
+    },
+  },
+  java_settings =&gt; {
+    &#39;SCHEMA_REGISTRY_HEAP_OPTS&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;-Xmx1024M&#39;
+    }
+  }
+}</code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Hiera based installation</p>
+</div></p>
+      
+      <pre class="example code"><code>include ::confluent::schema::registry
+
+confluent::schema::registry::schemaregistry_settings:
+  kafkastore.connection.url:
+    value: &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
+confluent::schema::registry::java_settings:
+  SCHEMA_REGISTRY_HEAP_OPTS:
+    value: -Xmx1024M</code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
 <ul class="param">
   
     <li>
@@ -90,6 +129,11 @@
       
         <em class="default">(defaults to: <tt>&#39;schemaregistry&#39;</tt>)</em>
       
+      
+        &mdash;
+        <div class='inline'>
+<p>System user to run the schema registry service as.</p>
+</div>
       
     </li>
   
@@ -104,6 +148,12 @@
         <em class="default">(defaults to: <tt>{ }</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>Settings to put in the environment file used to pass environment variables
+to the kafka startup scripts.</p>
+</div>
+      
     </li>
   
     <li>
@@ -117,6 +167,11 @@
         <em class="default">(defaults to: <tt>{ }</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>Path to the connect properties file.</p>
+</div>
+      
     </li>
   
 </ul>
@@ -129,35 +184,6 @@
         <pre class="lines">
 
 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17
-18
-19
-20
-21
-22
-23
-24
-25
-26
-27
-28
-29
 30
 31
 32
@@ -215,10 +241,39 @@
 84
 85
 86
-87</pre>
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/schema/registry.pp', line 1</span>
+        <pre class="code"><span class="info file"># File 'manifests/schema/registry.pp', line 30</span>
 
 class confluent::schema::registry (
   $schemaregistry_user = &#39;schemaregistry&#39;,
@@ -314,7 +369,7 @@ class confluent::schema::registry (
 </div>
 
       <div id="footer">
-  Generated on Fri Jan 20 16:15:16 2017 by
+  Generated on Fri Jan 20 17:14:07 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>
