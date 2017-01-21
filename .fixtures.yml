@@ -1,0 +1,6 @@
+fixtures:
+  repositories:
+    "stdlib": "https://github.com/puppetlabs/puppetlabs-stdlib"
+    "inifile": "https://github.com/puppetlabs/puppetlabs-inifile"
+  symlinks:
+    "confluent": "#{source_dir}"
