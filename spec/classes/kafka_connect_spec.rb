@@ -1,12 +1,10 @@
 require 'spec_helper'
 
 %w(distributed standalone).each do |class_name|
-
-
   describe "confluent::kafka::connect::#{class_name}" do
     let(:params) {
       {
-          'connect_settings' => {
+          'config' => {
               'bootstrap.servers' => {
                   'value' => 'kafka-01:9093'
               }
@@ -19,15 +17,21 @@ require 'spec_helper'
       }
     }
     it do
+      is_expected.to contain_file("/var/log/kafka-connect-#{class_name}")
       is_expected.to contain_package('confluent-kafka-2.11')
       is_expected.to contain_ini_setting("connect-#{class_name}_bootstrap.servers").with(
           {
-              'path' => "/etc/kafka/#{class_name}connect-#{class_name}.properties",
+              'path' => "/etc/kafka/connect-#{class_name}.properties",
               'value' => 'kafka-01:9093'
           }
       )
       is_expected.to contain_user("connect-#{class_name}")
-      is_expected.to contain_service("connect-#{class_name}")
+      is_expected.to contain_service("connect-#{class_name}").with(
+          {
+              'ensure' => 'running',
+              'enable' => true
+          }
+      )
       is_expected.to contain_file("/var/log/kafka-connect-#{class_name}")
     end
 
@@ -43,7 +47,7 @@ require 'spec_helper'
       it do
         is_expected.to contain_ini_subsetting("connect-#{class_name}_KAFKA_HEAP_OPTS").with(
             {
-                'path'  => "/etc/sysconfig/kafka-connect-#{class_name}",
+                'path' => "/etc/sysconfig/kafka-connect-#{class_name}",
                 'value' => expected_heap
             }
         )
@@ -66,6 +70,5 @@ require 'spec_helper'
         )
       end
     end
-
   end
 end

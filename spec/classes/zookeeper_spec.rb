@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'confluent::kafka::broker' do
+describe 'confluent::zookeeper' do
 
 
   %w(RedHat Debian).each do |osfamily|
@@ -9,9 +9,9 @@ describe 'confluent::kafka::broker' do
 
       case osfamily
         when 'Debian'
-          environment_file = '/etc/default/kafka'
+          environment_file = '/etc/default/zookeeper'
         when 'RedHat'
-          environment_file = '/etc/sysconfig/kafka'
+          environment_file = '/etc/sysconfig/zookeeper'
       end
 
       let(:facts) {
@@ -22,36 +22,36 @@ describe 'confluent::kafka::broker' do
 
       let(:params) {
         {
-            'broker_id' => '0'
+            'zookeeper_id' => '1',
         }
       }
 
       it do
         expected_heap = '-Xmx256M'
 
-        is_expected.to contain_ini_subsetting('kafka_KAFKA_HEAP_OPTS').with(
+        is_expected.to contain_ini_subsetting('zookeeper_KAFKA_HEAP_OPTS').with(
             {
                 'path' => environment_file,
                 'value' => expected_heap
             }
         )
 
-        is_expected.to contain_ini_setting('kafka_broker.id').with(
-            {
-                'path' => '/etc/kafka/server.properties',
-                'value' => '0'
-            }
-        )
+        # is_expected.to contain_ini_setting('kafka_broker.id').with(
+        #     {
+        #         'path' => '/etc/kafka/server.properties',
+        #         'value' => '0'
+        #     }
+        # )
         is_expected.to contain_package('confluent-kafka-2.11')
-        is_expected.to contain_user('kafka')
-        is_expected.to contain_service('kafka').with(
+        is_expected.to contain_user('zookeeper')
+        is_expected.to contain_service('zookeeper').with(
             {
                 'ensure' => 'running',
                 'enable' => true
             }
         )
-        is_expected.to contain_file('/var/log/kafka')
-        is_expected.to contain_file('/var/lib/kafka')
+        is_expected.to contain_file('/var/log/zookeeper')
+        is_expected.to contain_file('/var/lib/zookeeper')
       end
     end
   end

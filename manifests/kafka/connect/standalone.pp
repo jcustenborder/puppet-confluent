@@ -46,7 +46,7 @@
 #
 # @param connect_settings Settings to pass to the Kafka Connect properties file.
 # @param java_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
-# @param connect_properties_path Path to the connect properties file.
+# @param config_path Path to the connect properties file.
 # @param environment_file The file used to export environment variables that are consumed by Kafka scripts.
 # @param log_path The directory to write log files to.
 # @param user The user to run Kafka Connect as.
@@ -56,17 +56,17 @@
 # @param service_enable Enable setting to pass to the service resource.
 # @param file_limit Number of file handles to configure. (SystemD only)
 class confluent::kafka::connect::standalone (
-  $connect_settings        = { },
-  $java_settings           = { },
-  $connect_properties_path = $::confluent::params::connect_standalone_properties_path,
-  $environment_file        = $::confluent::params::connect_standalone_environment_file,
-  $log_path                = $::confluent::params::connect_standalone_log_path,
-  $user                    = $::confluent::params::connect_standalone_user,
-  $service_name            = $::confluent::params::connect_standalone_service,
-  $manage_service          = $::confluent::params::connect_standalone_manage_service,
-  $service_ensure          = $::confluent::params::connect_standalone_service_ensure,
-  $service_enable          = $::confluent::params::connect_standalone_service_enable,
-  $file_limit              = $::confluent::params::connect_standalone_file_limit,
+  $config               = { },
+  $environment_settings = { },
+  $config_path          = $::confluent::params::connect_standalone_config_path,
+  $environment_path     = $::confluent::params::connect_standalone_environment_path,
+  $log_path             = $::confluent::params::connect_standalone_log_path,
+  $user                 = $::confluent::params::connect_standalone_user,
+  $service_name         = $::confluent::params::connect_standalone_service,
+  $manage_service       = $::confluent::params::connect_standalone_manage_service,
+  $service_ensure       = $::confluent::params::connect_standalone_service_ensure,
+  $service_enable       = $::confluent::params::connect_standalone_service_enable,
+  $file_limit           = $::confluent::params::connect_standalone_file_limit,
 ) inherits ::confluent::params {
 
   include ::confluent::kafka::connect
@@ -104,19 +104,19 @@ class confluent::kafka::connect::standalone (
 
   }
 
-  $actual_connect_settings = merge($connect_default_settings, $connect_settings)
+  $actual_connect_settings = merge($connect_default_settings, $config)
 
   $ensure_connect_settings_defaults = {
     'ensure'      => 'present',
-    'path'        => $connect_properties_path,
+    'path'        => $config_path,
     'application' => $application
   }
 
   ensure_resources('confluent::java_property', $actual_connect_settings, $ensure_connect_settings_defaults)
 
-  $actual_java_settings = merge($java_default_settings, $java_settings)
+  $actual_java_settings = merge($java_default_settings, $environment_settings)
   $ensure_java_settings_defaults = {
-    'path'        => $environment_file,
+    'path'        => $environment_path,
     'application' => $application
   }
 
@@ -131,9 +131,9 @@ class confluent::kafka::connect::standalone (
     'kafka-connect-standalone/Unit/Wants'              => { 'value' => 'basic.target', },
     'kafka-connect-standalone/Unit/After'              => { 'value' => 'basic.target network.target', },
     'kafka-connect-standalone/Service/User'            => { 'value' => $user, },
-    'kafka-connect-standalone/Service/EnvironmentFile' => { 'value' => $environment_file, },
+    'kafka-connect-standalone/Service/EnvironmentFile' => { 'value' => $environment_path, },
     'kafka-connect-standalone/Service/ExecStart'       => {
-      'value' => "/usr/bin/connect-standalone ${connect_properties_path}",
+      'value' => "/usr/bin/connect-standalone ${config_path}",
     },
     'kafka-connect-standalone/Service/LimitNOFILE'     => { 'value' => $file_limit, },
     'kafka-connect-standalone/Service/KillMode'        => { 'value' => 'process', },
