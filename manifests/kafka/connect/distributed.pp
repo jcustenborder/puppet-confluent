@@ -47,12 +47,43 @@
 # @param connect_settings Settings to pass to the Kafka Connect properties file.
 # @param java_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
 # @param connect_properties_path Path to the connect properties file.
+# @param environment_file The file used to export environment variables that are consumed by Kafka scripts.
+# @param log_path The directory to write log files to.
+# @param user The user to run Kafka Connect as.
+# @param service_name The name of the service to create
+# @param manage_service Flag to determine if the service should be enabled.
+# @param service_ensure Ensure setting to pass to the service resource.
+# @param service_enable Enable setting to pass to the service resource.
+# @param file_limit Number of file handles to configure. (SystemD only)
 class confluent::kafka::connect::distributed (
-  $connect_settings = { },
-  $java_settings = { },
-  $connect_properties_path='/etc/kafka/connect-distributed.properties'
-) {
+  $connect_settings        = { },
+  $java_settings           = { },
+  $connect_properties_path = $::confluent::params::connect_distributed_properties_path,
+  $environment_file        = $::confluent::params::connect_distributed_environment_file,
+  $log_path                = $::confluent::params::connect_distributed_log_path,
+  $user                    = $::confluent::params::connect_distributed_user,
+  $service_name            = $::confluent::params::connect_distributed_service,
+  $manage_service          = $::confluent::params::connect_distributed_manage_service,
+  $service_ensure          = $::confluent::params::connect_distributed_service_ensure,
+  $service_enable          = $::confluent::params::connect_distributed_service_enable,
+  $file_limit              = $::confluent::params::connect_distributed_file_limit,
+) inherits ::confluent::params {
+
   include ::confluent::kafka::connect
+
+  user { $user:
+    ensure => present,
+    alias  => 'kafka-connect-distributed'
+  } ->
+    file { $log_path:
+      ensure  => directory,
+      owner   => $user,
+      group   => $user,
+      recurse => true
+    }
+
+  $application = 'connect-distributed'
+
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
@@ -69,43 +100,55 @@ class confluent::kafka::connect::distributed (
     }
   }
 
-  $actual_connect_settings = merge($kafka_default_settings, $connect_settings)
-  $actual_java_settings = merge($java_default_settings, $java_settings)
+  $connect_default_settings = {
 
-  $ensure_connect_settings_defaults={
+  }
+
+  $actual_connect_settings = merge($connect_default_settings, $connect_settings)
+
+  $ensure_connect_settings_defaults = {
     'ensure'      => 'present',
     'path'        => $connect_properties_path,
-    'application' => 'connect-distributed'
+    'application' => $application
   }
 
   ensure_resources('confluent::java_property', $actual_connect_settings, $ensure_connect_settings_defaults)
 
-  $environment_file='/etc/sysconfig/kafka-connect-distributed'
-
+  $actual_java_settings = merge($java_default_settings, $java_settings)
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
-    'application' => 'kafka'
+    'application' => $application
   }
 
-  ensure_resources('confluent::java_setting', $actual_java_settings, $ensure_java_settings_defaults)
+  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'
   }
 
   $unit_ini_settings = {
-    'kafka-connect-distributed/Unit/Description'               => { 'value' => 'Apache Kafka Connect by Confluent', },
-    'kafka-connect-distributed/Unit/Wants'                     => { 'value' => 'basic.target', },
-    'kafka-connect-distributed/Unit/After'                     => { 'value' => 'basic.target network.target', },
-    'kafka-connect-distributed/Service/User'                   => { 'value' => $::confluent::kafka::connect::connect_user, },
-    'kafka-connect-distributed/Service/EnvironmentFile'        => { 'value' => $environment_file, },
-    'kafka-connect-distributed/Service/ExecStart'              => { 'value' => "/usr/bin/connect-distributed ${connect_properties_path}", },
-    'kafka-connect-distributed/Service/LimitNOFILE'            => { 'value' => 131072, },
-    'kafka-connect-distributed/Service/KillMode'               => { 'value' => 'process', },
-    'kafka-connect-distributed/Service/RestartSec'             => { 'value' => 5, },
-    'kafka-connect-distributed/Service/Type'                   => { 'value' => 'simple', },
-    'kafka-connect-distributed/Install/WantedBy'               => { 'value' => 'multi-user.target', },
+    'kafka-connect-distributed/Unit/Description'        => { 'value' => 'Apache Kafka Connect by Confluent', },
+    'kafka-connect-distributed/Unit/Wants'              => { 'value' => 'basic.target', },
+    'kafka-connect-distributed/Unit/After'              => { 'value' => 'basic.target network.target', },
+    'kafka-connect-distributed/Service/User'            => { 'value' => $user, },
+    'kafka-connect-distributed/Service/EnvironmentFile' => { 'value' => $environment_file, },
+    'kafka-connect-distributed/Service/ExecStart'       => {
+      'value' => "/usr/bin/connect-distributed ${connect_properties_path}",
+    },
+    'kafka-connect-distributed/Service/LimitNOFILE'     => { 'value' => $file_limit, },
+    'kafka-connect-distributed/Service/KillMode'        => { 'value' => 'process', },
+    'kafka-connect-distributed/Service/RestartSec'      => { 'value' => 5, },
+    'kafka-connect-distributed/Service/Type'            => { 'value' => 'simple', },
+    'kafka-connect-distributed/Install/WantedBy'        => { 'value' => 'multi-user.target', },
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
+
+  if($manage_service) {
+    service { $service_name:
+      ensure => $service_ensure,
+      enable => $service_enable
+    }
+  }
+
 }

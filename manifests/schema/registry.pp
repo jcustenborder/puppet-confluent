@@ -91,7 +91,7 @@ class confluent::schema::registry (
     'application' => 'schemaregistry'
   }
 
-  ensure_resources('confluent::java_setting', $actual_java_settings, $ensure_java_settings_defaults)
+  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'
