@@ -80,12 +80,8 @@ href="http://jcustenborder.github.io/puppet-confluent/">here</a>.</p>
 <h3 id="label-Class+installation">Class installation</h3>
 
 <pre class="code ruby"><code class="ruby">class{&#39;confluent::zookeeper&#39;:
-  zookeeper_settings =&gt; {
-    &#39;myid&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;1&#39;
-    }
-  },
-  java_settings =&gt; {
+  zookeeper_id =&gt; &#39;1&#39;,
+  environment_settings =&gt; {
     &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
       &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
     }
@@ -96,16 +92,15 @@ href="http://jcustenborder.github.io/puppet-confluent/">here</a>.</p>
 
 <pre class="code ruby"><code class="ruby">include ::confluent::zookeeper</code></pre>
 
-<pre class="code ruby"><code class="ruby">confluent::zookeeper::zookeeper_settings:
-  myid:
-    value: &#39;1&#39;
+<pre class="code ruby"><code class="ruby">confluent::zookeeper::zookeeper_id: &#39;1&#39;
+confluent::zookeeper::config:
   server.1:
     value: &#39;zookeeper-01.example.com:2888:3888&#39;
   server.2:
     value: &#39;zookeeper-02.example.com:2888:3888&#39;
   server.3:
     value: &#39;zookeeper-03.example.com:2888:3888&#39;
-confluent::zookeeper::java_settings:
+confluent::zookeeper::environment_settings:
   KAFKA_HEAP_OPTS:
     value: &#39;-Xmx4000M&#39;</code></pre>
 
@@ -325,7 +320,7 @@ confluent::control::center::java_settings:
 </div></div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:19:36 2017 by
+  Generated on Sat Jan 21 22:23:45 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>
