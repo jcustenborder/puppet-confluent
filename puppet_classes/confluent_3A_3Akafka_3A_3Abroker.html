@@ -62,6 +62,11 @@
       <div id="content"><h1>Puppet Class: confluent::kafka::broker</h1>
 <div class="box_info">
   
+  <dl>
+    <dt>Inherits:</dt>
+    <dd><span class='object_link'><a href="confluent_3A_3Aparams.html" title="puppet_classes::confluent::params (puppet_class)">confluent::params</a></span></dd>
+  </dl>
+  
   
   <dl>
     <dt>Defined in:</dt>
@@ -90,7 +95,7 @@ Confluent installation packages.</p>
 </div></p>
       
       <pre class="example code"><code>class{&#39;confluent::kafka::broker&#39;:
-  kafka_settings =&gt; {
+  config =&gt; {
     &#39;broker.id&#39; =&gt; {
       &#39;value&#39; =&gt; &#39;1&#39;
     },
@@ -98,7 +103,7 @@ Confluent installation packages.</p>
       &#39;value&#39; =&gt; &#39;zookeeper-01.custenborder.com:2181,zookeeper-02.custenborder.com:2181,zookeeper-03.custenborder.com:2181&#39;
     },
   },
-  java_settings =&gt; {
+  environment_settings =&gt; {
     &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
       &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
     }
@@ -112,7 +117,7 @@ Confluent installation packages.</p>
       
       <pre class="example code"><code>include ::confluent::kafka::broker
 
-confluent::kafka::broker::kafka_settings:
+confluent::kafka::broker::config:
   zookeeper.connect:
     value: &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
   broker.id:
@@ -125,7 +130,7 @@ confluent::kafka::broker::kafka_settings:
     value: true
   auto.create.topics.enable:
     value: false
-confluent::kafka::broker::java_settings:
+confluent::kafka::broker::environment_settings:
   KAFKA_HEAP_OPTS:
     value: -Xmx1024M</code></pre>
     
@@ -135,26 +140,23 @@ confluent::kafka::broker::java_settings:
   
     <li>
       
-        <span class='name'>kafka_user</span>
+        <span class='name'>broker_id</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;kafka&#39;</tt>)</em>
-      
       
         &mdash;
         <div class='inline'>
-<p>System user to create and run the Kakfa broker. This user will be used to
-run the service and all kafka directories will be owned by this user.</p>
+<p>broker.id of the Kafka broker.</p>
 </div>
       
     </li>
   
     <li>
       
-        <span class='name'>kafka_settings</span>
+        <span class='name'>config</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
@@ -165,14 +167,14 @@ run the service and all kafka directories will be owned by this user.</p>
       
         &mdash;
         <div class='inline'>
-<p>Settings for the server.properties file.</p>
+<p>Hash of configuration values.</p>
 </div>
       
     </li>
   
     <li>
       
-        <span class='name'>java_settings</span>
+        <span class='name'>environment_settings</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
@@ -183,26 +185,188 @@ run the service and all kafka directories will be owned by this user.</p>
       
         &mdash;
         <div class='inline'>
-<p>Settings to put in the environment file used to pass environment variables
-to the kafka startup scripts.</p>
+<p>Hash of environment variables to set for the Kafka scripts.</p>
 </div>
       
     </li>
   
     <li>
       
-        <span class='name'>broker_properties_path</span>
+        <span class='name'>config_path</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;/etc/kafka/server.properties&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_config_path</tt>)</em>
       
       
         &mdash;
         <div class='inline'>
-<p>Path to the broker properties file.</p>
+<p>Location of the server.properties file for the Kafka broker.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_file</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_environment_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Location of the environment file used to pass environment variables to the
+Kafka broker.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_data_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Location to store the data on disk.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>log_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_log_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Location to write the log files to.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>user</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_user</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>User to run the kafka service as.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_name</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_service</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Name of the kafka service.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manage_service</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_manage_service</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Flag to determine if the service should be managed by puppet.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_ensure</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_service_ensure</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Ensure setting to pass to service resource.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_enable</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_service_enable</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Enable setting to pass to service resource.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>file_limit</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::kafka_file_limit</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>File limit to set for the Kafka service (SystemD) only.</p>
 </div>
       
     </li>
@@ -217,15 +381,6 @@ to the kafka startup scripts.</p>
         <pre class="lines">
 
 
-44
-45
-46
-47
-48
-49
-50
-51
-52
 53
 54
 55
@@ -305,24 +460,65 @@ to the kafka startup scripts.</p>
 129
 130
 131
-132</pre>
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/kafka/broker.pp', line 44</span>
+        <pre class="code"><span class="info file"># File 'manifests/kafka/broker.pp', line 53</span>
 
 class confluent::kafka::broker (
-  $kafka_user = &#39;kafka&#39;,
-  $kafka_settings = { },
-  $java_settings = { },
-  $broker_properties_path=&#39;/etc/kafka/server.properties&#39;
-) {
+  $broker_id,
+  $config               = { },
+  $environment_settings = { },
+  $config_path          = $::confluent::params::kafka_config_path,
+  $environment_file     = $::confluent::params::kafka_environment_path,
+  $data_path            = $::confluent::params::kafka_data_path,
+  $log_path             = $::confluent::params::kafka_log_path,
+  $user                 = $::confluent::params::kafka_user,
+  $service_name         = $::confluent::params::kafka_service,
+  $manage_service       = $::confluent::params::kafka_manage_service,
+  $service_ensure       = $::confluent::params::kafka_service_ensure,
+  $service_enable       = $::confluent::params::kafka_service_enable,
+  $file_limit           = $::confluent::params::kafka_file_limit,
+) inherits confluent::params {
   include ::confluent::kafka
-  validate_hash($kafka_settings)
-  validate_hash($java_settings)
+
+  validate_hash($config)
+  validate_hash($environment_settings)
+  validate_absolute_path($config_path)
+  validate_absolute_path($log_path)
+  validate_absolute_path($config_path)
+
 
   $kafka_default_settings = {
-    &#39;log.dirs&#39;          =&gt; {
-      &#39;value&#39; =&gt; &#39;/var/lib/kafka&#39;
+    &#39;broker.id&#39; =&gt; {
+      &#39;value&#39; =&gt; $broker_id
+    },
+    &#39;log.dirs&#39; =&gt; {
+      &#39;value&#39; =&gt; $data_path
     }
   }
 
@@ -341,63 +537,61 @@ class confluent::kafka::broker (
     }
   }
 
+  $actual_kafka_settings = merge($kafka_default_settings, $config)
+  $actual_java_settings = merge($java_default_settings, $environment_settings)
 
-  $actual_kafka_settings = merge($kafka_default_settings, $kafka_settings)
-  $actual_java_settings = merge($java_default_settings, $java_settings)
-
-  $log_dir = $actual_kafka_settings[&#39;log.dirs&#39;][&#39;value&#39;]
-  validate_absolute_path($log_dir)
-
-  $log4j_log_dir = $actual_java_settings[&#39;LOG_DIR&#39;][&#39;value&#39;]
-  validate_absolute_path($log4j_log_dir)
-
-  user{ $kafka_user:
+  user { $user:
     ensure =&gt; present
   } -&gt;
-  file{ [$log_dir, $log4j_log_dir]:
-    ensure  =&gt; directory,
-    owner   =&gt; $kafka_user,
-    group   =&gt; $kafka_user,
-    recurse =&gt; true
-  }
+    file { [$log_path, $data_path]:
+      ensure  =&gt; directory,
+      owner   =&gt; $user,
+      group   =&gt; $user,
+      recurse =&gt; true
+    }
 
-  $ensure_kafka_settings_defaults={
+  $ensure_kafka_settings_defaults = {
     &#39;ensure&#39;      =&gt; &#39;present&#39;,
-    &#39;path&#39;        =&gt; $broker_properties_path,
+    &#39;path&#39;        =&gt; $config_path,
     &#39;application&#39; =&gt; &#39;kafka&#39;
   }
 
   ensure_resources(&#39;confluent::java_property&#39;, $actual_kafka_settings, $ensure_kafka_settings_defaults)
-
-  $environment_file=&#39;/etc/sysconfig/kafka&#39;
 
   $ensure_java_settings_defaults = {
     &#39;path&#39;        =&gt; $environment_file,
     &#39;application&#39; =&gt; &#39;kafka&#39;
   }
 
-  ensure_resources(&#39;confluent::java_setting&#39;, $actual_java_settings, $ensure_java_settings_defaults)
+  ensure_resources(&#39;confluent::kafka_environment_variable&#39;, $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     &#39;ensure&#39; =&gt; &#39;present&#39;
   }
 
   $unit_ini_settings = {
-    &#39;kafka/Unit/Description&#39;               =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka by Confluent&#39;, },
-    &#39;kafka/Unit/Wants&#39;                     =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
-    &#39;kafka/Unit/After&#39;                     =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
-    &#39;kafka/Service/User&#39;                   =&gt; { &#39;value&#39; =&gt; $kafka_user, },
-    &#39;kafka/Service/EnvironmentFile&#39;        =&gt; { &#39;value&#39; =&gt; $environment_file, },
-    &#39;kafka/Service/ExecStart&#39;              =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/kafka-server-start ${broker_properties_path}&quot;, },
-    &#39;kafka/Service/ExecStop&#39;               =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/kafka-server-stop&quot;, },
-    &#39;kafka/Service/LimitNOFILE&#39;            =&gt; { &#39;value&#39; =&gt; 131072, },
-    &#39;kafka/Service/KillMode&#39;               =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
-    &#39;kafka/Service/RestartSec&#39;             =&gt; { &#39;value&#39; =&gt; 5, },
-    &#39;kafka/Service/Type&#39;                   =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
-    &#39;kafka/Install/WantedBy&#39;               =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
+    &#39;kafka/Unit/Description&#39;        =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka by Confluent&#39;, },
+    &#39;kafka/Unit/Wants&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
+    &#39;kafka/Unit/After&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
+    &#39;kafka/Service/User&#39;            =&gt; { &#39;value&#39; =&gt; $user, },
+    &#39;kafka/Service/EnvironmentFile&#39; =&gt; { &#39;value&#39; =&gt; $environment_file, },
+    &#39;kafka/Service/ExecStart&#39;       =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/kafka-server-start ${config_path}&quot;, },
+    &#39;kafka/Service/ExecStop&#39;        =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/kafka-server-stop&quot;, },
+    &#39;kafka/Service/LimitNOFILE&#39;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
+    &#39;kafka/Service/KillMode&#39;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
+    &#39;kafka/Service/RestartSec&#39;      =&gt; { &#39;value&#39; =&gt; 5, },
+    &#39;kafka/Service/Type&#39;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
+    &#39;kafka/Install/WantedBy&#39;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
   }
 
   ensure_resources(&#39;confluent::systemd::unit_ini_setting&#39;, $unit_ini_settings, $unit_ini_setting_defaults)
+
+  if($manage_service) {
+    service { $service_name:
+      ensure =&gt; $service_ensure,
+      enable =&gt; $service_enable
+    }
+  }
 }</pre>
       </td>
     </tr>
@@ -406,7 +600,7 @@ class confluent::kafka::broker (
 </div>
 
       <div id="footer">
-  Generated on Fri Jan 20 17:24:25 2017 by
+  Generated on Sat Jan 21 22:09:02 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

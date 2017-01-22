@@ -77,37 +77,7 @@
   </div>
 </div>
 <div class="tags">
-  <p class="tag_title">Parameters:</p>
-<ul class="param">
   
-    <li>
-      
-        <span class='name'>connect_user</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>&#39;connect&#39;</tt>)</em>
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>log4j_log_dir</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>&#39;/var/log/kafka-connect&#39;</tt>)</em>
-      
-      
-    </li>
-  
-</ul>
-
 
 </div><div class="method_details_list">
   <table class="source_code">
@@ -118,41 +88,13 @@
 
 1
 2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-17</pre>
+3</pre>
       </td>
       <td>
         <pre class="code"><span class="info file"># File 'manifests/kafka/connect.pp', line 1</span>
 
-class confluent::kafka::connect (
-  $connect_user = &#39;connect&#39;,
-  $log4j_log_dir = &#39;/var/log/kafka-connect&#39;
-) {
+class confluent::kafka::connect {
   include ::confluent::kafka
-
-  user{ $connect_user:
-    ensure =&gt; present,
-    alias  =&gt; &#39;connect-user&#39;
-  } -&gt;
-  file{ $log4j_log_dir:
-    ensure  =&gt; directory,
-    owner   =&gt; $connect_user,
-    group   =&gt; $connect_user,
-    recurse =&gt; true
-  }
 }</pre>
       </td>
     </tr>
@@ -161,7 +103,7 @@ class confluent::kafka::connect (
 </div>
 
       <div id="footer">
-  Generated on Fri Jan 20 17:24:25 2017 by
+  Generated on Sat Jan 21 22:09:02 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

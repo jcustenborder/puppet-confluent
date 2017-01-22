@@ -62,6 +62,11 @@
       <div id="content"><h1>Puppet Class: confluent::kafka::connect::standalone</h1>
 <div class="box_info">
   
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>::confluent::params</dd>
+  </dl>
+  
   
   <dl>
     <dt>Defined in:</dt>
@@ -74,10 +79,284 @@
 <div class="docstring">
   <div class="discussion">
     
+<p>Class is used to install</p>
+
   </div>
 </div>
 <div class="tags">
   
+  <div class="examples">
+    <p class="tag_title">Examples:</p>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Installation through class.</p>
+</div></p>
+      
+      <pre class="example code"><code>class{&#39;confluent::kafka::connect::standalone&#39;:
+  config =&gt; {
+    &#39;bootstrap.servers&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
+    },
+    &#39;key.converter&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;io.confluent.connect.avro.AvroConverter&#39;
+    },
+    &#39;value.converter&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;io.confluent.connect.avro.AvroConverter&#39;
+    },
+    &#39;key.converter.schema.registry.url&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;http://schema-registry-01:8081&#39;
+    },
+    &#39;value.converter.schema.registry.url&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;http://schema-registry-01:8081&#39;
+    },
+  },
+  environment_settings =&gt; {
+    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
+    }
+  }
+}</code></pre>
+    
+      
+        <p class="example_title"><div class='inline'>
+<p>Hiera based installation</p>
+</div></p>
+      
+      <pre class="example code"><code>include ::confluent::kafka::connect::standalone
+
+ confluent::kafka::connect::standalone::config:
+   &#39;bootstrap.servers&#39;:
+     value: &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
+   &#39;key.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;value.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;key.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;
+   &#39;value.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;
+ confluent::kafka::connect::standalone::connect_settings:environment_settings:
+   KAFKA_HEAP_OPTS:
+     value: &#39;-Xmx4000M&#39;</code></pre>
+    
+  </div>
+<p class="tag_title">Parameters:</p>
+<ul class="param">
+  
+    <li>
+      
+        <span class='name'>config</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Settings to pass to the Kafka Connect properties file.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_settings</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Settings to put in the environment file used to pass environment variables
+to the kafka startup scripts.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>config_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_config_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Path to the connect properties file.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_file</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The file used to export environment variables that are consumed by Kafka
+scripts.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>log_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_log_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The directory to write log files to.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>user</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_user</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The user to run Kafka Connect as.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_name</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_service</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the service to create</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manage_service</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_manage_service</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Flag to determine if the service should be enabled.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_ensure</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_service_ensure</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Ensure setting to pass to the service resource.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_enable</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_service_enable</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Enable setting to pass to the service resource.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>file_limit</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_file_limit</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Number of file handles to configure. (SystemD only)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_standalone_environment_path</tt>)</em>
+      
+      
+    </li>
+  
+</ul>
+
 
 </div><div class="method_details_list">
   <table class="source_code">
@@ -86,20 +365,202 @@
         <pre class="lines">
 
 
-1
-2
-3
-4
-5
-6</pre>
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/kafka/connect/standalone.pp', line 1</span>
+        <pre class="code"><span class="info file"># File 'manifests/kafka/connect/standalone.pp', line 58</span>
 
 class confluent::kafka::connect::standalone (
+  $config               = { },
+  $environment_settings = { },
+  $config_path          = $::confluent::params::connect_standalone_config_path,
+  $environment_path     = $::confluent::params::connect_standalone_environment_path,
+  $log_path             = $::confluent::params::connect_standalone_log_path,
+  $user                 = $::confluent::params::connect_standalone_user,
+  $service_name         = $::confluent::params::connect_standalone_service,
+  $manage_service       = $::confluent::params::connect_standalone_manage_service,
+  $service_ensure       = $::confluent::params::connect_standalone_service_ensure,
+  $service_enable       = $::confluent::params::connect_standalone_service_enable,
+  $file_limit           = $::confluent::params::connect_standalone_file_limit,
+) inherits ::confluent::params {
 
-) {
   include ::confluent::kafka::connect
+
+  user { $user:
+    ensure =&gt; present,
+    alias  =&gt; &#39;kafka-connect-standalone&#39;
+  } -&gt;
+    file { $log_path:
+      ensure  =&gt; directory,
+      owner   =&gt; $user,
+      group   =&gt; $user,
+      recurse =&gt; true
+    }
+
+  $application = &#39;connect-standalone&#39;
+
+
+  $java_default_settings = {
+    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
+      &#39;value&#39; =&gt; &#39;-Xmx256M&#39;
+    },
+    &#39;KAFKA_OPTS&#39;      =&gt; {
+      &#39;value&#39; =&gt; &#39;-Djava.net.preferIPv4Stack=true&#39;
+    },
+    &#39;GC_LOG_ENABLED&#39;  =&gt; {
+      &#39;value&#39; =&gt; &#39;true&#39;
+    },
+    &#39;LOG_DIR&#39;         =&gt; {
+      &#39;value&#39; =&gt; &#39;/var/log/kafka&#39;
+    }
+  }
+
+  $connect_default_settings = {
+
+  }
+
+  $actual_connect_settings = merge($connect_default_settings, $config)
+
+  $ensure_connect_settings_defaults = {
+    &#39;ensure&#39;      =&gt; &#39;present&#39;,
+    &#39;path&#39;        =&gt; $config_path,
+    &#39;application&#39; =&gt; $application
+  }
+
+  ensure_resources(&#39;confluent::java_property&#39;, $actual_connect_settings, $ensure_connect_settings_defaults)
+
+  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $ensure_java_settings_defaults = {
+    &#39;path&#39;        =&gt; $environment_path,
+    &#39;application&#39; =&gt; $application
+  }
+
+  ensure_resources(&#39;confluent::kafka_environment_variable&#39;, $actual_java_settings, $ensure_java_settings_defaults)
+
+  $unit_ini_setting_defaults = {
+    &#39;ensure&#39; =&gt; &#39;present&#39;
+  }
+
+  $unit_ini_settings = {
+    &#39;kafka-connect-standalone/Unit/Description&#39;        =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka Connect by Confluent&#39;, },
+    &#39;kafka-connect-standalone/Unit/Wants&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
+    &#39;kafka-connect-standalone/Unit/After&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
+    &#39;kafka-connect-standalone/Service/User&#39;            =&gt; { &#39;value&#39; =&gt; $user, },
+    &#39;kafka-connect-standalone/Service/EnvironmentFile&#39; =&gt; { &#39;value&#39; =&gt; $environment_path, },
+    &#39;kafka-connect-standalone/Service/ExecStart&#39;       =&gt; {
+      &#39;value&#39; =&gt; &quot;/usr/bin/connect-standalone ${config_path}&quot;,
+    },
+    &#39;kafka-connect-standalone/Service/LimitNOFILE&#39;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
+    &#39;kafka-connect-standalone/Service/KillMode&#39;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
+    &#39;kafka-connect-standalone/Service/RestartSec&#39;      =&gt; { &#39;value&#39; =&gt; 5, },
+    &#39;kafka-connect-standalone/Service/Type&#39;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
+    &#39;kafka-connect-standalone/Install/WantedBy&#39;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
+  }
+
+  ensure_resources(&#39;confluent::systemd::unit_ini_setting&#39;, $unit_ini_settings, $unit_ini_setting_defaults)
+
+  if($manage_service) {
+    service { $service_name:
+      ensure =&gt; $service_ensure,
+      enable =&gt; $service_enable
+    }
+  }
 
 }</pre>
       </td>
@@ -109,7 +570,7 @@ class confluent::kafka::connect::standalone (
 </div>
 
       <div id="footer">
-  Generated on Fri Jan 20 17:24:25 2017 by
+  Generated on Sat Jan 21 22:09:02 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

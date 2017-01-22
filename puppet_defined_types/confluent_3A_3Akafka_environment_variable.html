@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
-  Defined Type: confluent::java_property
+  Defined Type: confluent::kafka_environment_variable
   
     &mdash; Documentation by YARD 0.9.8
   
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
 
 <script type="text/javascript" charset="utf-8">
-  pathId = "puppet_defined_types::confluent::java_property";
+  pathId = "puppet_defined_types::confluent::kafka_environment_variable";
   relpath = '../';
 </script>
 
@@ -39,7 +39,7 @@
     <a href="../_index.html">Index (c)</a> &raquo;
     <span class='title'><span class='object_link'>Defined Types</span></span>
      &raquo; 
-    <span class="title">confluent::java_property</span>
+    <span class="title">confluent::kafka_environment_variable</span>
   
 </div>
 
@@ -59,12 +59,12 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><h1>Defined Type: confluent::java_property</h1>
+      <div id="content"><h1>Defined Type: confluent::kafka_environment_variable</h1>
 <div class="box_info">
   <dl>
     <dt>Defined in:</dt>
     <dd>
-      manifests/java_property.pp
+      manifests/kafka_environment_variable.pp
     </dd>
   </dl>
 </div>
@@ -72,7 +72,8 @@
 <div class="docstring">
   <div class="discussion">
     
-<p>A define to manipulate java properties.</p>
+<p>A define to manage the environemnt files used for launching Kafka. This
+would most likely be JVM settings.</p>
 
   </div>
 </div>
@@ -86,10 +87,10 @@
 <p>Setting a property.</p>
 </div></p>
       
-      <pre class="example code"><code>confluent::java_property{&#39;log.dirs&#39;:
+      <pre class="example code"><code>confluent::kafka_environment_variable{&#39;KAFKA_HEAP_OPTS&#39;:
   ensure      =&gt; present,
-  path        =&gt; &#39;/etc/kafka/server.properties&#39;,
-  value       =&gt; &#39;/var/lib/kafka&#39;,
+  path        =&gt; &#39;/etc/sysconfig/kafka&#39;,
+  value       =&gt; &#39;-Xmx4000M&#39;,
   application =&gt; &#39;kafka&#39;
 }</code></pre>
     
@@ -117,6 +118,22 @@
   
     <li>
       
+        <span class='name'>path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The path to the file containing the java property.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
         <span class='name'>value</span>
       
       
@@ -129,22 +146,6 @@
         &mdash;
         <div class='inline'>
 <p>The value to be set.</p>
-</div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>path</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-      
-        &mdash;
-        <div class='inline'>
-<p>The path to the file containing the java property.</p>
 </div>
       
     </li>
@@ -192,26 +193,36 @@ This ensures a unique resource name</p>
 27
 28
 29
-30</pre>
+30
+31
+32
+33
+34
+35</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/java_property.pp', line 14</span>
+        <pre class="code"><span class="info file"># File 'manifests/kafka_environment_variable.pp', line 14</span>
 
-define confluent::java_property (
+define confluent::kafka_environment_variable (
   $ensure=&#39;present&#39;,
-  $value=unset,
   $path,
+  $value=unset,
   $application
 ) {
   $setting_name = &quot;${application}_${name}&quot;
 
-  ini_setting{ $setting_name:
-    ensure  =&gt; $ensure,
-    path    =&gt; $path,
-    section =&gt; &#39;&#39;,
-    setting =&gt; $name,
-    tag     =&gt; &#39;kafka-setting&#39;,
-    value   =&gt; $value
+  validate_absolute_path($path)
+
+  ini_subsetting{ $setting_name:
+    ensure            =&gt; $ensure,
+    path              =&gt; $path,
+    section           =&gt; &#39;&#39;,
+    setting           =&gt; $name,
+    subsetting        =&gt; &#39;&#39;,
+    key_val_separator =&gt; &#39;=&#39;,
+    quote_char        =&gt; &#39;&quot;&#39;,
+    tag               =&gt; &quot;${application}-setting&quot;,
+    value             =&gt; $value
   }
 }</pre>
       </td>

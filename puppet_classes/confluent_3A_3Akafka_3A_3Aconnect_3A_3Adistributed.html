@@ -62,6 +62,11 @@
       <div id="content"><h1>Puppet Class: confluent::kafka::connect::distributed</h1>
 <div class="box_info">
   
+  <dl>
+    <dt>Inherits:</dt>
+    <dd>::confluent::params</dd>
+  </dl>
+  
   
   <dl>
     <dt>Defined in:</dt>
@@ -89,7 +94,7 @@
 </div></p>
       
       <pre class="example code"><code>class{&#39;confluent::kafka::connect::distributed&#39;:
-  connect_settings =&gt; {
+  config =&gt; {
     &#39;bootstrap.servers&#39; =&gt; {
       &#39;value&#39; =&gt; &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
     },
@@ -120,7 +125,7 @@
       
       <pre class="example code"><code>include ::confluent::kafka::connect::distributed
 
- confluent::kafka::connect::distributed::connect_settings:
+ confluent::kafka::connect::distributed::config:
    &#39;bootstrap.servers&#39;:
      value: &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
    &#39;key.converter&#39;:
@@ -141,7 +146,7 @@
   
     <li>
       
-        <span class='name'>connect_settings</span>
+        <span class='name'>config</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
@@ -162,10 +167,8 @@
         <span class='name'>java_settings</span>
       
       
-        <span class='type'>(<tt>Any</tt>)</span>
+        <span class='type'></span>
       
-      
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
       
       
         &mdash;
@@ -178,19 +181,177 @@ to the kafka startup scripts.</p>
   
     <li>
       
-        <span class='name'>connect_properties_path</span>
+        <span class='name'>config_path</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;/etc/kafka/connect-distributed.properties&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_config_path</tt>)</em>
       
       
         &mdash;
         <div class='inline'>
 <p>Path to the connect properties file.</p>
 </div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_file</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_environment_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The file used to export environment variables that are consumed by Kafka
+scripts.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>log_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_log_path</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The directory to write log files to.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>user</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_user</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The user to run Kafka Connect as.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_name</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_service</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>The name of the service to create</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manage_service</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_manage_service</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Flag to determine if the service should be enabled.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_ensure</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_service_ensure</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Ensure setting to pass to the service resource.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>service_enable</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_service_enable</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Enable setting to pass to the service resource.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>file_limit</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_file_limit</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>Number of file handles to configure. (SystemD only)</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_settings</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+      
       
     </li>
   
@@ -204,14 +365,6 @@ to the kafka startup scripts.</p>
         <pre class="lines">
 
 
-50
-51
-52
-53
-54
-55
-56
-57
 58
 59
 60
@@ -265,17 +418,83 @@ to the kafka startup scripts.</p>
 108
 109
 110
-111</pre>
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/kafka/connect/distributed.pp', line 50</span>
+        <pre class="code"><span class="info file"># File 'manifests/kafka/connect/distributed.pp', line 58</span>
 
 class confluent::kafka::connect::distributed (
-  $connect_settings = { },
-  $java_settings = { },
-  $connect_properties_path=&#39;/etc/kafka/connect-distributed.properties&#39;
-) {
+  $config               = { },
+  $environment_settings = { },
+  $config_path          = $::confluent::params::connect_distributed_config_path,
+  $environment_file     = $::confluent::params::connect_distributed_environment_path,
+  $log_path             = $::confluent::params::connect_distributed_log_path,
+  $user                 = $::confluent::params::connect_distributed_user,
+  $service_name         = $::confluent::params::connect_distributed_service,
+  $manage_service       = $::confluent::params::connect_distributed_manage_service,
+  $service_ensure       = $::confluent::params::connect_distributed_service_ensure,
+  $service_enable       = $::confluent::params::connect_distributed_service_enable,
+  $file_limit           = $::confluent::params::connect_distributed_file_limit,
+) inherits ::confluent::params {
+
   include ::confluent::kafka::connect
+
+  user { $user:
+    ensure =&gt; present,
+    alias  =&gt; &#39;kafka-connect-distributed&#39;
+  } -&gt;
+    file { $log_path:
+      ensure  =&gt; directory,
+      owner   =&gt; $user,
+      group   =&gt; $user,
+      recurse =&gt; true
+    }
+
+  $application = &#39;connect-distributed&#39;
+
 
   $java_default_settings = {
     &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
@@ -292,45 +511,57 @@ class confluent::kafka::connect::distributed (
     }
   }
 
-  $actual_connect_settings = merge($kafka_default_settings, $connect_settings)
-  $actual_java_settings = merge($java_default_settings, $java_settings)
+  $connect_default_settings = {
 
-  $ensure_connect_settings_defaults={
+  }
+
+  $actual_connect_settings = merge($connect_default_settings, $config)
+
+  $ensure_connect_settings_defaults = {
     &#39;ensure&#39;      =&gt; &#39;present&#39;,
-    &#39;path&#39;        =&gt; $connect_properties_path,
-    &#39;application&#39; =&gt; &#39;connect-distributed&#39;
+    &#39;path&#39;        =&gt; $config_path,
+    &#39;application&#39; =&gt; $application
   }
 
   ensure_resources(&#39;confluent::java_property&#39;, $actual_connect_settings, $ensure_connect_settings_defaults)
 
-  $environment_file=&#39;/etc/sysconfig/kafka-connect-distributed&#39;
-
+  $actual_java_settings = merge($java_default_settings, $environment_settings)
   $ensure_java_settings_defaults = {
     &#39;path&#39;        =&gt; $environment_file,
-    &#39;application&#39; =&gt; &#39;kafka&#39;
+    &#39;application&#39; =&gt; $application
   }
 
-  ensure_resources(&#39;confluent::java_setting&#39;, $actual_java_settings, $ensure_java_settings_defaults)
+  ensure_resources(&#39;confluent::kafka_environment_variable&#39;, $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     &#39;ensure&#39; =&gt; &#39;present&#39;
   }
 
   $unit_ini_settings = {
-    &#39;kafka-connect-distributed/Unit/Description&#39;               =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka Connect by Confluent&#39;, },
-    &#39;kafka-connect-distributed/Unit/Wants&#39;                     =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
-    &#39;kafka-connect-distributed/Unit/After&#39;                     =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
-    &#39;kafka-connect-distributed/Service/User&#39;                   =&gt; { &#39;value&#39; =&gt; $::confluent::kafka::connect::connect_user, },
-    &#39;kafka-connect-distributed/Service/EnvironmentFile&#39;        =&gt; { &#39;value&#39; =&gt; $environment_file, },
-    &#39;kafka-connect-distributed/Service/ExecStart&#39;              =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/connect-distributed ${connect_properties_path}&quot;, },
-    &#39;kafka-connect-distributed/Service/LimitNOFILE&#39;            =&gt; { &#39;value&#39; =&gt; 131072, },
-    &#39;kafka-connect-distributed/Service/KillMode&#39;               =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
-    &#39;kafka-connect-distributed/Service/RestartSec&#39;             =&gt; { &#39;value&#39; =&gt; 5, },
-    &#39;kafka-connect-distributed/Service/Type&#39;                   =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
-    &#39;kafka-connect-distributed/Install/WantedBy&#39;               =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
+    &#39;kafka-connect-distributed/Unit/Description&#39;        =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka Connect by Confluent&#39;, },
+    &#39;kafka-connect-distributed/Unit/Wants&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
+    &#39;kafka-connect-distributed/Unit/After&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
+    &#39;kafka-connect-distributed/Service/User&#39;            =&gt; { &#39;value&#39; =&gt; $user, },
+    &#39;kafka-connect-distributed/Service/EnvironmentFile&#39; =&gt; { &#39;value&#39; =&gt; $environment_file, },
+    &#39;kafka-connect-distributed/Service/ExecStart&#39;       =&gt; {
+      &#39;value&#39; =&gt; &quot;/usr/bin/connect-distributed ${config_path}&quot;,
+    },
+    &#39;kafka-connect-distributed/Service/LimitNOFILE&#39;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
+    &#39;kafka-connect-distributed/Service/KillMode&#39;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
+    &#39;kafka-connect-distributed/Service/RestartSec&#39;      =&gt; { &#39;value&#39; =&gt; 5, },
+    &#39;kafka-connect-distributed/Service/Type&#39;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
+    &#39;kafka-connect-distributed/Install/WantedBy&#39;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
   }
 
   ensure_resources(&#39;confluent::systemd::unit_ini_setting&#39;, $unit_ini_settings, $unit_ini_setting_defaults)
+
+  if($manage_service) {
+    service { $service_name:
+      ensure =&gt; $service_ensure,
+      enable =&gt; $service_enable
+    }
+  }
+
 }</pre>
       </td>
     </tr>
@@ -339,7 +570,7 @@ class confluent::kafka::connect::distributed (
 </div>
 
       <div id="footer">
-  Generated on Fri Jan 20 17:24:25 2017 by
+  Generated on Sat Jan 21 22:09:02 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>
