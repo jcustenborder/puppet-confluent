@@ -2,7 +2,7 @@
 #
 # @example Installation through class.
 #     class{'confluent::kafka::connect::distributed':
-#       connect_settings => {
+#       config => {
 #         'bootstrap.servers' => {
 #           'value' => 'broker-01:9092,broker-02:9092,broker-03:9092'
 #         },
@@ -29,7 +29,7 @@
 # @example Hiera based installation
 #     include ::confluent::kafka::connect::distributed
 #
-#      confluent::kafka::connect::distributed::connect_settings:
+#      confluent::kafka::connect::distributed::config:
 #        'bootstrap.servers':
 #          value: 'broker-01:9092,broker-02:9092,broker-03:9092'
 #        'key.converter':
@@ -45,7 +45,7 @@
 #          value: '-Xmx4000M'
 #
 # @param config Settings to pass to the Kafka Connect properties file.
-# @param java_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
+# @param environment_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
 # @param config_path Path to the connect properties file.
 # @param environment_file The file used to export environment variables that are consumed by Kafka scripts.
 # @param log_path The directory to write log files to.

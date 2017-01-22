@@ -2,15 +2,13 @@
 #
 # @example Installation through class.
 #     class{'confluent::kafka::broker':
-#       kafka_settings => {
-#         'broker.id' => {
-#           'value' => '1'
-#         },
+#       broker_id => '1',
+#       config => {
 #         'zookeeper.connect' => {
 #           'value' => 'zookeeper-01.custenborder.com:2181,zookeeper-02.custenborder.com:2181,zookeeper-03.custenborder.com:2181'
 #         },
 #       },
-#       java_settings => {
+#       environment_settings => {
 #         'KAFKA_HEAP_OPTS' => {
 #           'value' => '-Xmx4000M'
 #         }
@@ -20,11 +18,10 @@
 # @example Hiera based installation
 #     include ::confluent::kafka::broker
 #
-#     confluent::kafka::broker::kafka_settings:
+#     confluent::kafka::broker::broker_id: '1'
+#     confluent::kafka::broker::config:
 #       zookeeper.connect:
 #         value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
-#       broker.id:
-#         value: 0
 #       log.dirs:
 #         value: /var/lib/kafka
 #       advertised.listeners:
@@ -33,7 +30,7 @@
 #         value: true
 #       auto.create.topics.enable:
 #         value: false
-#     confluent::kafka::broker::java_settings:
+#     confluent::kafka::broker::environment_settings:
 #       KAFKA_HEAP_OPTS:
 #         value: -Xmx1024M
 #

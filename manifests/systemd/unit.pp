@@ -1,3 +1,13 @@
+# Define is used to create a SystemD unit for a kafka service.
+#
+# @param ensure present to create the unit, false to remove it.
+# @param description Description of the unit. This is the display name.
+# @param exec_start ExecStart line in the SystemD unit. The command that will be executed to start the application.
+# @param user The system user to run the service as. User must be defined in puppet.
+# @param exec_stop ExecStop line in the SystemD unit. The command that will be executed to stop the application.
+# @param environment_file EnvironmentFile line in the SystemD unit. This is the file with environment variables to pass to the application.
+# @param file_limit LimitNOFILE line in the SystemD unit. The file handle limit for the process.
+# @param restart_sec RestartSec line in the SystemD unit. The number of seconds to delay between ExecStop and ExecStart on a restart.
 define confluent::systemd::unit (
   $ensure='present',
   $description,
@@ -39,6 +49,7 @@ define confluent::systemd::unit (
     notify => Exec['kafka-systemctl-daemon-reload']
   }
 
+  User[$user] ->
   ini_setting { "${name}/Service/User":
     ensure  => 'present',
     path    => $service_file,

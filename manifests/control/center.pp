@@ -2,7 +2,7 @@
 #
 # @example Installation through class.
 #     class {'confluent::control::center':
-#       control_center_settings => {
+#       config => {
 #         'zookeeper.connect' => {
 #           'value' => 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
 #         },
@@ -13,7 +13,7 @@
 #           'value' => 'kafka-connect-01.example.com:8083,kafka-connect-02.example.com:8083,kafka-connect-03.example.com:8083'
 #         }
 #       },
-#       java_settings => {
+#       environment_settings => {
 #         'CONTROL_CENTER_HEAP_OPTS' => {
 #           'value' => '-Xmx6g'
 #         }
@@ -23,14 +23,14 @@
 # @example Hiera based installation
 #      include ::confluent::control::center
 #
-#      confluent::control::center::control_center_settings:
+#      confluent::control::center::config:
 #        zookeeper.connect:
 #          value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
 #        bootstrap.servers:
 #          value: 'kafka-01.example.com:9092,kafka-02.example.com:9092,kafka-03.example.com:9092'
 #        confluent.controlcenter.connect.cluster:
 #          value: 'kafka-connect-01:8083,kafka-connect-02:8083,kafka-connect-03:8083'
-#      confluent::control::center::java_settings:
+#      confluent::control::center::environment_settings:
 #        CONTROL_CENTER_HEAP_OPTS:
 #          value: -Xmx6g
 #

@@ -2,7 +2,7 @@
 #
 # @example Installation through class.
 #     class{'confluent::kafka::connect::standalone':
-#       connect_settings => {
+#       config => {
 #         'bootstrap.servers' => {
 #           'value' => 'broker-01:9092,broker-02:9092,broker-03:9092'
 #         },
@@ -19,7 +19,7 @@
 #           'value' => 'http://schema-registry-01:8081'
 #         },
 #       },
-#       java_settings => {
+#       environment_settings => {
 #         'KAFKA_HEAP_OPTS' => {
 #           'value' => '-Xmx4000M'
 #         }
@@ -29,7 +29,7 @@
 # @example Hiera based installation
 #     include ::confluent::kafka::connect::standalone
 #
-#      confluent::kafka::connect::standalone::connect_settings:
+#      confluent::kafka::connect::standalone::config:
 #        'bootstrap.servers':
 #          value: 'broker-01:9092,broker-02:9092,broker-03:9092'
 #        'key.converter':
@@ -40,14 +40,14 @@
 #          value: 'http://schema-registry-01.example.com:8081'
 #        'value.converter.schema.registry.url':
 #          value: 'http://schema-registry-01.example.com:8081'
-#      confluent::kafka::connect::standalone::connect_settings:java_settings:
+#      confluent::kafka::connect::standalone::connect_settings:environment_settings:
 #        KAFKA_HEAP_OPTS:
 #          value: '-Xmx4000M'
 #
-# @param connect_settings Settings to pass to the Kafka Connect properties file.
-# @param java_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
+# @param config Settings to pass to the Kafka Connect properties file.
+# @param environment_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
 # @param config_path Path to the connect properties file.
-# @param environment_file The file used to export environment variables that are consumed by Kafka scripts.
+# @param environment_path The file used to export environment variables that are consumed by Kafka scripts.
 # @param log_path The directory to write log files to.
 # @param user The user to run Kafka Connect as.
 # @param service_name The name of the service to create

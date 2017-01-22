@@ -2,12 +2,8 @@
 #
 # @example Installation through class.
 #     class{'confluent::zookeeper':
-#       zookeeper_settings => {
-#         'myid' => {
-#           'value' => '1'
-#         }
-#       },
-#       java_settings => {
+#       zookeeper_id => '1',
+#       environment_settings => {
 #         'KAFKA_HEAP_OPTS' => {
 #           'value' => '-Xmx4000M'
 #         }
@@ -17,16 +13,15 @@
 # @example Hiera based installation
 #    include ::confluent::zookeeper
 #
-#    confluent::zookeeper::zookeeper_settings:
-#      myid:
-#        value: '1'
+#    confluent::zookeeper::zookeeper_id: '1'
+#    confluent::zookeeper::config:
 #      server.1:
 #        value: 'zookeeper-01.example.com:2888:3888'
 #      server.2:
 #        value: 'zookeeper-02.example.com:2888:3888'
 #      server.3:
 #        value: 'zookeeper-03.example.com:2888:3888'
-#    confluent::zookeeper::java_settings:
+#    confluent::zookeeper::environment_settings:
 #      KAFKA_HEAP_OPTS:
 #        value: '-Xmx4000M'
 #

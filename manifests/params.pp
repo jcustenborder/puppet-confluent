@@ -1,3 +1,6 @@
+# Default parameters for the installation.
+#
+#
 class confluent::params {
   $connect_distributed_user = 'connect-distributed'
   $connect_distributed_service = 'connect-distributed'

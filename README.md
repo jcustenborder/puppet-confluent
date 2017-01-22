@@ -16,12 +16,8 @@ This puppet module is used to install and configure the Confluent Platform. The 
 
 ```puppet
 class{'confluent::zookeeper':
-  zookeeper_settings => {
-    'myid' => {
-      'value' => '1'
-    }
-  },
-  java_settings => {
+  zookeeper_id => '1',
+  environment_settings => {
     'KAFKA_HEAP_OPTS' => {
       'value' => '-Xmx4000M'
     }
@@ -36,16 +32,15 @@ include ::confluent::zookeeper
 ```
 
 ```yaml
-confluent::zookeeper::zookeeper_settings:
-  myid:
-    value: '1'
+confluent::zookeeper::zookeeper_id: '1'
+confluent::zookeeper::config:
   server.1:
     value: 'zookeeper-01.example.com:2888:3888'
   server.2:
     value: 'zookeeper-02.example.com:2888:3888'
   server.3:
     value: 'zookeeper-03.example.com:2888:3888'
-confluent::zookeeper::java_settings:
+confluent::zookeeper::environment_settings:
   KAFKA_HEAP_OPTS:
     value: '-Xmx4000M'
 ```
@@ -56,15 +51,13 @@ confluent::zookeeper::java_settings:
 
 ```puppet
 class{'confluent::kafka::broker':
-  kafka_settings => {
-    'broker.id' => {
-      'value' => '1'
-    },
+  broker_id => '1',
+  config => {
     'zookeeper.connect' => {
-      'value' => 'zookeeper-01.custenborder.com:2181,zookeeper-02.custenborder.com:2181,zookeeper-03.:2181'
+      'value' => 'zookeeper-01.custenborder.com:2181,zookeeper-02.custenborder.com:2181,zookeeper-03.custenborder.com:2181'
     },
   },
-  java_settings => {
+  environment_settings => {
     'KAFKA_HEAP_OPTS' => {
       'value' => '-Xmx4000M'
     }
@@ -79,11 +72,10 @@ include ::confluent::kafka::broker
 ```
 
 ```yaml
-confluent::kafka::broker::kafka_settings:
+confluent::kafka::broker::broker_id: '1'
+confluent::kafka::broker::config:
   zookeeper.connect:
     value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
-  broker.id:
-    value: 0
   log.dirs:
     value: /var/lib/kafka
   advertised.listeners:
@@ -92,7 +84,7 @@ confluent::kafka::broker::kafka_settings:
     value: true
   auto.create.topics.enable:
     value: false
-confluent::kafka::broker::java_settings:
+confluent::kafka::broker::environment_settings:
   KAFKA_HEAP_OPTS:
     value: -Xmx1024M
 ```
@@ -105,7 +97,7 @@ confluent::kafka::broker::java_settings:
 
 ```puppet
 class{'confluent::kafka::connect::distributed':
-  connect_settings => {
+  config => {
     'bootstrap.servers' => {
       'value' => 'broker-01:9092,broker-02:9092,broker-03:9092'
     },
@@ -137,20 +129,20 @@ include ::confluent::kafka::connect::distributed
 ```
 
 ```yaml
-confluent::kafka::connect::distributed::connect_settings:
-  'bootstrap.servers':
-    value: 'broker-01:9092,broker-02:9092,broker-03:9092'
-  'key.converter':
-    value: 'io.confluent.connect.avro.AvroConverter'
-  'value.converter':
-    value: 'io.confluent.connect.avro.AvroConverter'
-  'key.converter.schema.registry.url':
-    value: 'http://schema-registry-01.example.com:8081'
-  'value.converter.schema.registry.url':
-    value: 'http://schema-registry-01.example.com:8081'
-confluent::kafka::connect::distributed::connect_settings:java_settings:
-  KAFKA_HEAP_OPTS:
-    value: '-Xmx4000M'
+ confluent::kafka::connect::distributed::config:
+   'bootstrap.servers':
+     value: 'broker-01:9092,broker-02:9092,broker-03:9092'
+   'key.converter':
+     value: 'io.confluent.connect.avro.AvroConverter'
+   'value.converter':
+     value: 'io.confluent.connect.avro.AvroConverter'
+   'key.converter.schema.registry.url':
+     value: 'http://schema-registry-01.example.com:8081'
+   'value.converter.schema.registry.url':
+     value: 'http://schema-registry-01.example.com:8081'
+ confluent::kafka::connect::distributed::connect_settings:java_settings:
+   KAFKA_HEAP_OPTS:
+     value: '-Xmx4000M'
 ```
 
 ### Standalone
@@ -159,7 +151,7 @@ confluent::kafka::connect::distributed::connect_settings:java_settings:
 
 ```puppet
 class{'confluent::kafka::connect::standalone':
-  connect_settings => {
+  config => {
     'bootstrap.servers' => {
       'value' => 'broker-01:9092,broker-02:9092,broker-03:9092'
     },
@@ -176,7 +168,7 @@ class{'confluent::kafka::connect::standalone':
       'value' => 'http://schema-registry-01:8081'
     },
   },
-  java_settings => {
+  environment_settings => {
     'KAFKA_HEAP_OPTS' => {
       'value' => '-Xmx4000M'
     }
@@ -191,20 +183,20 @@ include ::confluent::kafka::connect::standalone
 ```
 
 ```yaml
-confluent::kafka::connect::standalone::connect_settings:
-  'bootstrap.servers':
-    value: 'broker-01:9092,broker-02:9092,broker-03:9092'
-  'key.converter':
-    value: 'io.confluent.connect.avro.AvroConverter'
-  'value.converter':
-    value: 'io.confluent.connect.avro.AvroConverter'
-  'key.converter.schema.registry.url':
-    value: 'http://schema-registry-01.example.com:8081'
-  'value.converter.schema.registry.url':
-    value: 'http://schema-registry-01.example.com:8081'
-confluent::kafka::connect::standalone::connect_settings:java_settings:
-  KAFKA_HEAP_OPTS:
-    value: '-Xmx4000M'
+ confluent::kafka::connect::standalone::config:
+   'bootstrap.servers':
+     value: 'broker-01:9092,broker-02:9092,broker-03:9092'
+   'key.converter':
+     value: 'io.confluent.connect.avro.AvroConverter'
+   'value.converter':
+     value: 'io.confluent.connect.avro.AvroConverter'
+   'key.converter.schema.registry.url':
+     value: 'http://schema-registry-01.example.com:8081'
+   'value.converter.schema.registry.url':
+     value: 'http://schema-registry-01.example.com:8081'
+ confluent::kafka::connect::standalone::connect_settings:environment_settings:
+   KAFKA_HEAP_OPTS:
+     value: '-Xmx4000M'
 ```
 
 ## Schema Registry
@@ -212,12 +204,12 @@ confluent::kafka::connect::standalone::connect_settings:java_settings:
 ### Class installation
 ```puppet
 class {'confluent::schema::registry':
-  schemaregistry_settings => {
+  config => {
     'kafkastore.connection.url' => {
       'value' => 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
     },
   },
-  java_settings => {
+  environment_settings => {
     'SCHEMA_REGISTRY_HEAP_OPTS' => {
       'value' => '-Xmx1024M'
     }
@@ -232,10 +224,10 @@ include ::confluent::schema::registry
 ```
 
 ```yaml
-confluent::schema::registry::schemaregistry_settings:
+confluent::schema::registry::config:
   kafkastore.connection.url:
     value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
-confluent::schema::registry::java_settings:
+confluent::schema::registry::environment_settings:
   SCHEMA_REGISTRY_HEAP_OPTS:
     value: -Xmx1024M
 ```
@@ -246,7 +238,7 @@ confluent::schema::registry::java_settings:
 
 ```puppet
 class {'confluent::control::center':
-  control_center_settings => {
+  config => {
     'zookeeper.connect' => {
       'value' => 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
     },
@@ -257,7 +249,7 @@ class {'confluent::control::center':
       'value' => 'kafka-connect-01.example.com:8083,kafka-connect-02.example.com:8083,kafka-connect-03.example.com:8083'
     }
   },
-  java_settings => {
+  environment_settings => {
     'CONTROL_CENTER_HEAP_OPTS' => {
       'value' => '-Xmx6g'
     }
@@ -272,16 +264,22 @@ include ::confluent::control::center
 ```
 
 ```yaml
-confluent::control::center::control_center_settings:
+confluent::control::center::config:
   zookeeper.connect:
     value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
   bootstrap.servers:
     value: 'kafka-01.example.com:9092,kafka-02.example.com:9092,kafka-03.example.com:9092'
   confluent.controlcenter.connect.cluster:
     value: 'kafka-connect-01:8083,kafka-connect-02:8083,kafka-connect-03:8083'
-confluent::control::center::java_settings:
+confluent::control::center::environment_settings:
   CONTROL_CENTER_HEAP_OPTS:
     value: -Xmx6g
+```
+
+# Run tests
+
+```bash
+rake spec
 ```
 
 # Rebuild github pages

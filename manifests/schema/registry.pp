@@ -2,12 +2,12 @@
 #
 # @example Installation through class.
 #       class {'confluent::schema::registry':
-#         schemaregistry_settings => {
+#         config => {
 #           'kafkastore.connection.url' => {
 #             'value' => 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
 #           },
 #         },
-#         java_settings => {
+#         environment_settings => {
 #           'SCHEMA_REGISTRY_HEAP_OPTS' => {
 #             'value' => '-Xmx1024M'
 #           }
@@ -17,10 +17,10 @@
 # @example Hiera based installation
 #    include ::confluent::schema::registry
 #
-#    confluent::schema::registry::schemaregistry_settings:
+#    confluent::schema::registry::config:
 #      kafkastore.connection.url:
 #        value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
-#    confluent::schema::registry::java_settings:
+#    confluent::schema::registry::environment_settings:
 #      SCHEMA_REGISTRY_HEAP_OPTS:
 #        value: -Xmx1024M
 #
