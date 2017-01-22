@@ -149,11 +149,13 @@ start the application.</p>
   
     <li>
       
-        <span class='name'>exec_start</span>
+        <span class='name'>exec_stop</span>
       
       
-        <span class='type'></span>
+        <span class='type'>(<tt>Any</tt>)</span>
       
+      
+        <em class="default">(defaults to: <tt>undef</tt>)</em>
       
       
         &mdash;
@@ -218,19 +220,6 @@ process.</p>
 <p>RestartSec line in the SystemD unit. The number of seconds to delay between
 ExecStop and ExecStart on a restart.</p>
 </div>
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>exec_stop</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>undef</tt>)</em>
-      
       
     </li>
   
@@ -511,7 +500,7 @@ define confluent::systemd::unit (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:18:08 2017 by
+  Generated on Sat Jan 21 22:19:36 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>
