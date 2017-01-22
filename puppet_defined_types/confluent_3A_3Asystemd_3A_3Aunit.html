@@ -72,6 +72,8 @@
 <div class="docstring">
   <div class="discussion">
     
+<p>Define is used to create a SystemD unit for a kafka service.</p>
+
   </div>
 </div>
 <div class="tags">
@@ -89,6 +91,11 @@
         <em class="default">(defaults to: <tt>&#39;present&#39;</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>present to create the unit, false to remove it.</p>
+</div>
+      
     </li>
   
     <li>
@@ -99,6 +106,11 @@
         <span class='type'>(<tt>Any</tt>)</span>
       
       
+      
+        &mdash;
+        <div class='inline'>
+<p>Description of the unit. This is the display name.</p>
+</div>
       
     </li>
   
@@ -111,6 +123,12 @@
       
       
       
+        &mdash;
+        <div class='inline'>
+<p>ExecStart line in the SystemD unit. The command that will be executed to
+start the application.</p>
+</div>
+      
     </li>
   
     <li>
@@ -121,6 +139,85 @@
         <span class='type'>(<tt>Any</tt>)</span>
       
       
+      
+        &mdash;
+        <div class='inline'>
+<p>The system user to run the service as. User must be defined in puppet.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>exec_start</span>
+      
+      
+        <span class='type'></span>
+      
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>ExecStop line in the SystemD unit. The command that will be executed to
+stop the application.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>environment_file</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>undef</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>EnvironmentFile line in the SystemD unit. This is the file with environment
+variables to pass to the application.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>file_limit</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>undef</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>LimitNOFILE line in the SystemD unit. The file handle limit for the
+process.</p>
+</div>
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>restart_sec</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>5</tt>)</em>
+      
+      
+        &mdash;
+        <div class='inline'>
+<p>RestartSec line in the SystemD unit. The number of seconds to delay between
+ExecStop and ExecStart on a restart.</p>
+</div>
       
     </li>
   
@@ -137,45 +234,6 @@
       
     </li>
   
-    <li>
-      
-        <span class='name'>environment_file</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>undef</tt>)</em>
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>file_limit</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>undef</tt>)</em>
-      
-      
-    </li>
-  
-    <li>
-      
-        <span class='name'>restart_sec</span>
-      
-      
-        <span class='type'>(<tt>Any</tt>)</span>
-      
-      
-        <em class="default">(defaults to: <tt>5</tt>)</em>
-      
-      
-    </li>
-  
 </ul>
 
 
@@ -186,16 +244,6 @@
         <pre class="lines">
 
 
-1
-2
-3
-4
-5
-6
-7
-8
-9
-10
 11
 12
 13
@@ -312,10 +360,21 @@
 124
 125
 126
-127</pre>
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/systemd/unit.pp', line 1</span>
+        <pre class="code"><span class="info file"># File 'manifests/systemd/unit.pp', line 11</span>
 
 define confluent::systemd::unit (
   $ensure=&#39;present&#39;,
@@ -358,6 +417,7 @@ define confluent::systemd::unit (
     notify =&gt; Exec[&#39;kafka-systemctl-daemon-reload&#39;]
   }
 
+  User[$user] -&gt;
   ini_setting { &quot;${name}/Service/User&quot;:
     ensure  =&gt; &#39;present&#39;,
     path    =&gt; $service_file,
@@ -451,7 +511,7 @@ define confluent::systemd::unit (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:10:26 2017 by
+  Generated on Sat Jan 21 22:18:08 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

@@ -72,6 +72,8 @@
 <div class="docstring">
   <div class="discussion">
     
+<p>Define is used to create a SystemD unit for a kafka service.</p>
+
   </div>
 </div>
 <div class="tags">
@@ -87,6 +89,11 @@
       
       
       
+        &mdash;
+        <div class='inline'>
+<p>present to create the unit, false to remove it.</p>
+</div>
+      
     </li>
   
     <li>
@@ -100,6 +107,11 @@
         <em class="default">(defaults to: <tt>undef</tt>)</em>
       
       
+        &mdash;
+        <div class='inline'>
+<p>Value to set.</p>
+</div>
+      
     </li>
   
 </ul>
@@ -112,10 +124,6 @@
         <pre class="lines">
 
 
-1
-2
-3
-4
 5
 6
 7
@@ -150,10 +158,14 @@
 36
 37
 38
-39</pre>
+39
+40
+41
+42
+43</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/systemd/unit_ini_setting.pp', line 1</span>
+        <pre class="code"><span class="info file"># File 'manifests/systemd/unit_ini_setting.pp', line 5</span>
 
 define confluent::systemd::unit_ini_setting($ensure, $value=undef){
   include ::confluent::systemd
@@ -201,7 +213,7 @@ define confluent::systemd::unit_ini_setting($ensure, $value=undef){
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:10:26 2017 by
+  Generated on Sat Jan 21 22:18:08 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>
