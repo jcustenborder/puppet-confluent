@@ -58,6 +58,7 @@
 class confluent::kafka::connect::standalone (
   $config               = { },
   $environment_settings = { },
+  $connector_configs    = [],
   $config_path          = $::confluent::params::connect_standalone_config_path,
   $environment_path     = $::confluent::params::connect_standalone_environment_path,
   $log_path             = $::confluent::params::connect_standalone_log_path,
@@ -75,12 +76,12 @@ class confluent::kafka::connect::standalone (
     ensure => present,
     alias  => 'kafka-connect-standalone'
   } ->
-    file { $log_path:
-      ensure  => directory,
-      owner   => $user,
-      group   => $user,
-      recurse => true
-    }
+  file { $log_path:
+    ensure  => directory,
+    owner   => $user,
+    group   => $user,
+    recurse => true
+  }
 
   $application = 'connect-standalone'
 
@@ -127,19 +128,19 @@ class confluent::kafka::connect::standalone (
   }
 
   $unit_ini_settings = {
-    'kafka-connect-standalone/Unit/Description'        => { 'value' => 'Apache Kafka Connect by Confluent', },
-    'kafka-connect-standalone/Unit/Wants'              => { 'value' => 'basic.target', },
-    'kafka-connect-standalone/Unit/After'              => { 'value' => 'basic.target network.target', },
-    'kafka-connect-standalone/Service/User'            => { 'value' => $user, },
-    'kafka-connect-standalone/Service/EnvironmentFile' => { 'value' => $environment_path, },
-    'kafka-connect-standalone/Service/ExecStart'       => {
+    "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka Connect by Confluent', },
+    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
+    "${service_name}/Unit/After"              => { 'value' => 'basic.target network.target', },
+    "${service_name}/Service/User"            => { 'value' => $user, },
+    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_path, },
+    "${service_name}/Service/ExecStart"       => {
       'value' => "/usr/bin/connect-standalone ${config_path}",
     },
-    'kafka-connect-standalone/Service/LimitNOFILE'     => { 'value' => $file_limit, },
-    'kafka-connect-standalone/Service/KillMode'        => { 'value' => 'process', },
-    'kafka-connect-standalone/Service/RestartSec'      => { 'value' => 5, },
-    'kafka-connect-standalone/Service/Type'            => { 'value' => 'simple', },
-    'kafka-connect-standalone/Install/WantedBy'        => { 'value' => 'multi-user.target', },
+    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
+    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
+    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
+    "${service_name}/Service/Type"            => { 'value' => 'simple', },
+    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)

@@ -85,12 +85,12 @@ class confluent::schema::registry (
   user { $user:
     ensure => present
   } ->
-    file { [$log_path]:
-      ensure  => directory,
-      owner   => $user,
-      group   => $user,
-      recurse => true
-    }
+  file { [$log_path]:
+    ensure  => directory,
+    owner   => $user,
+    group   => $user,
+    recurse => true
+  }
 
   package { 'confluent-schema-registry':
     alias  => 'schema-registry',
@@ -118,19 +118,18 @@ class confluent::schema::registry (
   }
 
   $unit_ini_settings = {
-    'schema-registry/Unit/Description'        => { 'value' => 'Schema Registry by Confluent', },
-    'schema-registry/Unit/Wants'              => { 'value' => 'basic.target', },
-    'schema-registry/Unit/After'              => { 'value' => 'basic.target network.target', },
-    'schema-registry/Service/User'            => { 'value' => $user, },
-    'schema-registry/Service/EnvironmentFile' => { 'value' => $environment_file, },
-    'schema-registry/Service/ExecStart'       => { 'value' =>
-    "/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties", },
-    'schema-registry/Service/ExecStop'        => { 'value' => "/usr/bin/schema-registry-stop", },
-    'schema-registry/Service/LimitNOFILE'     => { 'value' => 131072, },
-    'schema-registry/Service/KillMode'        => { 'value' => 'process', },
-    'schema-registry/Service/RestartSec'      => { 'value' => 5, },
-    'schema-registry/Service/Type'            => { 'value' => 'simple', },
-    'schema-registry/Install/WantedBy'        => { 'value' => 'multi-user.target', },
+    "${service_name}/Unit/Description"        => { 'value' => 'Schema Registry by Confluent', },
+    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
+    "${service_name}/Unit/After"              => { 'value' => 'basic.target network.target', },
+    "${service_name}/Service/User"            => { 'value' => $user, },
+    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
+    "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/schema-registry-start ${config_path}", },
+    "${service_name}/Service/ExecStop"        => { 'value' => "/usr/bin/schema-registry-stop", },
+    "${service_name}/Service/LimitNOFILE"     => { 'value' => 131072, },
+    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
+    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
+    "${service_name}/Service/Type"            => { 'value' => 'simple', },
+    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)

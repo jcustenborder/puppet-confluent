@@ -3,7 +3,7 @@
 #
 class confluent::params {
   $connect_distributed_user = 'connect-distributed'
-  $connect_distributed_service = 'connect-distributed'
+  $connect_distributed_service = 'kafka-connect-distributed'
   $connect_distributed_manage_service = true
   $connect_distributed_service_ensure = 'running'
   $connect_distributed_service_enable = true
@@ -12,7 +12,7 @@ class confluent::params {
   $connect_distributed_log_path = '/var/log/kafka-connect-distributed'
 
   $connect_standalone_user = 'connect-standalone'
-  $connect_standalone_service = 'connect-standalone'
+  $connect_standalone_service = 'kafka-connect-standalone'
   $connect_standalone_manage_service = true
   $connect_standalone_service_ensure = 'running'
   $connect_standalone_service_enable = true
