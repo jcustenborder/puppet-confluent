@@ -86,7 +86,7 @@ class confluent::control::center (
 
   $actual_control_center_settings = merge($control_center_default_settings, $config)
   $actual_java_settings = merge($java_default_settings, $environment_settings)
-  
+
   user { $user:
     ensure => present
   } ->
@@ -123,19 +123,18 @@ class confluent::control::center (
   }
 
   $unit_ini_settings = {
-    'confluent-control-center/Unit/Description'        => { 'value' => 'Confluent Control Center', },
-    'confluent-control-center/Unit/Wants'              => { 'value' => 'basic.target', },
-    'confluent-control-center/Unit/After'              => { 'value' => 'basic.target network.target', },
-    'confluent-control-center/Service/User'            => { 'value' => $user, },
-    'confluent-control-center/Service/EnvironmentFile' => { 'value' => $environment_file, },
-    'confluent-control-center/Service/ExecStart'       => { 'value' =>
-    "/usr/bin/control-center-start /etc/confluent-control-center/control-center.properties", },
-    # 'confluent-control-center/Service/ExecStop'               => { 'value' => "/usr/bin/zookeeper-server-stop", },
-    'confluent-control-center/Service/LimitNOFILE'     => { 'value' => $file_limit, },
-    'confluent-control-center/Service/KillMode'        => { 'value' => 'process', },
-    'confluent-control-center/Service/RestartSec'      => { 'value' => 5, },
-    'confluent-control-center/Service/Type'            => { 'value' => 'simple', },
-    'confluent-control-center/Install/WantedBy'        => { 'value' => 'multi-user.target', },
+    "${service_name}/Unit/Description"        => { 'value' => 'Confluent Control Center', },
+    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
+    "${service_name}/Unit/After"              => { 'value' => 'basic.target network.target', },
+    "${service_name}/Service/User"            => { 'value' => $user, },
+    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
+    "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/control-center-start ${config_path}", },
+    # "${service_name}/Service/ExecStop'               => { 'value' => "/usr/bin/zookeeper-server-stop", },
+    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
+    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
+    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
+    "${service_name}/Service/Type"            => { 'value' => 'simple', },
+    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
