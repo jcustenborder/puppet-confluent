@@ -7,7 +7,9 @@ group :development, :test do
   gem 'puppet-lint', :require => false
   gem 'rake', :require => false
   gem 'rspec-puppet', :require => false
-  # gem 'rubocop', :require => false
+  if RUBY_VERSION > '2'
+    gem 'rubocop', :require => false
+  end
 end
 
 if puppetversion = ENV['PUPPET_GEM_VERSION']
