@@ -75,15 +75,14 @@ class confluent::kafka::connect::standalone (
   user { $user:
     ensure => present,
     alias  => 'kafka-connect-standalone'
-  } ->
-  file { $log_path:
+  } -> file { $log_path:
     ensure  => directory,
     owner   => $user,
     group   => $user,
     recurse => true
   }
 
-  $application = 'connect-standalone'
+  $application_name = 'connect-standalone'
 
 
   $java_default_settings = {
@@ -94,7 +93,7 @@ class confluent::kafka::connect::standalone (
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
     'GC_LOG_ENABLED'  => {
-      'value' => 'true'
+      'value' => true
     },
     'LOG_DIR'         => {
       'value' => '/var/log/kafka'
@@ -105,20 +104,20 @@ class confluent::kafka::connect::standalone (
 
   }
 
-  $actual_connect_settings = merge($connect_default_settings, $config)
+  $actual_connect_settings = merge_hash_with_key_rename($connect_default_settings, $config, $application_name)
 
   $ensure_connect_settings_defaults = {
     'ensure'      => 'present',
     'path'        => $config_path,
-    'application' => $application
+    'application' => $application_name
   }
 
   ensure_resources('confluent::java_property', $actual_connect_settings, $ensure_connect_settings_defaults)
 
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $actual_java_settings = merge_hash_with_key_rename($java_default_settings, $environment_settings, $application_name)
   $ensure_java_settings_defaults = {
     'path'        => $environment_path,
-    'application' => $application
+    'application' => $application_name
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)

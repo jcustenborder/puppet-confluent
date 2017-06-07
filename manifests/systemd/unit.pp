@@ -9,10 +9,10 @@
 # @param file_limit LimitNOFILE line in the SystemD unit. The file handle limit for the process.
 # @param restart_sec RestartSec line in the SystemD unit. The number of seconds to delay between ExecStop and ExecStart on a restart.
 define confluent::systemd::unit (
-  $ensure='present',
   $description,
   $exec_start,
   $user,
+  $ensure='present',
   $exec_stop=undef,
   $environment_file=undef,
   $file_limit=undef,
@@ -49,8 +49,8 @@ define confluent::systemd::unit (
     notify => Exec['kafka-systemctl-daemon-reload']
   }
 
-  User[$user] ->
-  ini_setting { "${name}/Service/User":
+  User[$user]
+  -> ini_setting { "${name}/Service/User":
     ensure  => 'present',
     path    => $service_file,
     section => 'Service',

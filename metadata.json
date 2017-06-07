@@ -1,0 +1,55 @@
+{
+  "name": "vfoucault-pmu_app_bigdata_named",
+  "version": "0.1.0",
+  "author": "Jeremy Custenborder",
+  "summary": "Application module to deploy Confluent plateform",
+  "license": "Apache-2.0",
+  "source": "https://github.com/jcustenborder/puppet-confluent",
+  "project_page": null,
+  "issues_url": null,
+  "dependencies": [
+    {"name":"puppetlabs-stdlib","version_requirement":"4.x"},
+    {"name":"puppetlabs-inifile","version_requirement":"1.6.x"}
+  ],
+  "data_provider": null,
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "OracleLinux",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Scientific",
+      "operatingsystemrelease": [
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Debian",
+      "operatingsystemrelease": [
+        "8"
+      ]
+    },
+    {
+      "operatingsystem": "Ubuntu",
+      "operatingsystemrelease": [
+        "14.04",
+        "16.04"
+      ]
+    }
+  ]
+}
+

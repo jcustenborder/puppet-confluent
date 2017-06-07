@@ -38,7 +38,7 @@ describe 'confluent::schema::registry' do
             }
         )
 
-        is_expected.to contain_ini_setting('schema-registry_kafkastore.connection.url').with(
+        is_expected.to contain_ini_setting('schema-registry_schema-registry/kafkastore.connection.url').with(
             {
                 'path' => '/etc/schema-registry/schema-registry.properties',
                 'value' => 'zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181'

@@ -84,13 +84,13 @@ class confluent::control::center (
     }
   }
 
-  $actual_control_center_settings = merge($control_center_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $actual_control_center_settings = merge_hash_with_key_rename($control_center_default_settings, $config, $application_name)
+  $actual_java_settings = merge_hash_with_key_rename($java_default_settings, $environment_settings, $application_name)
 
   user { $user:
     ensure => present
-  } ->
-  file { [$log_path]:
+  }
+  -> file { [$log_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -98,8 +98,8 @@ class confluent::control::center (
   }
 
   package { 'confluent-control-center':
-    alias  => 'control-center',
-    ensure => latest
+    ensure => latest,
+    alias  => 'control-center'
   } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'control-center-setting' |>
 
   $ensure_control_center_settings_defaults = {
@@ -108,8 +108,7 @@ class confluent::control::center (
     'application' => $application_name
   }
 
-  ensure_resources('confluent::java_property', $actual_control_center_settings, $ensure_control_center_settings_defaults
-  )
+  ensure_resources('confluent::java_property', $actual_control_center_settings, $ensure_control_center_settings_defaults)
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
