@@ -89,7 +89,7 @@ class confluent::kafka::broker (
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
     'GC_LOG_ENABLED'  => {
-      'value' => true
+      'value' => 'true'
     },
     'LOG_DIR'         => {
       'value' => '/var/log/kafka'
