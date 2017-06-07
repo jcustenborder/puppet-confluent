@@ -60,7 +60,7 @@ describe 'confluent::control::center' do
             }
         )
 
-        is_expected.to contain_ini_setting('c3_bootstrap.servers').with(
+        is_expected.to contain_ini_setting('c3_c3/bootstrap.servers').with(
             {
                 'path' => '/etc/confluent-control-center/control-center.properties',
                 'value' => 'kafka-01:9092,kafka-02:9092,kafka-03:9092'

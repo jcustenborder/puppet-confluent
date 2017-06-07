@@ -76,16 +76,16 @@ class confluent::schema::registry (
   }
 
 
-  $actual_schemaregistry_settings = merge($schemaregistry_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $actual_schemaregistry_settings = merge_hash_with_key_rename($schemaregistry_default_settings, $config, $application_name)
+  $actual_java_settings = merge_hash_with_key_rename($java_default_settings, $environment_settings, $application_name)
 
-  $log4j_log_dir = $actual_java_settings['LOG_DIR']['value']
+  $log4j_log_dir = $java_default_settings['LOG_DIR']['value']
   validate_absolute_path($log4j_log_dir)
 
   user { $user:
     ensure => present
-  } ->
-  file { [$log_path]:
+  }
+  -> file { [$log_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -93,8 +93,8 @@ class confluent::schema::registry (
   }
 
   package { 'confluent-schema-registry':
-    alias  => 'schema-registry',
-    ensure => latest
+    ensure => latest,
+    alias  => 'schema-registry'
   } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'schemaregistry-setting' |>
 
   $ensure_schemaregistry_settings_defaults = {
@@ -124,7 +124,7 @@ class confluent::schema::registry (
     "${service_name}/Service/User"            => { 'value' => $user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/schema-registry-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => "/usr/bin/schema-registry-stop", },
+    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/schema-registry-stop', },
     "${service_name}/Service/LimitNOFILE"     => { 'value' => 131072, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },

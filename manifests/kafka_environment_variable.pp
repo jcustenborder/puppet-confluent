@@ -12,12 +12,14 @@
 # @param value The value to be set.
 # @param application The application requesting the change. Property names are often duplicated. This ensures a unique resource name
 define confluent::kafka_environment_variable (
-  $ensure='present',
   $path,
-  $value=unset,
-  $application
+  $application,
+  $ensure='present',
+  $value=unset
 ) {
-  $setting_name = "${application}_${name}"
+  $splitted = split($name, '/')
+  $setting = $splitted[1]
+  $setting_name = "${application}_${setting}"
 
   validate_absolute_path($path)
 
@@ -25,7 +27,7 @@ define confluent::kafka_environment_variable (
     ensure            => $ensure,
     path              => $path,
     section           => '',
-    setting           => $name,
+    setting           => $setting,
     subsetting        => '',
     key_val_separator => '=',
     quote_char        => '"',

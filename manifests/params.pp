@@ -39,7 +39,7 @@ class confluent::params {
   $zookeeper_config_path = '/etc/kafka/zookeeper.properties'
   $zookeeper_log_path = '/var/log/zookeeper'
   $zookeeper_data_path = '/var/lib/zookeeper'
-  
+
   $schema_registry_user = 'schema-registry'
   $schema_registry_service = 'schema-registry'
   $schema_registry_manage_service = true
@@ -76,7 +76,7 @@ class confluent::params {
       $control_center_environment_path = '/etc/default/control-center'
     }
     default: {
-      fail("$osfamily is not currently supported.")
+      fail("${::osfamily} is not currently supported.")
     }
   }
 

@@ -15,7 +15,7 @@ define confluent::systemd::unit_ini_setting($ensure, $value=undef){
   case $ensure {
     'present': {
       if($value == undef) {
-        fail("When ensure is present a value is required.")
+        fail('When ensure is present a value is required.')
       }
 
       ini_setting { $name:

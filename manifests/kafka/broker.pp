@@ -70,6 +70,7 @@ class confluent::kafka::broker (
   validate_absolute_path($log_path)
   validate_absolute_path($config_path)
 
+  $application_name = 'kafka'
 
   $kafka_default_settings = {
     'broker.id' => {
@@ -95,13 +96,13 @@ class confluent::kafka::broker (
     }
   }
 
-  $actual_kafka_settings = merge($kafka_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $actual_kafka_settings = merge_hash_with_key_rename($kafka_default_settings, $config, $application_name)
+  $actual_java_settings = merge_hash_with_key_rename($java_default_settings, $environment_settings, $application_name)
 
   user { $user:
     ensure => present
-  } ->
-    file { [$log_path, $data_path]:
+  }
+  -> file { [$log_path, $data_path]:
       ensure  => directory,
       owner   => $user,
       group   => $user,
@@ -134,7 +135,7 @@ class confluent::kafka::broker (
     "${service_name}/Service/User"            => { 'value' => $user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/kafka-server-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => "/usr/bin/kafka-server-stop", },
+    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/kafka-server-stop', },
     "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },

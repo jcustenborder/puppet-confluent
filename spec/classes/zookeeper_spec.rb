@@ -36,12 +36,6 @@ describe 'confluent::zookeeper' do
             }
         )
 
-        # is_expected.to contain_ini_setting('kafka_broker.id').with(
-        #     {
-        #         'path' => '/etc/kafka/server.properties',
-        #         'value' => '0'
-        #     }
-        # )
         is_expected.to contain_package('confluent-kafka-2.11')
         is_expected.to contain_user('zookeeper')
         is_expected.to contain_service('zookeeper').with(

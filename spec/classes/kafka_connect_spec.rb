@@ -19,14 +19,14 @@ require 'spec_helper'
     it do
       is_expected.to contain_file("/var/log/kafka-connect-#{class_name}")
       is_expected.to contain_package('confluent-kafka-2.11')
-      is_expected.to contain_ini_setting("connect-#{class_name}_bootstrap.servers").with(
+      is_expected.to contain_ini_setting("connect-#{class_name}_connect-#{class_name}/bootstrap.servers").with(
           {
               'path' => "/etc/kafka/connect-#{class_name}.properties",
               'value' => 'kafka-01:9093'
           }
       )
       is_expected.to contain_user("connect-#{class_name}")
-      is_expected.to contain_service("connect-#{class_name}").with(
+      is_expected.to contain_service("kafka-connect-#{class_name}").with(
           {
               'ensure' => 'running',
               'enable' => true
