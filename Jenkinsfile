@@ -2,7 +2,7 @@
 node {
     checkout scm
 
-    docker.image('jcustenborder/packaging-centos-7:36').inside {
+    docker.image('jcustenborder/packaging-centos-7:37').inside {
         stage('bundler') {
             sh 'bundle install'
         }
