@@ -1,5 +1,6 @@
 #!groovy
 node {
+    deleteDir()
     checkout scm
 
     docker.image('jcustenborder/packaging-centos-7:37').inside {
