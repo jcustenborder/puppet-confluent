@@ -12,14 +12,14 @@
 # @param path The path to the file containing the java property.
 # @param application The application requesting the change. Property names are often duplicated. This ensures a unique resource name
 define confluent::java_property (
-  $ensure='present',
-  $value=unset,
+  $application,
   $path,
-  $application
+  $ensure = 'present',
+  $value  = unset,
 ) {
   $setting_name = "${application}_${name}"
 
-  ini_setting{ $setting_name:
+  ini_setting { $setting_name:
     ensure  => $ensure,
     path    => $path,
     section => '',

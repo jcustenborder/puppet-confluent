@@ -98,8 +98,8 @@ class confluent::control::center (
   }
 
   package { 'confluent-control-center':
+    ensure => latest,
     alias  => 'control-center',
-    ensure => latest
   } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'control-center-setting' |>
 
   $ensure_control_center_settings_defaults = {
