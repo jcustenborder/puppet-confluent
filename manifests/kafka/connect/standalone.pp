@@ -97,7 +97,7 @@ class confluent::kafka::connect::standalone (
       'value' => true
     },
     'LOG_DIR'         => {
-      'value' => '/var/log/kafka'
+      'value' => $log_path
     }
   }
 

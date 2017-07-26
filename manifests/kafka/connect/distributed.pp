@@ -96,7 +96,7 @@ class confluent::kafka::connect::distributed (
       'value' => true
     },
     'LOG_DIR'         => {
-      'value' => '/var/log/kafka'
+      'value' => $log_path
     }
   }
 
