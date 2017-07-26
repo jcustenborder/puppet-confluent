@@ -24,6 +24,54 @@ describe 'confluent::kafka::broker' do
           'broker_id' => '0'
       }
 
+      context "with param data_path as array" do
+        data_paths = %w(/data/kafka/disk01 /data/kafka/disk02 /data/kafka/disk03 /data/kafka/disk04)
+        let(:params) {
+          default_params.merge({'data_path' => data_paths})
+        }
+        it do
+          is_expected.to contain_ini_setting('kafka_log.dirs').with(
+              {
+                  'value' => data_paths.join(',')
+              }
+          )
+        end
+
+        data_paths.each do |data_path|
+          it do
+            is_expected.to contain_file(data_path).with(
+                {
+                    'owner' => 'kafka',
+                    'group' => 'kafka',
+                    'recurse' => true
+                }
+            )
+          end
+        end
+      end
+
+      %w(/var/lib/kafka /datavol/var/lib/kafka).each do |data_path|
+        context "with param data_path = '#{data_path}'" do
+          let(:params) {
+            default_params.merge({'data_path' => data_path})
+          }
+          it do
+            is_expected.to contain_ini_setting('kafka_log.dirs').with(
+                {
+                    'value' => data_path
+                }
+            )
+            is_expected.to contain_file(data_path).with(
+                {
+                    'owner' => 'kafka',
+                    'group' => 'kafka',
+                    'recurse' => true
+                }
+            )
+          end
+        end
+      end
+
       %w(/var/log/kafka /logvol/var/log/kafka).each do |log_dir|
         context "with param log_dir = '#{log_dir}'" do
           let(:params) {
