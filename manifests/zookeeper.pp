@@ -40,8 +40,8 @@
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::zookeeper (
   $zookeeper_id,
-  $config               = { },
-  $environment_settings = { },
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::zookeeper_config_path,
   $environment_file     = $::confluent::params::zookeeper_environment_path,
   $data_path            = $::confluent::params::zookeeper_data_path,
@@ -89,7 +89,7 @@ class confluent::zookeeper (
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
     'GC_LOG_ENABLED'  => {
-      'value' => 'true'
+      'value' => true
     },
     'LOG_DIR'         => {
       'value' => $log_path
@@ -112,7 +112,7 @@ class confluent::zookeeper (
   } ->
   file { $myid_file:
     ensure  => present,
-    content => "${zookeeper_id}",
+    content => $zookeeper_id,
     mode    => '0644',
     group   => $user,
     owner   => $user
@@ -143,11 +143,11 @@ class confluent::zookeeper (
     'zookeeper/Unit/Description'        => { 'value' => 'Apache Zookeeper by Confluent', },
     'zookeeper/Unit/Wants'              => { 'value' => 'basic.target', },
     'zookeeper/Unit/After'              => { 'value' => 'basic.target network.target', },
-    'zookeeper/Service/User'            => { 'value' => $zookeeper_user, },
+    'zookeeper/Service/User'            => { 'value' => $user, },
     'zookeeper/Service/EnvironmentFile' => { 'value' => $environment_file, },
     'zookeeper/Service/ExecStart'       => { 'value' =>
-    "/usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties", },
-    'zookeeper/Service/ExecStop'        => { 'value' => "/usr/bin/zookeeper-server-stop", },
+    '/usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties', },
+    'zookeeper/Service/ExecStop'        => { 'value' => '/usr/bin/zookeeper-server-stop', },
     'zookeeper/Service/LimitNOFILE'     => { 'value' => $file_limit, },
     'zookeeper/Service/KillMode'        => { 'value' => 'process', },
     'zookeeper/Service/RestartSec'      => { 'value' => 5, },

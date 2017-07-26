@@ -68,7 +68,7 @@ class confluent::schema::registry (
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
     'GC_LOG_ENABLED'            => {
-      'value' => 'true'
+      'value' => true
     },
     'LOG_DIR'                   => {
       'value' => $log_path
@@ -93,8 +93,8 @@ class confluent::schema::registry (
   }
 
   package { 'confluent-schema-registry':
+    ensure => latest,
     alias  => 'schema-registry',
-    ensure => latest
   } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'schemaregistry-setting' |>
 
   $ensure_schemaregistry_settings_defaults = {
@@ -124,7 +124,7 @@ class confluent::schema::registry (
     "${service_name}/Service/User"            => { 'value' => $user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/schema-registry-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => "/usr/bin/schema-registry-stop", },
+    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/schema-registry-stop', },
     "${service_name}/Service/LimitNOFILE"     => { 'value' => 131072, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },

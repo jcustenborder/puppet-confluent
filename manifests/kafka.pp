@@ -9,10 +9,10 @@
 class confluent::kafka(
   $package_ensure='installed',
   $package_name='confluent-kafka-2.11'
-)  {
+) {
 
   package{ $package_name:
+    ensure => $package_ensure,
     alias  => 'kafka',
-    ensure => $package_ensure
   } -> Ini_setting <| tag == 'kafka-setting' |>
 }
