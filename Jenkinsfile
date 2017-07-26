@@ -1,4 +1,8 @@
 #!groovy
+
+import groovy.json.JsonSlurper
+
+
 node {
     deleteDir()
     checkout scm
@@ -9,6 +13,10 @@ node {
         }
         stage('spec') {
             sh 'rake spec'
+        }
+        stage('deploy') {
+            def inputFile = new File("metadata.json")
+
         }
     }
 }

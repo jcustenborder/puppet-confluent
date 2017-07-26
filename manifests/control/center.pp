@@ -46,8 +46,8 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::control::center (
-  $config               = { },
-  $environment_settings = { },
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::control_center_config_path,
   $environment_file     = $::confluent::params::control_center_environment_path,
   $log_path             = $::confluent::params::control_center_log_path,
@@ -98,8 +98,8 @@ class confluent::control::center (
   }
 
   package { 'confluent-control-center':
+    ensure => latest,
     alias  => 'control-center',
-    ensure => latest
   } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'control-center-setting' |>
 
   $ensure_control_center_settings_defaults = {

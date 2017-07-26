@@ -88,7 +88,7 @@ class confluent::kafka::broker (
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
     'GC_LOG_ENABLED'  => {
-      'value' => 'true'
+      'value' => true
     },
     'LOG_DIR'         => {
       'value' => '/var/log/kafka'
@@ -134,7 +134,7 @@ class confluent::kafka::broker (
     "${service_name}/Service/User"            => { 'value' => $user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/kafka-server-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => "/usr/bin/kafka-server-stop", },
+    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/kafka-server-stop', },
     "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },
