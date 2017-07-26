@@ -67,9 +67,11 @@ class confluent::kafka::broker (
 
   validate_hash($config)
   validate_hash($environment_settings)
+  validate_integer($broker_id)
   validate_absolute_path($config_path)
+  validate_absolute_path($environment_file)
   validate_absolute_path($log_path)
-  validate_absolute_path($config_path)
+  validate_absolute_path($data_path)
 
 
   $kafka_default_settings = {
@@ -77,7 +79,7 @@ class confluent::kafka::broker (
       'value' => $broker_id
     },
     'log.dirs' => {
-      'value' => $data_path
+      'value' => join(any2array($data_path), ',')
     }
   }
 
