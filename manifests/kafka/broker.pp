@@ -61,6 +61,7 @@ class confluent::kafka::broker (
   $service_ensure       = $::confluent::params::kafka_service_ensure,
   $service_enable       = $::confluent::params::kafka_service_enable,
   $file_limit           = $::confluent::params::kafka_file_limit,
+  $stop_timeout_secs    = $::confluent::params::kafka_stop_timeout_secs,
 ) inherits confluent::params {
   include ::confluent::kafka
 
@@ -91,7 +92,7 @@ class confluent::kafka::broker (
       'value' => true
     },
     'LOG_DIR'         => {
-      'value' => '/var/log/kafka'
+      'value' => $log_path
     }
   }
 
@@ -138,6 +139,7 @@ class confluent::kafka::broker (
     "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },
+    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
     "${service_name}/Service/Type"            => { 'value' => 'simple', },
     "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }

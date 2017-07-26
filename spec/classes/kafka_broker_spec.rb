@@ -20,10 +20,35 @@ describe 'confluent::kafka::broker' do
         }
       }
 
+      default_params = {
+          'broker_id' => '0'
+      }
+
+      %w(/var/log/kafka /logvol/var/log/kafka).each do |log_dir|
+        context "with param log_dir = '#{log_dir}'" do
+          let(:params) {
+            default_params.merge({'log_path' => log_dir})
+          }
+          it do
+            is_expected.to contain_ini_subsetting('kafka_LOG_DIR').with(
+                {
+                    'path' => environment_file,
+                    'value' => log_dir
+                }
+            )
+            is_expected.to contain_file(log_dir).with(
+                {
+                    'owner' => 'kafka',
+                    'group' => 'kafka',
+                    'recurse' => true
+                }
+            )
+          end
+        end
+      end
+
       let(:params) {
-        {
-            'broker_id' => '0'
-        }
+        default_params
       }
 
       it do
@@ -50,8 +75,31 @@ describe 'confluent::kafka::broker' do
                 'enable' => true
             }
         )
-        is_expected.to contain_file('/var/log/kafka')
+
         is_expected.to contain_file('/var/lib/kafka')
+      end
+
+      service_name = 'kafka'
+      system_d_settings = {
+          "#{service_name}/Service/Type" => 'simple',
+          "#{service_name}/Unit/Wants" => 'basic.target',
+          "#{service_name}/Unit/After" => 'basic.target network.target',
+          "#{service_name}/Service/User" => 'kafka',
+          "#{service_name}/Service/TimeoutStopSec" => '300',
+          "#{service_name}/Service/LimitNOFILE" => '128000',
+          "#{service_name}/Service/KillMode" => 'process',
+          "#{service_name}/Service/RestartSec" => '5',
+          "#{service_name}/Install/WantedBy" => 'multi-user.target',
+      }
+
+      system_d_settings.each do |ini_setting, value|
+        it do
+          is_expected.to contain_ini_setting(ini_setting).with(
+              {
+                  'value' => value
+              }
+          )
+        end
       end
     end
   end
