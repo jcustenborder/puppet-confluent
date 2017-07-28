@@ -56,8 +56,9 @@
 # @param service_enable Enable setting to pass to the service resource.
 # @param file_limit Number of file handles to configure. (SystemD only)
 class confluent::kafka::connect::distributed (
-  $config               = { },
-  $environment_settings = { },
+  $bootstrap_servers,
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::connect_distributed_config_path,
   $environment_file     = $::confluent::params::connect_distributed_environment_path,
   $log_path             = $::confluent::params::connect_distributed_log_path,
@@ -81,12 +82,12 @@ class confluent::kafka::connect::distributed (
     ensure => present,
     alias  => 'kafka-connect-distributed'
   } ->
-    file { $log_path:
-      ensure  => directory,
-      owner   => $user,
-      group   => $user,
-      recurse => true
-    }
+  file { $log_path:
+    ensure  => directory,
+    owner   => $user,
+    group   => $user,
+    recurse => true
+  }
 
   $application = 'connect-distributed'
 
@@ -107,7 +108,9 @@ class confluent::kafka::connect::distributed (
   }
 
   $connect_default_settings = {
-
+    'bootstrap.servers' => {
+      'value' => join(any2array($bootstrap_servers), ',')
+    }
   }
 
   $actual_connect_settings = merge($connect_default_settings, $config)

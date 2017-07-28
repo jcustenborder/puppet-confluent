@@ -36,6 +36,7 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::schema::registry (
+  $kafkastore_connection_url,
   $config               = {},
   $environment_settings = {},
   $config_path          = $::confluent::params::schema_registry_config_path,
@@ -65,7 +66,9 @@ class confluent::schema::registry (
   $application_name = 'schema-registry'
 
   $schemaregistry_default_settings = {
-
+    'kafkastore.connection.url' => {
+      'value' => join(any2array($kafkastore_connection_url), ',')
+    }
   }
 
   $java_default_settings = {

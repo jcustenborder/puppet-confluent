@@ -56,6 +56,7 @@
 # @param service_enable Enable setting to pass to the service resource.
 # @param file_limit Number of file handles to configure. (SystemD only)
 class confluent::kafka::connect::standalone (
+  $bootstrap_servers,
   $config               = { },
   $environment_settings = { },
   $connector_configs    = [],
@@ -108,7 +109,9 @@ class confluent::kafka::connect::standalone (
   }
 
   $connect_default_settings = {
-
+    'bootstrap.servers' => {
+      'value' => join(any2array($bootstrap_servers), ',')
+    }
   }
 
   $actual_connect_settings = merge($connect_default_settings, $config)
