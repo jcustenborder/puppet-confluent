@@ -62,8 +62,14 @@ class confluent::kafka::broker (
   $service_enable       = $::confluent::params::kafka_service_enable,
   $file_limit           = $::confluent::params::kafka_file_limit,
   $stop_timeout_secs    = $::confluent::params::kafka_stop_timeout_secs,
+  $manage_repository    = $::confluent::params::manage_repository,
 ) inherits confluent::params {
+  include ::confluent
   include ::confluent::kafka
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
 
   validate_hash($config)
   validate_hash($environment_settings)

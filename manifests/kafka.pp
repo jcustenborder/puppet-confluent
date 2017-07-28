@@ -6,13 +6,14 @@
 #
 # @param package_ensure Ensure to be passed to the package installation.
 # @param package_name Name of the package to install. This rarely needs to be changed unless you need to install a different version of Scala.
-class confluent::kafka(
-  $package_ensure='installed',
-  $package_name='confluent-kafka-2.11'
-) {
+class confluent::kafka (
+  $package_ensure = 'installed',
+  $package_name   = $confluent::params::package_name
+) inherits confluent::params {
+  include ::confluent
 
-  package{ $package_name:
+  package { $package_name:
     ensure => $package_ensure,
-    alias  => 'kafka',
-  } -> Ini_setting <| tag == 'kafka-setting' |>
+    tag    => 'confluent',
+  }
 }

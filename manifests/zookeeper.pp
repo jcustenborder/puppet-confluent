@@ -52,8 +52,13 @@ class confluent::zookeeper (
   $service_ensure       = $::confluent::params::zookeeper_service_ensure,
   $service_enable       = $::confluent::params::zookeeper_service_enable,
   $file_limit           = $::confluent::params::zookeeper_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
 ) inherits confluent::params {
   include ::confluent::kafka
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
 
   validate_hash($config)
   validate_hash($environment_settings)
@@ -117,8 +122,6 @@ class confluent::zookeeper (
     group   => $user,
     owner   => $user
   }
-
-  Package['confluent-kafka-2.11'] -> Ini_setting <| tag == 'kafka-setting' |>
 
   $ensure_zookeeper_settings_defaults = {
     'ensure'      => 'present',

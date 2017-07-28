@@ -68,9 +68,14 @@ class confluent::kafka::connect::standalone (
   $service_ensure       = $::confluent::params::connect_standalone_service_ensure,
   $service_enable       = $::confluent::params::connect_standalone_service_enable,
   $file_limit           = $::confluent::params::connect_standalone_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
 ) inherits ::confluent::params {
-
+  include ::confluent
   include ::confluent::kafka::connect
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
 
   user { $user:
     ensure => present,

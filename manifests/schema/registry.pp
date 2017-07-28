@@ -36,8 +36,8 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::schema::registry (
-  $config               = { },
-  $environment_settings = { },
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::schema_registry_config_path,
   $environment_file     = $::confluent::params::schema_registry_environment_path,
   $log_path             = $::confluent::params::schema_registry_log_path,
@@ -47,12 +47,19 @@ class confluent::schema::registry (
   $service_ensure       = $::confluent::params::schema_registry_service_ensure,
   $service_enable       = $::confluent::params::schema_registry_service_enable,
   $file_limit           = $::confluent::params::schema_registry_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
 ) inherits confluent::params {
+  include ::confluent
+
   validate_hash($config)
   validate_hash($environment_settings)
   validate_absolute_path($config_path)
   validate_absolute_path($environment_file)
   validate_absolute_path($log_path)
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
 
   $application_name = 'schema-registry'
 
@@ -94,8 +101,8 @@ class confluent::schema::registry (
 
   package { 'confluent-schema-registry':
     ensure => latest,
-    alias  => 'schema-registry',
-  } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'schemaregistry-setting' |>
+    tag    => 'confluent',
+  }
 
   $ensure_schemaregistry_settings_defaults = {
     'ensure'      => 'present',
