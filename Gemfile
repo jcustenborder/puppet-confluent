@@ -7,3 +7,4 @@ gem 'yard'
 gem 'puppet-strings'
 gem 'rspec-puppet'
 gem 'puppetlabs_spec_helper'
+gem "puppet-blacksmith"

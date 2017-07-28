@@ -14,9 +14,15 @@ node {
         stage('spec') {
             sh 'rake spec'
         }
-        stage('deploy') {
-            def inputFile = new File("metadata.json")
 
+        if (env.BRANCH_NAME == 'master') {
+            stage('publish') {
+                withCredentials([usernamePassword(credentialsId: 'puppet_forge', passwordVariable: 'BLACKSMITH_FORGE_PASSWORD', usernameVariable: 'BLACKSMITH_FORGE_USERNAME')]) {
+                    withEnv(['BLACKSMITH_FORGE_URL=https://forgeapi.puppetlabs.com']) {
+                        sh 'rake jenkins_set_version module:tag module:push'
+                    }
+                }
+            }
         }
     }
 }

@@ -1,6 +1,8 @@
 require 'rspec-puppet/rake_task'
 require 'puppetlabs_spec_helper/rake_tasks'
 require 'puppet-strings/tasks'
+require 'puppet_blacksmith/rake_tasks'
+require 'json'
 
 begin
   if Gem::Specification::find_by_name('puppet-lint')
@@ -10,4 +12,18 @@ begin
   end
 rescue Gem::LoadError
   task :default => :rspec
+end
+
+task :jenkins_set_version do
+  build_number = ENV['BUILD_NUMBER']
+  raise ArgumentError 'Environment variable BUILD_NUMBER must be set' unless build_number
+
+  module_json = JSON.parse(File.read('metadata.json'))
+  version_parts = module_json['version'].split(/\./)
+  version_parts[2] = build_number
+  module_json['version'] = version_parts.join('.')
+  File.open('metadata.json', 'w') do |f|
+    f << JSON.pretty_generate(module_json)
+  end
+
 end
