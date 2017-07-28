@@ -5,11 +5,7 @@ describe 'confluent::schema::registry' do
     context "on #{operating_system}" do
       osfamily = default_facts['osfamily']
       default_params = {
-          'config' => {
-              'kafkastore.connection.url' => {
-                  'value' => 'zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181'
-              }
-          }
+          'kafkastore_connection_url' => %w(zookeeper-01:2181 zookeeper-02:2181 zookeeper-03:2181)
       }
 
       environment_file = nil
