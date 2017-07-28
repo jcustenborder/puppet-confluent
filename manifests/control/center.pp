@@ -46,6 +46,9 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::control::center (
+  $bootstrap_servers,
+  $zookeeper_connect,
+  $connect_cluster      = [],
   $control_center_id    = 1,
   $config               = {},
   $environment_settings = {},
@@ -76,12 +79,22 @@ class confluent::control::center (
   $application_name = 'c3'
 
   $control_center_default_settings = {
-    'confluent.controlcenter.id'       => {
+    'confluent.controlcenter.id'              => {
       'value' => $control_center_id
     },
-    'confluent.controlcenter.data.dir' => {
+    'confluent.controlcenter.data.dir'        => {
       'value' => $data_path
+    },
+    'bootstrap.servers'                       => {
+      'value' => join(any2array($bootstrap_servers), ',')
+    },
+    'confluent.controlcenter.connect.cluster' => {
+      'value' => join(any2array($connect_cluster), ',')
+    },
+    'zookeeper.connect'                       => {
+      'value' => join(any2array($zookeeper_connect), ',')
     }
+
   }
 
   $java_default_settings = {
