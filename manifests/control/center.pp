@@ -57,7 +57,14 @@ class confluent::control::center (
   $service_ensure       = $::confluent::params::control_center_service_ensure,
   $service_enable       = $::confluent::params::control_center_service_enable,
   $file_limit           = $::confluent::params::control_center_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
 ) inherits confluent::params {
+  include ::confluent
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
+
   validate_hash($config)
   validate_hash($environment_settings)
   validate_absolute_path($config_path)
@@ -99,8 +106,8 @@ class confluent::control::center (
 
   package { 'confluent-control-center':
     ensure => latest,
-    alias  => 'control-center',
-  } -> Ini_setting <| tag == 'kafka-setting' |> -> Ini_subsetting <| tag == 'control-center-setting' |>
+    tag  => 'confluent',
+  }
 
   $ensure_control_center_settings_defaults = {
     'ensure'      => 'present',

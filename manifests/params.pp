@@ -2,6 +2,8 @@
 #
 #
 class confluent::params {
+  $confluent_version = '3.2'
+  $manage_repository = true
   $connect_distributed_user = 'connect-distributed'
   $connect_distributed_service = 'connect-distributed'
   $connect_distributed_manage_service = true
@@ -59,6 +61,8 @@ class confluent::params {
   $control_center_config_path = '/etc/confluent-control-center/control-center.properties'
   $control_center_log_path = '/var/log/control-center'
 
+  $package_name = 'confluent-kafka-2.11'
+
   case $::osfamily {
     'RedHat': {
       $connect_distributed_environment_path = '/etc/sysconfig/kafka-connect-distributed'
@@ -67,6 +71,16 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/sysconfig/zookeeper'
       $schema_registry_environment_path = '/etc/sysconfig/schema-registry'
       $control_center_environment_path = '/etc/sysconfig/control-center'
+      case $::operatingsystemmajrelease {
+        '7': {
+          $dist_repository_url = "http://packages.confluent.io/rpm/${confluent_version}/7"
+          $repository_url = "http://packages.confluent.io/rpm/${confluent_version}"
+          $gpgkey_url = "http://packages.confluent.io/rpm/${confluent_version}/archive.key"
+        }
+        default: {
+          fail("${::operatingsystem} ${::operatingsystemmajrelease} is not supported.")
+        }
+      }
     }
     'Debian': {
       $connect_distributed_environment_path = '/etc/default/kafka-connect-distributed'
@@ -75,6 +89,8 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/default/zookeeper'
       $schema_registry_environment_path = '/etc/default/schema-registry'
       $control_center_environment_path = '/etc/default/control-center'
+      $key_url = 'http://packages.confluent.io/deb/3.2/archive.key'
+      $repository_url = 'http://packages.confluent.io/deb/3.2'
     }
     default: {
       fail("${::osfamily} is not currently supported.")
