@@ -10,6 +10,8 @@ module Helpers
   def supported_osfamalies
     return {
         'RedHat 7' => {
+            'hostname' => 'server-01',
+            'domain' => 'example.com',
             'osfamily' => 'RedHat',
             'operatingsystem' => 'CentOS',
             'operatingsystemrelease' => '7.0',
@@ -20,6 +22,8 @@ module Helpers
             'selinux' => true,
         },
         'Debian 8' => {
+            'hostname' => 'server-01',
+            'domain' => 'example.com',
             'os' => {
                 'name' => 'Debian',
                 'release' => {

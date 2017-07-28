@@ -61,6 +61,17 @@ class confluent::params {
   $schema_registry_stop_timeout_secs = 300
   $schema_registry_heap_size = '512m'
 
+  $kafka_rest_user = 'kafka-rest'
+  $kafka_rest_service = 'kafka-rest'
+  $kafka_rest_manage_service = true
+  $kafka_rest_service_ensure = 'running'
+  $kafka_rest_service_enable = true
+  $kafka_rest_file_limit = 128000
+  $kafka_rest_config_path = '/etc/kafka-rest/kafka-rest.properties'
+  $kafka_rest_log_path = '/var/log/kafka-rest'
+  $kafka_rest_stop_timeout_secs = 300
+  $kafka_rest_heap_size = '512m'
+  
   $control_center_user = 'control-center'
   $control_center_service = 'control-center'
   $control_center_manage_service = true
@@ -83,6 +94,7 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/sysconfig/zookeeper'
       $schema_registry_environment_path = '/etc/sysconfig/schema-registry'
       $control_center_environment_path = '/etc/sysconfig/control-center'
+      $kafka_rest_environment_path = '/etc/sysconfig/kafka-rest'
       case $::operatingsystemmajrelease {
         '7': {
           $dist_repository_url = "http://packages.confluent.io/rpm/${confluent_version}/7"
@@ -101,6 +113,7 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/default/zookeeper'
       $schema_registry_environment_path = '/etc/default/schema-registry'
       $control_center_environment_path = '/etc/default/control-center'
+      $kafka_rest_environment_path = '/etc/default/kafka-rest'
       $key_url = 'http://packages.confluent.io/deb/3.2/archive.key'
       $repository_url = 'http://packages.confluent.io/deb/3.2'
     }
