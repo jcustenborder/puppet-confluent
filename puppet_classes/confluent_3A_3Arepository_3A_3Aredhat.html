@@ -4,7 +4,7 @@
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>
-  Defined Type: confluent::systemd::unit_ini_setting
+  Puppet Class: confluent::repository::redhat
   
     &mdash; Documentation by YARD 0.9.8
   
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="../css/common.css" type="text/css" charset="utf-8" />
 
 <script type="text/javascript" charset="utf-8">
-  pathId = "puppet_defined_types::confluent::systemd::unit_ini_setting";
+  pathId = "puppet_classes::confluent::repository::redhat";
   relpath = '../';
 </script>
 
@@ -28,7 +28,7 @@
   </head>
   <body>
     <div class="nav_wrap">
-      <iframe id="nav" src="../puppet_defined_type_list.html?1"></iframe>
+      <iframe id="nav" src="../puppet_class_list.html?1"></iframe>
       <div id="resizer"></div>
     </div>
 
@@ -37,9 +37,9 @@
         <div id="menu">
   
     <a href="../_index.html">Index (c)</a> &raquo;
-    <span class='title'><span class='object_link'>Defined Types</span></span>
+    <span class='title'><span class='object_link'>Puppet Classes</span></span>
      &raquo; 
-    <span class="title">confluent::systemd::unit_ini_setting</span>
+    <span class="title">confluent::repository::redhat</span>
   
 </div>
 
@@ -59,12 +59,19 @@
         <div class="clear"></div>
       </div>
 
-      <div id="content"><h1>Defined Type: confluent::systemd::unit_ini_setting</h1>
+      <div id="content"><h1>Puppet Class: confluent::repository::redhat</h1>
 <div class="box_info">
+  
+  <dl>
+    <dt>Inherits:</dt>
+    <dd><span class='object_link'><a href="confluent_3A_3Aparams.html" title="puppet_classes::confluent::params (puppet_class)">confluent::params</a></span></dd>
+  </dl>
+  
+  
   <dl>
     <dt>Defined in:</dt>
     <dd>
-      manifests/systemd/unit_ini_setting.pp
+      manifests/repository/redhat.pp
     </dd>
   </dl>
 </div>
@@ -72,7 +79,8 @@
 <div class="docstring">
   <div class="discussion">
     
-<p>Define is used to create a SystemD unit for a kafka service.</p>
+<p>Class is used to configure the repository for $::osfamily ==
+&#39;RedHat&#39;</p>
 
   </div>
 </div>
@@ -82,35 +90,40 @@
   
     <li>
       
-        <span class='name'>ensure</span>
+        <span class='name'>dist_repository_url</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
       
       
+        <em class="default">(defaults to: <tt>$::confluent::params::dist_repository_url</tt>)</em>
       
-        &mdash;
-        <div class='inline'>
-<p>present to create the unit, false to remove it.</p>
-</div>
       
     </li>
   
     <li>
       
-        <span class='name'>value</span>
+        <span class='name'>repository_url</span>
       
       
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>undef</tt>)</em>
+        <em class="default">(defaults to: <tt>$::confluent::params::repository_url</tt>)</em>
       
       
-        &mdash;
-        <div class='inline'>
-<p>Value to set.</p>
-</div>
+    </li>
+  
+    <li>
+      
+        <span class='name'>gpgkey_url</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::gpgkey_url</tt>)</em>
+      
       
     </li>
   
@@ -124,6 +137,7 @@
         <pre class="lines">
 
 
+4
 5
 6
 7
@@ -148,63 +162,36 @@
 26
 27
 28
-29
-30
-31
-32
-33
-34
-35
-36
-37
-38
-39
-40
-41
-42
-43</pre>
+29</pre>
       </td>
       <td>
-        <pre class="code"><span class="info file"># File 'manifests/systemd/unit_ini_setting.pp', line 5</span>
+        <pre class="code"><span class="info file"># File 'manifests/repository/redhat.pp', line 4</span>
 
-define confluent::systemd::unit_ini_setting($ensure, $value=undef){
-  include ::confluent::systemd
-  validate_re($name, &#39;^[\w-]+\/[\w]+\/[\w]+$&#39;)
-  $name_parts=split($name, &#39;/&#39;)
-  $unit_name = $name_parts[0]
-  $section = $name_parts[1]
-  $setting = $name_parts[2]
+class confluent::repository::redhat (
+  $dist_repository_url = $::confluent::params::dist_repository_url,
+  $repository_url      = $::confluent::params::repository_url,
+  $gpgkey_url          = $::confluent::params::gpgkey_url
+) inherits confluent::params {
 
-  $service_file=&quot;/usr/lib/systemd/system/${unit_name}.service&quot;
-
-  case $ensure {
-    &#39;present&#39;: {
-      if($value == undef) {
-        fail(&#39;When ensure is present a value is required.&#39;)
-      }
-
-      ini_setting { $name:
-        ensure  =&gt; $ensure,
-        path    =&gt; $service_file,
-        section =&gt; $section,
-        setting =&gt; $setting,
-        value   =&gt; $value,
-        notify  =&gt; Exec[&#39;kafka-systemctl-daemon-reload&#39;]
-      }
-    }
-    &#39;absent&#39;: {
-      ini_setting { $name:
-        ensure  =&gt; $ensure,
-        path    =&gt; $service_file,
-        section =&gt; $section,
-        setting =&gt; $setting,
-        notify  =&gt; Exec[&#39;kafka-systemctl-daemon-reload&#39;]
-      }
-    }
-    default: {
-      fail(&#39;ensure must be absent or present&#39;)
-    }
+  yumrepo { &#39;Confluent&#39;:
+    ensure   =&gt; &#39;present&#39;,
+    baseurl  =&gt; $repository_url,
+    descr    =&gt; &#39;Confluent repository&#39;,
+    enabled  =&gt; &#39;1&#39;,
+    gpgcheck =&gt; &#39;1&#39;,
+    gpgkey   =&gt; $gpgkey_url,
   }
+  yumrepo { &#39;Confluent.dist&#39;:
+    ensure   =&gt; &#39;present&#39;,
+    baseurl  =&gt; $dist_repository_url,
+    descr    =&gt; &#39;Confluent repository (dist)&#39;,
+    enabled  =&gt; &#39;1&#39;,
+    gpgcheck =&gt; &#39;1&#39;,
+    gpgkey   =&gt; $gpgkey_url,
+  }
+
+  #Ensure that repositories are configured before packages are installed.
+  Yumrepo&lt;| |&gt; -&gt; Package&lt;| provider == &#39;yum&#39; |&gt;
 }</pre>
       </td>
     </tr>

@@ -152,7 +152,7 @@
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
       
         &mdash;
@@ -170,7 +170,7 @@
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
       
         &mdash;
@@ -344,6 +344,56 @@ scripts.</p>
       
     </li>
   
+    <li>
+      
+        <span class='name'>bootstrap_servers</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manage_repository</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::manage_repository</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>stop_timeout_secs</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_stop_timeout_secs</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>heap_size</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::connect_distributed_heap_size</tt>)</em>
+      
+      
+    </li>
+  
 </ul>
 
 
@@ -450,14 +500,26 @@ scripts.</p>
 151
 152
 153
-154</pre>
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165</pre>
       </td>
       <td>
         <pre class="code"><span class="info file"># File 'manifests/kafka/connect/distributed.pp', line 58</span>
 
 class confluent::kafka::connect::distributed (
-  $config               = { },
-  $environment_settings = { },
+  $bootstrap_servers,
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::connect_distributed_config_path,
   $environment_file     = $::confluent::params::connect_distributed_environment_path,
   $log_path             = $::confluent::params::connect_distributed_log_path,
@@ -467,41 +529,50 @@ class confluent::kafka::connect::distributed (
   $service_ensure       = $::confluent::params::connect_distributed_service_ensure,
   $service_enable       = $::confluent::params::connect_distributed_service_enable,
   $file_limit           = $::confluent::params::connect_distributed_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
+  $stop_timeout_secs    = $::confluent::params::connect_distributed_stop_timeout_secs,
+  $heap_size            = $::confluent::params::connect_distributed_heap_size
 ) inherits ::confluent::params {
-
+  include ::confluent
   include ::confluent::kafka::connect
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
 
   user { $user:
     ensure =&gt; present,
     alias  =&gt; &#39;kafka-connect-distributed&#39;
   } -&gt;
-    file { $log_path:
-      ensure  =&gt; directory,
-      owner   =&gt; $user,
-      group   =&gt; $user,
-      recurse =&gt; true
-    }
+  file { $log_path:
+    ensure  =&gt; directory,
+    owner   =&gt; $user,
+    group   =&gt; $user,
+    recurse =&gt; true
+  }
 
   $application = &#39;connect-distributed&#39;
 
 
   $java_default_settings = {
     &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx256M&#39;
+      &#39;value&#39; =&gt; &quot;-Xmx${heap_size}&quot;
     },
     &#39;KAFKA_OPTS&#39;      =&gt; {
       &#39;value&#39; =&gt; &#39;-Djava.net.preferIPv4Stack=true&#39;
     },
     &#39;GC_LOG_ENABLED&#39;  =&gt; {
-      &#39;value&#39; =&gt; &#39;true&#39;
+      &#39;value&#39; =&gt; true
     },
     &#39;LOG_DIR&#39;         =&gt; {
-      &#39;value&#39; =&gt; &#39;/var/log/kafka&#39;
+      &#39;value&#39; =&gt; $log_path
     }
   }
 
   $connect_default_settings = {
-
+    &#39;bootstrap.servers&#39; =&gt; {
+      &#39;value&#39; =&gt; join(any2array($bootstrap_servers), &#39;,&#39;)
+    }
   }
 
   $actual_connect_settings = merge($connect_default_settings, $config)
@@ -527,19 +598,20 @@ class confluent::kafka::connect::distributed (
   }
 
   $unit_ini_settings = {
-    &#39;kafka-connect-distributed/Unit/Description&#39;        =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka Connect by Confluent&#39;, },
-    &#39;kafka-connect-distributed/Unit/Wants&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
-    &#39;kafka-connect-distributed/Unit/After&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
-    &#39;kafka-connect-distributed/Service/User&#39;            =&gt; { &#39;value&#39; =&gt; $user, },
-    &#39;kafka-connect-distributed/Service/EnvironmentFile&#39; =&gt; { &#39;value&#39; =&gt; $environment_file, },
-    &#39;kafka-connect-distributed/Service/ExecStart&#39;       =&gt; {
+    &quot;${service_name}/Unit/Description&quot;        =&gt; { &#39;value&#39; =&gt; &#39;Apache Kafka Connect by Confluent&#39;, },
+    &quot;${service_name}/Unit/Wants&quot;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
+    &quot;${service_name}/Unit/After&quot;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
+    &quot;${service_name}/Service/User&quot;            =&gt; { &#39;value&#39; =&gt; $user, },
+    &quot;${service_name}/Service/EnvironmentFile&quot; =&gt; { &#39;value&#39; =&gt; $environment_file, },
+    &quot;${service_name}/Service/ExecStart&quot;       =&gt; {
       &#39;value&#39; =&gt; &quot;/usr/bin/connect-distributed ${config_path}&quot;,
     },
-    &#39;kafka-connect-distributed/Service/LimitNOFILE&#39;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
-    &#39;kafka-connect-distributed/Service/KillMode&#39;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
-    &#39;kafka-connect-distributed/Service/RestartSec&#39;      =&gt; { &#39;value&#39; =&gt; 5, },
-    &#39;kafka-connect-distributed/Service/Type&#39;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
-    &#39;kafka-connect-distributed/Install/WantedBy&#39;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
+    &quot;${service_name}/Service/LimitNOFILE&quot;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
+    &quot;${service_name}/Service/KillMode&quot;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
+    &quot;${service_name}/Service/RestartSec&quot;      =&gt; { &#39;value&#39; =&gt; 5, },
+    &quot;${service_name}/Service/TimeoutStopSec&quot;  =&gt; { &#39;value&#39; =&gt; $stop_timeout_secs, },
+    &quot;${service_name}/Service/Type&quot;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
+    &quot;${service_name}/Install/WantedBy&quot;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
   }
 
   ensure_resources(&#39;confluent::systemd::unit_ini_setting&#39;, $unit_ini_settings, $unit_ini_setting_defaults)
@@ -559,7 +631,7 @@ class confluent::kafka::connect::distributed (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:46 2017 by
+  Generated on Fri Jul 28 12:18:11 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

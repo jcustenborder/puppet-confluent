@@ -81,11 +81,7 @@ href="http://jcustenborder.github.io/puppet-confluent/">here</a>.</p>
 
 <pre class="code ruby"><code class="ruby">class{&#39;confluent::zookeeper&#39;:
   zookeeper_id =&gt; &#39;1&#39;,
-  environment_settings =&gt; {
-    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
-    }
-  }
+  heap_size =&gt; &#39;4000M&#39;
 }</code></pre>
 
 <h3 id="label-Hiera+Installation">Hiera Installation</h3>
@@ -100,50 +96,33 @@ confluent::zookeeper::config:
     value: &#39;zookeeper-02.example.com:2888:3888&#39;
   server.3:
     value: &#39;zookeeper-03.example.com:2888:3888&#39;
-confluent::zookeeper::environment_settings:
-  KAFKA_HEAP_OPTS:
-    value: &#39;-Xmx4000M&#39;</code></pre>
+confluent::zookeeper::heap_size: &#39;4000M&#39;</code></pre>
 
 <h2 id="label-Kafka+Broker">Kafka Broker</h2>
 
 <h3 id="label-Class+installation">Class installation</h3>
 
 <pre class="code ruby"><code class="ruby">class{&#39;confluent::kafka::broker&#39;:
-  kafka_settings =&gt; {
-    &#39;broker.id&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;1&#39;
-    },
-    &#39;zookeeper.connect&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;zookeeper-01.custenborder.com:2181,zookeeper-02.custenborder.com:2181,zookeeper-03.:2181&#39;
-    },
-  },
-  java_settings =&gt; {
-    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
-    }
-  }
+  broker_id =&gt; &#39;1&#39;,
+  zookeeper_connect =&gt; [
+    &#39;zookeeper-01:2181&#39;,
+    &#39;zookeeper-02:2181&#39;,
+    &#39;zookeeper-03:2181&#39;
+  ],
+  heap_size =&gt; &#39;4000M&#39;
 }</code></pre>
 
 <h3 id="label-Heira+installation">Heira installation</h3>
 
 <pre class="code ruby"><code class="ruby">include ::confluent::kafka::broker</code></pre>
 
-<pre class="code ruby"><code class="ruby">confluent::kafka::broker::kafka_settings:
-  zookeeper.connect:
-    value: &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
-  broker.id:
-    value: 0
-  log.dirs:
-    value: /var/lib/kafka
-  advertised.listeners:
-    value: &quot;PLAINTEXT://%{::fqdn}:9092&quot;
-  delete.topic.enable:
-    value: true
-  auto.create.topics.enable:
-    value: false
-confluent::kafka::broker::java_settings:
-  KAFKA_HEAP_OPTS:
-    value: -Xmx1024M</code></pre>
+<pre class="code ruby"><code class="ruby">confluent::kafka::broker::broker_id: &#39;1&#39;
+confluent::kafka::broker::heap_size: &#39;4000M&#39;
+confluent::kafka::broker::zookeeper_connect:
+  - &#39;zookeeper-01:2181&#39;,
+  - &#39;zookeeper-02:2181&#39;,
+  - &#39;zookeeper-03:2181&#39;
+confluent::kafka::broker::data_path: &#39;/var/lib/kafka&#39;</code></pre>
 
 <h2 id="label-Kafka+Connect">Kafka Connect</h2>
 
@@ -152,10 +131,13 @@ confluent::kafka::broker::java_settings:
 <h4 id="label-Class+Installation">Class Installation</h4>
 
 <pre class="code ruby"><code class="ruby">class{&#39;confluent::kafka::connect::distributed&#39;:
-  connect_settings =&gt; {
-    &#39;bootstrap.servers&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
-    },
+  heap_size =&gt; &#39;4000M&#39;,
+  bootstrap_servers =&gt; [
+    &#39;broker-01:9092&#39;,
+    &#39;broker-02:9092&#39;,
+    &#39;broker-03:9092&#39;
+  ],
+  config =&gt; {
     &#39;key.converter&#39; =&gt; {
       &#39;value&#39; =&gt; &#39;io.confluent.connect.avro.AvroConverter&#39;
     },
@@ -169,41 +151,39 @@ confluent::kafka::broker::java_settings:
       &#39;value&#39; =&gt; &#39;http://schema-registry-01:8081&#39;
     },
   },
-  java_settings =&gt; {
-    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
-    }
-  }
 }</code></pre>
 
 <h4 id="label-Heira+installation">Heira installation</h4>
 
 <pre class="code ruby"><code class="ruby">include ::confluent::kafka::connect::distributed</code></pre>
 
-<pre class="code ruby"><code class="ruby">confluent::kafka::connect::distributed::connect_settings:
-  &#39;bootstrap.servers&#39;:
-    value: &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
-  &#39;key.converter&#39;:
-    value: &#39;io.confluent.connect.avro.AvroConverter&#39;
-  &#39;value.converter&#39;:
-    value: &#39;io.confluent.connect.avro.AvroConverter&#39;
-  &#39;key.converter.schema.registry.url&#39;:
-    value: &#39;http://schema-registry-01.example.com:8081&#39;
-  &#39;value.converter.schema.registry.url&#39;:
-    value: &#39;http://schema-registry-01.example.com:8081&#39;
-confluent::kafka::connect::distributed::connect_settings:java_settings:
-  KAFKA_HEAP_OPTS:
-    value: &#39;-Xmx4000M&#39;</code></pre>
+<pre class="code ruby"><code class="ruby">confluent::kafka::connect::distributed::heap_size: &#39;4000M&#39;
+ confluent::kafka::connect::distributed::bootstrap_servers:
+  - broker-01:9092
+  - broker-02:9092
+  - broker-03:9092
+ confluent::kafka::connect::distributed::config:
+   &#39;key.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;value.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;key.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;
+   &#39;value.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;</code></pre>
 
 <h3 id="label-Standalone">Standalone</h3>
 
 <h4 id="label-Class+Installation">Class Installation</h4>
 
 <pre class="code ruby"><code class="ruby">class{&#39;confluent::kafka::connect::standalone&#39;:
-  connect_settings =&gt; {
-    &#39;bootstrap.servers&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
-    },
+  heap_size =&gt; &#39;4000M&#39;,
+  bootstrap_servers =&gt; [
+    &#39;broker-01:9092&#39;,
+    &#39;broker-02:9092&#39;,
+    &#39;broker-03:9092&#39;
+  ],
+  config =&gt; {
     &#39;key.converter&#39; =&gt; {
       &#39;value&#39; =&gt; &#39;io.confluent.connect.avro.AvroConverter&#39;
     },
@@ -217,97 +197,90 @@ confluent::kafka::connect::distributed::connect_settings:java_settings:
       &#39;value&#39; =&gt; &#39;http://schema-registry-01:8081&#39;
     },
   },
-  java_settings =&gt; {
-    &#39;KAFKA_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx4000M&#39;
-    }
-  }
 }</code></pre>
 
 <h4 id="label-Heira+installation">Heira installation</h4>
 
 <pre class="code ruby"><code class="ruby">include ::confluent::kafka::connect::standalone</code></pre>
 
-<pre class="code ruby"><code class="ruby">confluent::kafka::connect::standalone::connect_settings:
-  &#39;bootstrap.servers&#39;:
-    value: &#39;broker-01:9092,broker-02:9092,broker-03:9092&#39;
-  &#39;key.converter&#39;:
-    value: &#39;io.confluent.connect.avro.AvroConverter&#39;
-  &#39;value.converter&#39;:
-    value: &#39;io.confluent.connect.avro.AvroConverter&#39;
-  &#39;key.converter.schema.registry.url&#39;:
-    value: &#39;http://schema-registry-01.example.com:8081&#39;
-  &#39;value.converter.schema.registry.url&#39;:
-    value: &#39;http://schema-registry-01.example.com:8081&#39;
-confluent::kafka::connect::standalone::connect_settings:java_settings:
-  KAFKA_HEAP_OPTS:
-    value: &#39;-Xmx4000M&#39;</code></pre>
+<pre class="code ruby"><code class="ruby">confluent::kafka::connect::standalone::heap_size: &#39;4000M&#39;
+ confluent::kafka::connect::standalone::bootstrap_servers:
+  - broker-01:9092
+  - broker-02:9092
+  - broker-03:9092
+ confluent::kafka::connect::standalone::config:
+   &#39;key.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;value.converter&#39;:
+     value: &#39;io.confluent.connect.avro.AvroConverter&#39;
+   &#39;key.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;
+   &#39;value.converter.schema.registry.url&#39;:
+     value: &#39;http://schema-registry-01.example.com:8081&#39;</code></pre>
 
 <h2 id="label-Schema+Registry">Schema Registry</h2>
 
 <h3 id="label-Class+installation">Class installation</h3>
 
 <pre class="code ruby"><code class="ruby">class {&#39;confluent::schema::registry&#39;:
-  schemaregistry_settings =&gt; {
-    &#39;kafkastore.connection.url&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
-    },
-  },
-  java_settings =&gt; {
-    &#39;SCHEMA_REGISTRY_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx1024M&#39;
-    }
-  }
+  heap_size =&gt; &#39;1024M&#39;,
+  kafkastore_connection_url =&gt; [
+      &#39;zookeeper-01:2181&#39;,
+      &#39;zookeeper-02:2181&#39;,
+      &#39;zookeeper-03:2181&#39;
+  ]
 }</code></pre>
 
 <h3 id="label-Hiera+installation">Hiera installation</h3>
 
 <pre class="code ruby"><code class="ruby">include ::confluent::schema::registry</code></pre>
 
-<pre class="code ruby"><code class="ruby">confluent::schema::registry::schemaregistry_settings:
-  kafkastore.connection.url:
-    value: &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
-confluent::schema::registry::java_settings:
-  SCHEMA_REGISTRY_HEAP_OPTS:
-    value: -Xmx1024M</code></pre>
+<pre class="code ruby"><code class="ruby">confluent::schema::registry::heap_size: &#39;1024M&#39;
+confluent::schema::registry::kafkastore_connection_url:
+  - &#39;zookeeper-01:2181&#39;
+  - &#39;zookeeper-02:2181&#39;
+  - &#39;zookeeper-03:2181&#39;</code></pre>
 
 <h2 id="label-Confluent+Control+Center">Confluent Control Center</h2>
 
 <h3 id="label-Class+installation">Class installation</h3>
 
 <pre class="code ruby"><code class="ruby">class {&#39;confluent::control::center&#39;:
-  control_center_settings =&gt; {
-    &#39;zookeeper.connect&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
-    },
-    &#39;bootstrap.servers&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;kafka-01.example.com:9092,kafka-02.example.com:9092,kafka-03.example.com:9092&#39;
-    },
-    &#39;confluent.controlcenter.connect.cluster&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;kafka-connect-01.example.com:8083,kafka-connect-02.example.com:8083,kafka-connect-03.example.com:8083&#39;
-    }
-  },
-  java_settings =&gt; {
-    &#39;CONTROL_CENTER_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx6g&#39;
-    }
-  }
+  heap_size =&gt; &#39;6g&#39;,
+  zookeeper_connect =&gt; [
+    &#39;zookeeper-01:2181&#39;,
+    &#39;zookeeper-02:2181&#39;,
+    &#39;zookeeper-03:2181&#39;
+  ],
+  bootstrap_servers =&gt; [
+    &#39;broker-01:9092&#39;,
+    &#39;broker-02:9092&#39;,
+    &#39;broker-03:9092&#39;
+  ],
+  connect_cluster =&gt; [
+    &#39;kafka-connect-01.example.com:8083&#39;,
+    &#39;kafka-connect-02.example.com:8083&#39;,
+    &#39;kafka-connect-03.example.com:8083&#39;
+  ]
 }</code></pre>
 
 <h3 id="label-Hiera+installation">Hiera installation</h3>
 
 <pre class="code ruby"><code class="ruby">include ::confluent::control::center</code></pre>
 
-<pre class="code ruby"><code class="ruby">confluent::control::center::control_center_settings:
-  zookeeper.connect:
-    value: &#39;zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181&#39;
-  bootstrap.servers:
-    value: &#39;kafka-01.example.com:9092,kafka-02.example.com:9092,kafka-03.example.com:9092&#39;
-  confluent.controlcenter.connect.cluster:
-    value: &#39;kafka-connect-01:8083,kafka-connect-02:8083,kafka-connect-03:8083&#39;
-confluent::control::center::java_settings:
-  CONTROL_CENTER_HEAP_OPTS:
-    value: -Xmx6g</code></pre>
+<pre class="code ruby"><code class="ruby">confluent::control::center::heap_size: &#39;6g&#39;
+confluent::control::center::zookeeper_connect: 
+  - &#39;zookeeper-01:2181&#39;
+  - &#39;zookeeper-02:2181&#39;
+  - &#39;zookeeper-03:2181&#39;
+confluent::control::center::bootstrap_servers: 
+  - &#39;broker-01:9092&#39;
+  - &#39;broker-02:9092&#39;
+  - &#39;broker-03:9092&#39;
+confluent::control::center::connect_cluster: 
+  - &#39;kafka-connect-01.example.com:8083&#39;
+  - &#39;kafka-connect-02.example.com:8083&#39;
+  - &#39;kafka-connect-03.example.com:8083&#39;</code></pre>
 
 <h1 id="label-Run+tests">Run tests</h1>
 
@@ -320,7 +293,7 @@ confluent::control::center::java_settings:
 </div></div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:45 2017 by
+  Generated on Fri Jul 28 12:18:10 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

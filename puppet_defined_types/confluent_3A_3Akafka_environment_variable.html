@@ -204,16 +204,16 @@ This ensures a unique resource name</p>
         <pre class="code"><span class="info file"># File 'manifests/kafka_environment_variable.pp', line 14</span>
 
 define confluent::kafka_environment_variable (
-  $ensure=&#39;present&#39;,
   $path,
-  $value=unset,
-  $application
+  $application,
+  $ensure = &#39;present&#39;,
+  $value  = unset,
 ) {
   $setting_name = &quot;${application}_${name}&quot;
 
   validate_absolute_path($path)
 
-  ini_subsetting{ $setting_name:
+  ini_subsetting { $setting_name:
     ensure            =&gt; $ensure,
     path              =&gt; $path,
     section           =&gt; &#39;&#39;,
@@ -232,7 +232,7 @@ define confluent::kafka_environment_variable (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:46 2017 by
+  Generated on Fri Jul 28 12:18:11 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

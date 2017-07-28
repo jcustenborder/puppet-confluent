@@ -132,7 +132,7 @@ confluent::schema::registry::environment_settings:
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
       
         &mdash;
@@ -150,7 +150,7 @@ confluent::schema::registry::environment_settings:
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
       
         &mdash;
@@ -323,6 +323,56 @@ Kafka broker.</p>
       
     </li>
   
+    <li>
+      
+        <span class='name'>kafkastore_connection_url</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manage_repository</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::manage_repository</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>stop_timeout_secs</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::schema_registry_stop_timeout_secs</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>heap_size</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::schema_registry_heap_size</tt>)</em>
+      
+      
+    </li>
+  
 </ul>
 
 
@@ -440,14 +490,27 @@ Kafka broker.</p>
 142
 143
 144
-145</pre>
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157</pre>
       </td>
       <td>
         <pre class="code"><span class="info file"># File 'manifests/schema/registry.pp', line 38</span>
 
 class confluent::schema::registry (
-  $config               = { },
-  $environment_settings = { },
+  $kafkastore_connection_url,
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::schema_registry_config_path,
   $environment_file     = $::confluent::params::schema_registry_environment_path,
   $log_path             = $::confluent::params::schema_registry_log_path,
@@ -457,28 +520,39 @@ class confluent::schema::registry (
   $service_ensure       = $::confluent::params::schema_registry_service_ensure,
   $service_enable       = $::confluent::params::schema_registry_service_enable,
   $file_limit           = $::confluent::params::schema_registry_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
+  $stop_timeout_secs    = $::confluent::params::schema_registry_stop_timeout_secs,
+  $heap_size            = $::confluent::params::schema_registry_heap_size,
 ) inherits confluent::params {
+  include ::confluent
+
   validate_hash($config)
   validate_hash($environment_settings)
   validate_absolute_path($config_path)
   validate_absolute_path($environment_file)
   validate_absolute_path($log_path)
 
+  if($manage_repository) {
+    include ::confluent::repository
+  }
+
   $application_name = &#39;schema-registry&#39;
 
   $schemaregistry_default_settings = {
-
+    &#39;kafkastore.connection.url&#39; =&gt; {
+      &#39;value&#39; =&gt; join(any2array($kafkastore_connection_url), &#39;,&#39;)
+    }
   }
 
   $java_default_settings = {
     &#39;SCHEMA_REGISTRY_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx256M&#39;
+      &#39;value&#39; =&gt; &quot;-Xmx${heap_size}&quot;
     },
     &#39;SCHEMA_REGISTRY_OPTS&#39;      =&gt; {
       &#39;value&#39; =&gt; &#39;-Djava.net.preferIPv4Stack=true&#39;
     },
     &#39;GC_LOG_ENABLED&#39;            =&gt; {
-      &#39;value&#39; =&gt; &#39;true&#39;
+      &#39;value&#39; =&gt; true
     },
     &#39;LOG_DIR&#39;                   =&gt; {
       &#39;value&#39; =&gt; $log_path
@@ -495,17 +569,17 @@ class confluent::schema::registry (
   user { $user:
     ensure =&gt; present
   } -&gt;
-    file { [$log_path]:
-      ensure  =&gt; directory,
-      owner   =&gt; $user,
-      group   =&gt; $user,
-      recurse =&gt; true
-    }
+  file { [$log_path]:
+    ensure  =&gt; directory,
+    owner   =&gt; $user,
+    group   =&gt; $user,
+    recurse =&gt; true
+  }
 
   package { &#39;confluent-schema-registry&#39;:
-    alias  =&gt; &#39;schema-registry&#39;,
-    ensure =&gt; latest
-  } -&gt; Ini_setting &lt;| tag == &#39;kafka-setting&#39; |&gt; -&gt; Ini_subsetting &lt;| tag == &#39;schemaregistry-setting&#39; |&gt;
+    ensure =&gt; latest,
+    tag    =&gt; &#39;confluent&#39;,
+  }
 
   $ensure_schemaregistry_settings_defaults = {
     &#39;ensure&#39;      =&gt; &#39;present&#39;,
@@ -528,19 +602,19 @@ class confluent::schema::registry (
   }
 
   $unit_ini_settings = {
-    &#39;schema-registry/Unit/Description&#39;        =&gt; { &#39;value&#39; =&gt; &#39;Schema Registry by Confluent&#39;, },
-    &#39;schema-registry/Unit/Wants&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
-    &#39;schema-registry/Unit/After&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
-    &#39;schema-registry/Service/User&#39;            =&gt; { &#39;value&#39; =&gt; $user, },
-    &#39;schema-registry/Service/EnvironmentFile&#39; =&gt; { &#39;value&#39; =&gt; $environment_file, },
-    &#39;schema-registry/Service/ExecStart&#39;       =&gt; { &#39;value&#39; =&gt;
-    &quot;/usr/bin/schema-registry-start /etc/schema-registry/schema-registry.properties&quot;, },
-    &#39;schema-registry/Service/ExecStop&#39;        =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/schema-registry-stop&quot;, },
-    &#39;schema-registry/Service/LimitNOFILE&#39;     =&gt; { &#39;value&#39; =&gt; 131072, },
-    &#39;schema-registry/Service/KillMode&#39;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
-    &#39;schema-registry/Service/RestartSec&#39;      =&gt; { &#39;value&#39; =&gt; 5, },
-    &#39;schema-registry/Service/Type&#39;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
-    &#39;schema-registry/Install/WantedBy&#39;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
+    &quot;${service_name}/Unit/Description&quot;        =&gt; { &#39;value&#39; =&gt; &#39;Schema Registry by Confluent&#39;, },
+    &quot;${service_name}/Unit/Wants&quot;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
+    &quot;${service_name}/Unit/After&quot;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
+    &quot;${service_name}/Service/User&quot;            =&gt; { &#39;value&#39; =&gt; $user, },
+    &quot;${service_name}/Service/EnvironmentFile&quot; =&gt; { &#39;value&#39; =&gt; $environment_file, },
+    &quot;${service_name}/Service/ExecStart&quot;       =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/schema-registry-start ${config_path}&quot;, },
+    &quot;${service_name}/Service/ExecStop&quot;        =&gt; { &#39;value&#39; =&gt; &#39;/usr/bin/schema-registry-stop&#39;, },
+    &quot;${service_name}/Service/LimitNOFILE&quot;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
+    &quot;${service_name}/Service/KillMode&quot;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
+    &quot;${service_name}/Service/RestartSec&quot;      =&gt; { &#39;value&#39; =&gt; 5, },
+    &quot;${service_name}/Service/TimeoutStopSec&quot;  =&gt; { &#39;value&#39; =&gt; $stop_timeout_secs, },
+    &quot;${service_name}/Service/Type&quot;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
+    &quot;${service_name}/Install/WantedBy&quot;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
   }
 
   ensure_resources(&#39;confluent::systemd::unit_ini_setting&#39;, $unit_ini_settings, $unit_ini_setting_defaults)
@@ -560,7 +634,7 @@ class confluent::schema::registry (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:46 2017 by
+  Generated on Fri Jul 28 12:18:11 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

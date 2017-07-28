@@ -198,10 +198,10 @@ This ensures a unique resource name</p>
         <pre class="code"><span class="info file"># File 'manifests/java_property.pp', line 14</span>
 
 define confluent::java_property (
+  $path,
+  $application,
   $ensure=&#39;present&#39;,
   $value=unset,
-  $path,
-  $application
 ) {
   $setting_name = &quot;${application}_${name}&quot;
 
@@ -221,7 +221,7 @@ define confluent::java_property (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:46 2017 by
+  Generated on Fri Jul 28 12:18:11 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

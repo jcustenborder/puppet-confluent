@@ -62,6 +62,11 @@
       <div id="content"><h1>Puppet Class: confluent::kafka</h1>
 <div class="box_info">
   
+  <dl>
+    <dt>Inherits:</dt>
+    <dd><span class='object_link'><a href="confluent_3A_3Aparams.html" title="puppet_classes::confluent::params (puppet_class)">confluent::params</a></span></dd>
+  </dl>
+  
   
   <dl>
     <dt>Defined in:</dt>
@@ -120,7 +125,7 @@
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>&#39;confluent-kafka-2.11&#39;</tt>)</em>
+        <em class="default">(defaults to: <tt>$confluent::params::kafka_package_name</tt>)</em>
       
       
         &mdash;
@@ -150,20 +155,22 @@ need to install a different version of Scala.</p>
 15
 16
 17
-18</pre>
+18
+19</pre>
       </td>
       <td>
         <pre class="code"><span class="info file"># File 'manifests/kafka.pp', line 9</span>
 
-class confluent::kafka(
-  $package_ensure=&#39;installed&#39;,
-  $package_name=&#39;confluent-kafka-2.11&#39;
-)  {
+class confluent::kafka (
+  $package_ensure = &#39;installed&#39;,
+  $package_name   = $confluent::params::kafka_package_name
+) inherits confluent::params {
+  include ::confluent
 
-  package{ $package_name:
-    alias  =&gt; &#39;kafka&#39;,
-    ensure =&gt; $package_ensure
-  } -&gt; Ini_setting &lt;| tag == &#39;kafka-setting&#39; |&gt;
+  package { $package_name:
+    ensure =&gt; $package_ensure,
+    tag    =&gt; &#39;confluent&#39;,
+  }
 }</pre>
       </td>
     </tr>
@@ -172,7 +179,7 @@ class confluent::kafka(
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:45 2017 by
+  Generated on Fri Jul 28 12:18:10 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>

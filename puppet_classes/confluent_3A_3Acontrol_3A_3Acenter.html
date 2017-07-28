@@ -142,7 +142,7 @@ confluent::control::center::environment_settings:
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
       
         &mdash;
@@ -160,7 +160,7 @@ confluent::control::center::environment_settings:
         <span class='type'>(<tt>Any</tt>)</span>
       
       
-        <em class="default">(defaults to: <tt>{ }</tt>)</em>
+        <em class="default">(defaults to: <tt>{}</tt>)</em>
       
       
         &mdash;
@@ -333,6 +333,106 @@ Kafka broker.</p>
       
     </li>
   
+    <li>
+      
+        <span class='name'>bootstrap_servers</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>zookeeper_connect</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>connect_cluster</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>[]</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>control_center_id</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>1</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>data_path</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::control_center_data_path</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>manage_repository</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::manage_repository</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>stop_timeout_secs</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::control_center_stop_timeout_secs</tt>)</em>
+      
+      
+    </li>
+  
+    <li>
+      
+        <span class='name'>heap_size</span>
+      
+      
+        <span class='type'>(<tt>Any</tt>)</span>
+      
+      
+        <em class="default">(defaults to: <tt>$::confluent::params::control_center_heap_size</tt>)</em>
+      
+      
+    </li>
+  
 </ul>
 
 
@@ -444,14 +544,46 @@ Kafka broker.</p>
 146
 147
 148
-149</pre>
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176</pre>
       </td>
       <td>
         <pre class="code"><span class="info file"># File 'manifests/control/center.pp', line 48</span>
 
 class confluent::control::center (
-  $config               = { },
-  $environment_settings = { },
+  $bootstrap_servers,
+  $zookeeper_connect,
+  $connect_cluster      = [],
+  $control_center_id    = 1,
+  $config               = {},
+  $environment_settings = {},
+  $data_path            = $::confluent::params::control_center_data_path,
   $config_path          = $::confluent::params::control_center_config_path,
   $environment_file     = $::confluent::params::control_center_environment_path,
   $log_path             = $::confluent::params::control_center_log_path,
@@ -461,7 +593,17 @@ class confluent::control::center (
   $service_ensure       = $::confluent::params::control_center_service_ensure,
   $service_enable       = $::confluent::params::control_center_service_enable,
   $file_limit           = $::confluent::params::control_center_file_limit,
+  $manage_repository    = $::confluent::params::manage_repository,
+  $stop_timeout_secs    = $::confluent::params::control_center_stop_timeout_secs,
+  $heap_size            = $::confluent::params::control_center_heap_size
+
 ) inherits confluent::params {
+  include ::confluent
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
+
   validate_hash($config)
   validate_hash($environment_settings)
   validate_absolute_path($config_path)
@@ -471,14 +613,26 @@ class confluent::control::center (
   $application_name = &#39;c3&#39;
 
   $control_center_default_settings = {
-    &#39;confluent.controlcenter.id&#39; =&gt; {
-      &#39;value&#39; =&gt; 1
+    &#39;confluent.controlcenter.id&#39;              =&gt; {
+      &#39;value&#39; =&gt; $control_center_id
+    },
+    &#39;confluent.controlcenter.data.dir&#39;        =&gt; {
+      &#39;value&#39; =&gt; $data_path
+    },
+    &#39;bootstrap.servers&#39;                       =&gt; {
+      &#39;value&#39; =&gt; join(any2array($bootstrap_servers), &#39;,&#39;)
+    },
+    &#39;confluent.controlcenter.connect.cluster&#39; =&gt; {
+      &#39;value&#39; =&gt; join(any2array($connect_cluster), &#39;,&#39;)
+    },
+    &#39;zookeeper.connect&#39;                       =&gt; {
+      &#39;value&#39; =&gt; join(any2array($zookeeper_connect), &#39;,&#39;)
     }
   }
 
   $java_default_settings = {
     &#39;CONTROL_CENTER_HEAP_OPTS&#39; =&gt; {
-      &#39;value&#39; =&gt; &#39;-Xmx3g&#39;
+      &#39;value&#39; =&gt; &quot;-Xmx${heap_size}&quot;
     },
     &#39;CONTROL_CENTER_OPTS&#39;      =&gt; {
       &#39;value&#39; =&gt; &#39;-Djava.net.preferIPv4Stack=true&#39;
@@ -490,11 +644,11 @@ class confluent::control::center (
 
   $actual_control_center_settings = merge($control_center_default_settings, $config)
   $actual_java_settings = merge($java_default_settings, $environment_settings)
-  
+
   user { $user:
     ensure =&gt; present
   } -&gt;
-  file { [$log_path]:
+  file { [$log_path, $data_path]:
     ensure  =&gt; directory,
     owner   =&gt; $user,
     group   =&gt; $user,
@@ -502,9 +656,9 @@ class confluent::control::center (
   }
 
   package { &#39;confluent-control-center&#39;:
-    alias  =&gt; &#39;control-center&#39;,
-    ensure =&gt; latest
-  } -&gt; Ini_setting &lt;| tag == &#39;kafka-setting&#39; |&gt; -&gt; Ini_subsetting &lt;| tag == &#39;control-center-setting&#39; |&gt;
+    ensure =&gt; latest,
+    tag    =&gt; &#39;confluent&#39;,
+  }
 
   $ensure_control_center_settings_defaults = {
     &#39;ensure&#39;      =&gt; &#39;present&#39;,
@@ -527,19 +681,19 @@ class confluent::control::center (
   }
 
   $unit_ini_settings = {
-    &#39;confluent-control-center/Unit/Description&#39;        =&gt; { &#39;value&#39; =&gt; &#39;Confluent Control Center&#39;, },
-    &#39;confluent-control-center/Unit/Wants&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
-    &#39;confluent-control-center/Unit/After&#39;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
-    &#39;confluent-control-center/Service/User&#39;            =&gt; { &#39;value&#39; =&gt; $user, },
-    &#39;confluent-control-center/Service/EnvironmentFile&#39; =&gt; { &#39;value&#39; =&gt; $environment_file, },
-    &#39;confluent-control-center/Service/ExecStart&#39;       =&gt; { &#39;value&#39; =&gt;
-    &quot;/usr/bin/control-center-start /etc/confluent-control-center/control-center.properties&quot;, },
-    # &#39;confluent-control-center/Service/ExecStop&#39;               =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/zookeeper-server-stop&quot;, },
-    &#39;confluent-control-center/Service/LimitNOFILE&#39;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
-    &#39;confluent-control-center/Service/KillMode&#39;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
-    &#39;confluent-control-center/Service/RestartSec&#39;      =&gt; { &#39;value&#39; =&gt; 5, },
-    &#39;confluent-control-center/Service/Type&#39;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
-    &#39;confluent-control-center/Install/WantedBy&#39;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
+    &quot;${service_name}/Unit/Description&quot;        =&gt; { &#39;value&#39; =&gt; &#39;Confluent Control Center&#39;, },
+    &quot;${service_name}/Unit/Wants&quot;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target&#39;, },
+    &quot;${service_name}/Unit/After&quot;              =&gt; { &#39;value&#39; =&gt; &#39;basic.target network.target&#39;, },
+    &quot;${service_name}/Service/User&quot;            =&gt; { &#39;value&#39; =&gt; $user, },
+    &quot;${service_name}/Service/EnvironmentFile&quot; =&gt; { &#39;value&#39; =&gt; $environment_file, },
+    &quot;${service_name}/Service/ExecStart&quot;       =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/control-center-start ${config_path}&quot;, },
+    # &quot;${service_name}/Service/ExecStop&#39;               =&gt; { &#39;value&#39; =&gt; &quot;/usr/bin/zookeeper-server-stop&quot;, },
+    &quot;${service_name}/Service/LimitNOFILE&quot;     =&gt; { &#39;value&#39; =&gt; $file_limit, },
+    &quot;${service_name}/Service/KillMode&quot;        =&gt; { &#39;value&#39; =&gt; &#39;process&#39;, },
+    &quot;${service_name}/Service/RestartSec&quot;      =&gt; { &#39;value&#39; =&gt; 5, },
+    &quot;${service_name}/Service/TimeoutStopSec&quot;  =&gt; { &#39;value&#39; =&gt; $stop_timeout_secs, },
+    &quot;${service_name}/Service/Type&quot;            =&gt; { &#39;value&#39; =&gt; &#39;simple&#39;, },
+    &quot;${service_name}/Install/WantedBy&quot;        =&gt; { &#39;value&#39; =&gt; &#39;multi-user.target&#39;, },
   }
 
   ensure_resources(&#39;confluent::systemd::unit_ini_setting&#39;, $unit_ini_settings, $unit_ini_setting_defaults)
@@ -558,7 +712,7 @@ class confluent::control::center (
 </div>
 
       <div id="footer">
-  Generated on Sat Jan 21 22:23:46 2017 by
+  Generated on Fri Jul 28 12:18:11 2017 by
   <a href="http://yardoc.org" title="Yay! A Ruby Documentation Tool" target="_parent">yard</a>
   0.9.8 (ruby-2.3.1).
 </div>
