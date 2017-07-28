@@ -85,7 +85,13 @@ class confluent::zookeeper (
     },
     'syncLimit'      => {
       'value' => 2
-    }
+    },
+    'autopurge.snapRetainCount' => {
+      'value' => 10
+    },
+    'autopurge.purgeInterval' => {
+      'value' => 1
+    },
   }
 
   $java_default_settings = {
