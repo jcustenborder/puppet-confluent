@@ -60,6 +60,7 @@ class confluent::params {
   $control_center_file_limit = 128000
   $control_center_config_path = '/etc/confluent-control-center/control-center.properties'
   $control_center_log_path = '/var/log/control-center'
+  $control_center_data_path = '/var/lib/control-center'
 
   $package_name = 'confluent-kafka-2.11'
 
