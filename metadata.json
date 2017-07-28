@@ -1,5 +1,5 @@
 {
-  "name": "puppet-confluent",
+  "name": "jcustenborder-confluent",
   "version": "3.2.12",
   "author": "jcustenborder@gmail.com",
   "summary": "This puppet module is used to install and configure the Confluent platform.",
