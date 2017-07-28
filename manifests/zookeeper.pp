@@ -53,6 +53,7 @@ class confluent::zookeeper (
   $service_enable       = $::confluent::params::zookeeper_service_enable,
   $file_limit           = $::confluent::params::zookeeper_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
+  $stop_timeout_secs    = $::confluent::params::zookeeper_stop_timeout_secs,
 ) inherits confluent::params {
   include ::confluent::kafka
 
@@ -143,19 +144,20 @@ class confluent::zookeeper (
   }
 
   $unit_ini_settings = {
-    'zookeeper/Unit/Description'        => { 'value' => 'Apache Zookeeper by Confluent', },
-    'zookeeper/Unit/Wants'              => { 'value' => 'basic.target', },
-    'zookeeper/Unit/After'              => { 'value' => 'basic.target network.target', },
-    'zookeeper/Service/User'            => { 'value' => $user, },
-    'zookeeper/Service/EnvironmentFile' => { 'value' => $environment_file, },
-    'zookeeper/Service/ExecStart'       => { 'value' =>
-    '/usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties', },
-    'zookeeper/Service/ExecStop'        => { 'value' => '/usr/bin/zookeeper-server-stop', },
-    'zookeeper/Service/LimitNOFILE'     => { 'value' => $file_limit, },
-    'zookeeper/Service/KillMode'        => { 'value' => 'process', },
-    'zookeeper/Service/RestartSec'      => { 'value' => 5, },
-    'zookeeper/Service/Type'            => { 'value' => 'simple', },
-    'zookeeper/Install/WantedBy'        => { 'value' => 'multi-user.target', },
+    "${service_name}/Unit/Description"        => { 'value' => 'Apache Zookeeper by Confluent', },
+    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
+    "${service_name}/Unit/After"              => { 'value' => 'basic.target network.target', },
+    "${service_name}/Service/User"            => { 'value' => $user, },
+    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
+    "${service_name}/Service/ExecStart"       => { 'value' =>
+    "/usr/bin/zookeeper-server-start ${config_path}", },
+    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/zookeeper-server-stop', },
+    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
+    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
+    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
+    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
+    "${service_name}/Service/Type"            => { 'value' => 'simple', },
+    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)

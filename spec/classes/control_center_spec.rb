@@ -76,6 +76,22 @@ describe 'confluent::control::center' do
       it {is_expected.to contain_service('control-center').with({'ensure' => 'running', 'enable' => true})}
       it {is_expected.to contain_ini_subsetting('c3_CONTROL_CENTER_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap}
       )}
+      service_name = 'control-center'
+      system_d_settings = {
+          "#{service_name}/Service/Type" => 'simple',
+          "#{service_name}/Unit/Wants" => 'basic.target',
+          "#{service_name}/Unit/After" => 'basic.target network.target',
+          "#{service_name}/Service/User" => 'control-center',
+          "#{service_name}/Service/TimeoutStopSec" => '300',
+          "#{service_name}/Service/LimitNOFILE" => '128000',
+          "#{service_name}/Service/KillMode" => 'process',
+          "#{service_name}/Service/RestartSec" => '5',
+          "#{service_name}/Install/WantedBy" => 'multi-user.target',
+      }
+
+      system_d_settings.each do |ini_setting, value|
+        it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+      end
     end
   end
 end

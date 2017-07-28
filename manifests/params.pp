@@ -9,18 +9,20 @@ class confluent::params {
   $connect_distributed_manage_service = true
   $connect_distributed_service_ensure = 'running'
   $connect_distributed_service_enable = true
-  $connect_distributed_file_limit = 65535
+  $connect_distributed_file_limit = 128000
   $connect_distributed_config_path = '/etc/kafka/connect-distributed.properties'
   $connect_distributed_log_path = '/var/log/kafka-connect-distributed'
+  $connect_distributed_stop_timeout_secs = 300
 
   $connect_standalone_user = 'connect-standalone'
   $connect_standalone_service = 'connect-standalone'
   $connect_standalone_manage_service = true
   $connect_standalone_service_ensure = 'running'
   $connect_standalone_service_enable = true
-  $connect_standalone_file_limit = 65535
+  $connect_standalone_file_limit = 128000
   $connect_standalone_config_path = '/etc/kafka/connect-standalone.properties'
   $connect_standalone_log_path = '/var/log/kafka-connect-standalone'
+  $connect_standalone_stop_timeout_secs = 300
 
   $kafka_user = 'kafka'
   $kafka_service = 'kafka'
@@ -42,6 +44,7 @@ class confluent::params {
   $zookeeper_config_path = '/etc/kafka/zookeeper.properties'
   $zookeeper_log_path = '/var/log/zookeeper'
   $zookeeper_data_path = '/var/lib/zookeeper'
+  $zookeeper_stop_timeout_secs = 300
 
   $schema_registry_user = 'schema-registry'
   $schema_registry_service = 'schema-registry'
@@ -51,6 +54,7 @@ class confluent::params {
   $schema_registry_file_limit = 128000
   $schema_registry_config_path = '/etc/schema-registry/schema-registry.properties'
   $schema_registry_log_path = '/var/log/schema-registry'
+  $schema_registry_stop_timeout_secs = 300
 
   $control_center_user = 'control-center'
   $control_center_service = 'control-center'
@@ -61,6 +65,7 @@ class confluent::params {
   $control_center_config_path = '/etc/confluent-control-center/control-center.properties'
   $control_center_log_path = '/var/log/control-center'
   $control_center_data_path = '/var/lib/control-center'
+  $control_center_stop_timeout_secs = 300
 
   $package_name = 'confluent-kafka-2.11'
 
