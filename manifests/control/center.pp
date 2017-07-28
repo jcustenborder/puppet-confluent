@@ -46,8 +46,10 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::control::center (
+  $control_center_id    = 1,
   $config               = {},
   $environment_settings = {},
+  $data_path            = $::confluent::params::control_center_data_path,
   $config_path          = $::confluent::params::control_center_config_path,
   $environment_file     = $::confluent::params::control_center_environment_path,
   $log_path             = $::confluent::params::control_center_log_path,
@@ -74,8 +76,11 @@ class confluent::control::center (
   $application_name = 'c3'
 
   $control_center_default_settings = {
-    'confluent.controlcenter.id' => {
-      'value' => 1
+    'confluent.controlcenter.id'       => {
+      'value' => $control_center_id
+    },
+    'confluent.controlcenter.data.dir' => {
+      'value' => $data_path
     }
   }
 
@@ -97,7 +102,7 @@ class confluent::control::center (
   user { $user:
     ensure => present
   } ->
-  file { [$log_path]:
+  file { [$log_path, $data_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -106,7 +111,7 @@ class confluent::control::center (
 
   package { 'confluent-control-center':
     ensure => latest,
-    tag  => 'confluent',
+    tag    => 'confluent',
   }
 
   $ensure_control_center_settings_defaults = {
