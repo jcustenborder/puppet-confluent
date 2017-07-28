@@ -1,6 +1,6 @@
 {
   "name": "puppet-confluent",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "jcustenborder@gmail.com",
   "summary": "This puppet module is used to install and configure the Confluent platform.",
   "license": "Apache-2.0",
@@ -8,10 +8,18 @@
   "project_page": "https://github.com/jcustenborder/puppet-confluent",
   "issues_url": "https://github.com/jcustenborder/puppet-confluent/issues",
   "dependencies": [
-    {"name":"puppetlabs-stdlib","version_requirement":">= 1.0.0"},
-    {"name":"puppetlabs-apt","version_requirement":">= 2.0.0 < 5.0.0"},
-    {"name":"puppetlabs-inifile","version_requirement":">= 1.6.0"}
+    {
+      "name": "puppetlabs-stdlib",
+      "version_requirement": ">= 1.0.0"
+    },
+    {
+      "name": "puppetlabs-apt",
+      "version_requirement": ">= 2.0.0 < 5.0.0"
+    },
+    {
+      "name": "puppetlabs-inifile",
+      "version_requirement": ">= 1.6.0"
+    }
   ],
   "data_provider": null
 }
-
