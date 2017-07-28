@@ -2,6 +2,11 @@
 
 This puppet module is used to install and configure the Confluent Platform. The documentation is available [here](http://jcustenborder.github.io/puppet-confluent/).
 
+## Note on versioning
+
+Puppet only allows version numbers in `<major>.<minor>.<version>` format. Due to this limitation the versioning schema matches 
+the major and minor versions of the Confluent Platform. Meaning 3.2.1234 of the puppet module is for 3.2.x of the Confluent platform.
+
 ### Usage
 
 ## Zookeeper
