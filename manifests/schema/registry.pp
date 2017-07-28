@@ -50,6 +50,7 @@ class confluent::schema::registry (
   $file_limit           = $::confluent::params::schema_registry_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
   $stop_timeout_secs    = $::confluent::params::schema_registry_stop_timeout_secs,
+  $heap_size            = $::confluent::params::schema_registry_heap_size,
 ) inherits confluent::params {
   include ::confluent
 
@@ -73,7 +74,7 @@ class confluent::schema::registry (
 
   $java_default_settings = {
     'SCHEMA_REGISTRY_HEAP_OPTS' => {
-      'value' => '-Xmx256M'
+      'value' => "-Xmx${heap_size}"
     },
     'SCHEMA_REGISTRY_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'

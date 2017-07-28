@@ -70,6 +70,7 @@ class confluent::kafka::connect::distributed (
   $file_limit           = $::confluent::params::connect_distributed_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
   $stop_timeout_secs    = $::confluent::params::connect_distributed_stop_timeout_secs,
+  $heap_size            = $::confluent::params::connect_distributed_heap_size
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -94,7 +95,7 @@ class confluent::kafka::connect::distributed (
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
-      'value' => '-Xmx256M'
+      'value' => "-Xmx${heap_size}"
     },
     'KAFKA_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'

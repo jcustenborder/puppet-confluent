@@ -21,7 +21,7 @@ require 'spec_helper'
             environment_file = "/etc/sysconfig/kafka-connect-#{class_name}"
         end
 
-        expected_heap = '-Xmx256M'
+        expected_heap = '-Xmx512m'
 
         log_dirs = ["/var/log/kafka-connect-#{class_name}", "/app/var/log/kafka-connect-#{class_name}"]
 

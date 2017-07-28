@@ -19,7 +19,7 @@ describe 'confluent::zookeeper' do
       let(:facts) {default_facts}
       let(:params) {default_params}
 
-      expected_heap = '-Xmx256M'
+      expected_heap = '-Xmx512m'
 
       data_paths = %w(/var/lib/zookeeper /data/var/lib/zookeeper)
       data_paths.each do |data_path|

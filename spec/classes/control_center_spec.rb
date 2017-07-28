@@ -66,7 +66,7 @@ describe 'confluent::control::center' do
       end
 
 
-      expected_heap = '-Xmx3g'
+      expected_heap = '-Xmx3096m'
 
       it {is_expected.to contain_yumrepo('Confluent').with({'ensure' => 'present'})} if osfamily == 'RedHat'
       it {is_expected.to contain_yumrepo('Confluent.dist').with({'ensure' => 'present'})} if osfamily == 'RedHat'

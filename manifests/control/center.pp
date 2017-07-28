@@ -64,6 +64,8 @@ class confluent::control::center (
   $file_limit           = $::confluent::params::control_center_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
   $stop_timeout_secs    = $::confluent::params::control_center_stop_timeout_secs,
+  $heap_size            = $::confluent::params::control_center_heap_size
+
 ) inherits confluent::params {
   include ::confluent
 
@@ -95,12 +97,11 @@ class confluent::control::center (
     'zookeeper.connect'                       => {
       'value' => join(any2array($zookeeper_connect), ',')
     }
-
   }
 
   $java_default_settings = {
     'CONTROL_CENTER_HEAP_OPTS' => {
-      'value' => '-Xmx3g'
+      'value' => "-Xmx${heap_size}"
     },
     'CONTROL_CENTER_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'

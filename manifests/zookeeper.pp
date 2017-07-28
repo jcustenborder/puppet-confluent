@@ -54,6 +54,7 @@ class confluent::zookeeper (
   $file_limit           = $::confluent::params::zookeeper_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
   $stop_timeout_secs    = $::confluent::params::zookeeper_stop_timeout_secs,
+  $heap_size            = $::confluent::params::zookeeper_heap_size,
 ) inherits confluent::params {
   include ::confluent::kafka
 
@@ -89,7 +90,7 @@ class confluent::zookeeper (
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
-      'value' => '-Xmx256M'
+      'value' => "-Xmx${heap_size}"
     },
     'KAFKA_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'

@@ -71,6 +71,7 @@ class confluent::kafka::connect::standalone (
   $file_limit           = $::confluent::params::connect_standalone_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
   $stop_timeout_secs    = $::confluent::params::connect_standalone_stop_timeout_secs,
+  $heap_size            = $::confluent::params::connect_standalone_heap_size
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -95,7 +96,7 @@ class confluent::kafka::connect::standalone (
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
-      'value' => '-Xmx256M'
+      'value' => "-Xmx${heap_size}"
     },
     'KAFKA_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'

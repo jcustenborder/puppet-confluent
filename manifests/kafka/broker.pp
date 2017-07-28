@@ -63,6 +63,7 @@ class confluent::kafka::broker (
   $file_limit           = $::confluent::params::kafka_file_limit,
   $stop_timeout_secs    = $::confluent::params::kafka_stop_timeout_secs,
   $manage_repository    = $::confluent::params::manage_repository,
+  $heap_size            = $::confluent::params::kafka_heap_size,
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
@@ -91,7 +92,7 @@ class confluent::kafka::broker (
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
-      'value' => '-Xmx256M'
+      'value' => "-Xmx${heap_size}"
     },
     'KAFKA_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'

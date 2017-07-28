@@ -91,7 +91,7 @@ describe 'confluent::kafka::broker' do
         default_params
       }
 
-      expected_heap = '-Xmx256M'
+      expected_heap = '-Xmx1024m'
 
       it {is_expected.to contain_ini_subsetting('kafka_KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
 
