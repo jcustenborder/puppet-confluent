@@ -68,6 +68,7 @@ class confluent::kafka::connect::distributed (
   $service_enable       = $::confluent::params::connect_distributed_service_enable,
   $file_limit           = $::confluent::params::connect_distributed_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
+  $stop_timeout_secs    = $::confluent::params::connect_distributed_stop_timeout_secs,
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -143,6 +144,7 @@ class confluent::kafka::connect::distributed (
     "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },
+    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
     "${service_name}/Service/Type"            => { 'value' => 'simple', },
     "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }

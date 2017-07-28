@@ -39,6 +39,24 @@ describe 'confluent::schema::registry' do
       it {is_expected.to contain_package('confluent-schema-registry')}
       it {is_expected.to contain_user('schema-registry')}
       it {is_expected.to contain_service('schema-registry').with({'ensure' => 'running', 'enable' => true})}
+
+      service_name = 'schema-registry'
+      system_d_settings = {
+          "#{service_name}/Service/Type" => 'simple',
+          "#{service_name}/Unit/Wants" => 'basic.target',
+          "#{service_name}/Unit/After" => 'basic.target network.target',
+          "#{service_name}/Service/User" => 'schema-registry',
+          "#{service_name}/Service/TimeoutStopSec" => '300',
+          "#{service_name}/Service/LimitNOFILE" => '128000',
+          "#{service_name}/Service/KillMode" => 'process',
+          "#{service_name}/Service/RestartSec" => '5',
+          "#{service_name}/Install/WantedBy" => 'multi-user.target',
+      }
+
+      system_d_settings.each do |ini_setting, value|
+        it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+      end
+
     end
   end
 end
