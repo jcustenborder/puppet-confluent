@@ -101,8 +101,8 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/default/zookeeper'
       $schema_registry_environment_path = '/etc/default/schema-registry'
       $control_center_environment_path = '/etc/default/control-center'
-      $key_url = 'http://packages.confluent.io/deb/3.2/archive.key'
-      $repository_url = 'http://packages.confluent.io/deb/3.2'
+      $key_url = "http://packages.confluent.io/deb/${confluent_version}/archive.key"
+      $repository_url = "http://packages.confluent.io/deb/${confluent_version}"
     }
     default: {
       fail("${::osfamily} is not currently supported.")
