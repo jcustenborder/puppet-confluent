@@ -115,7 +115,8 @@ class confluent::kafka::broker (
       ensure  => directory,
       owner   => $user,
       group   => $user,
-      recurse => true
+      recurse => true,
+      tag     => 'confluent'
     }
 
   $ensure_kafka_settings_defaults = {

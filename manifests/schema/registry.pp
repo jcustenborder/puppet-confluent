@@ -101,7 +101,8 @@ class confluent::schema::registry (
     ensure  => directory,
     owner   => $user,
     group   => $user,
-    recurse => true
+    recurse => true,
+    tag     => 'confluent'
   }
 
   package { 'confluent-schema-registry':
