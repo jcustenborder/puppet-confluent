@@ -21,6 +21,7 @@ define confluent::kafka_environment_variable (
 
   validate_absolute_path($path)
 
+
   ini_subsetting { $setting_name:
     ensure            => $ensure,
     path              => $path,
@@ -29,7 +30,9 @@ define confluent::kafka_environment_variable (
     subsetting        => '',
     key_val_separator => '=',
     quote_char        => '"',
-    tag               => "${application}-setting",
+    tag               => 'confluent',
+    # lint:ignore:only_variable_string
     value             => "${value}"
+    # lint:endignore
   }
 }

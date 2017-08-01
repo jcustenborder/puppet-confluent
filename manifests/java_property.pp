@@ -24,7 +24,6 @@ define confluent::java_property (
     path    => $path,
     section => '',
     setting => $name,
-    tag     => 'kafka-setting',
     value   => $value,
     tag     => 'confluent',
   }

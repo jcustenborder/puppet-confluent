@@ -26,7 +26,9 @@ define confluent::systemd::unit_ini_setting (
         path              => $service_file,
         section           => $section,
         setting           => $setting,
+        # lint:ignore:only_variable_string
         value             => "${value}",
+        # lint:endignore
         key_val_separator => '=',
         tag               => 'confluent',
         notify            => Exec['kafka-systemctl-daemon-reload']
