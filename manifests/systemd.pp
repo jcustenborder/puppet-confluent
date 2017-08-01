@@ -2,11 +2,11 @@
 # not be referenced directly.
 #
 class confluent::systemd {
-  exec{ 'kafka-systemctl-daemon-reload':
+  exec { 'kafka-systemctl-daemon-reload':
     command     => 'systemctl daemon-reload',
     path        => [
       '/usr/bin'
     ],
     refreshonly => true
-  }
+  } -> Service<| tag == 'confluent' |>
 }
