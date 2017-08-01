@@ -30,6 +30,6 @@ define confluent::kafka_environment_variable (
     key_val_separator => '=',
     quote_char        => '"',
     tag               => "${application}-setting",
-    value             => $value
+    value             => "${value}"
   }
 }
