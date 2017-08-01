@@ -121,14 +121,16 @@ class confluent::zookeeper (
     ensure  => directory,
     owner   => $user,
     group   => $user,
-    recurse => true
+    recurse => true,
+    tag     => 'confluent'
   } ->
   file { $myid_file:
     ensure  => present,
     content => $zookeeper_id,
     mode    => '0644',
     group   => $user,
-    owner   => $user
+    owner   => $user,
+    tag     => 'confluent'
   }
 
   $ensure_zookeeper_settings_defaults = {

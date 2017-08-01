@@ -87,7 +87,8 @@ class confluent::kafka::connect::distributed (
     ensure  => directory,
     owner   => $user,
     group   => $user,
-    recurse => true
+    recurse => true,
+    tag     => 'confluent'
   }
 
   $application = 'connect-distributed'

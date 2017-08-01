@@ -88,7 +88,8 @@ class confluent::kafka::connect::standalone (
     ensure  => directory,
     owner   => $user,
     group   => $user,
-    recurse => true
+    recurse => true,
+    tag     => 'confluent'
   }
 
   $application = 'connect-standalone'
