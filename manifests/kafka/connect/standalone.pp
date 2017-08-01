@@ -159,7 +159,8 @@ class confluent::kafka::connect::standalone (
   if($manage_service) {
     service { $service_name:
       ensure => $service_ensure,
-      enable => $service_enable
+      enable => $service_enable,
+      tag    => 'confluent'
     }
   }
 

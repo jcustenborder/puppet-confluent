@@ -71,25 +71,25 @@ class confluent::zookeeper (
   $application_name = 'zookeeper'
 
   $zookeeper_default_settings = {
-    'dataDir'        => {
+    'dataDir'                   => {
       'value' => $data_path
     },
-    'clientPort'     => {
+    'clientPort'                => {
       'value' => 2181
     },
-    'maxClientCnxns' => {
+    'maxClientCnxns'            => {
       'value' => 0
     },
-    'initLimit'      => {
+    'initLimit'                 => {
       'value' => 5
     },
-    'syncLimit'      => {
+    'syncLimit'                 => {
       'value' => 2
     },
     'autopurge.snapRetainCount' => {
       'value' => 10
     },
-    'autopurge.purgeInterval' => {
+    'autopurge.purgeInterval'   => {
       'value' => 1
     },
   }
@@ -172,7 +172,8 @@ class confluent::zookeeper (
   if($manage_service) {
     service { $service_name:
       ensure => $service_ensure,
-      enable => $service_enable
+      enable => $service_enable,
+      tag    => 'confluent'
     }
   }
 }
