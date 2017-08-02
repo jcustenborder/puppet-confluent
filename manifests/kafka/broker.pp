@@ -68,6 +68,8 @@ class confluent::kafka::broker (
   include ::confluent
   include ::confluent::kafka
 
+  $application = 'kafka'
+
   if($manage_repository) {
     include ::confluent::repository
   }
@@ -122,10 +124,13 @@ class confluent::kafka::broker (
   $ensure_kafka_settings_defaults = {
     'ensure'      => 'present',
     'path'        => $config_path,
-    'application' => 'kafka'
   }
 
-  ensure_resources('confluent::java_property', $actual_kafka_settings, $ensure_kafka_settings_defaults)
+  ensure_resources(
+    'confluent::java_property',
+    prefix($actual_kafka_settings, "${application}/"),
+    $ensure_kafka_settings_defaults
+  )
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,

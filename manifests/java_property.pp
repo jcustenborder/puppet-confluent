@@ -13,17 +13,21 @@
 # @param application The application requesting the change. Property names are often duplicated. This ensures a unique resource name
 define confluent::java_property (
   $path,
-  $application,
   $ensure = 'present',
   $value  = unset,
 ) {
-  $setting_name = "${application}_${name}"
+  validate_re($name, '^[^\/]+\/.+$')
+  validate_absolute_path($path)
 
-  ini_setting { $setting_name:
+  $name_parts = split($name, '/')
+  $application = $name_parts[0]
+  $property = $name_parts[1]
+
+  ini_setting { $name:
     ensure  => $ensure,
     path    => $path,
     section => '',
-    setting => $name,
+    setting => $property,
     value   => $value,
     tag     => ['confluent', "confluent-${application}"],
   }
