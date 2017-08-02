@@ -25,6 +25,7 @@ class confluent::params {
   $connect_standalone_log_path = '/var/log/kafka-connect-standalone'
   $connect_standalone_stop_timeout_secs = 300
   $connect_standalone_heap_size = '512m'
+  $connect_standalone_offset_storage_path = '/var/lib/kafka-connect-standalone'
 
   $kafka_user = 'kafka'
   $kafka_service = 'kafka'
