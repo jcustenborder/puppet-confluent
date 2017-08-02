@@ -30,7 +30,7 @@ define confluent::systemd::unit_ini_setting (
         value             => "${value}",
         # lint:endignore
         key_val_separator => '=',
-        tag               => 'confluent',
+        tag               => ['confluent', "confluent-${unit_name}"],
         notify            => Exec['kafka-systemctl-daemon-reload']
       }
     }
