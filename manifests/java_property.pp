@@ -25,6 +25,6 @@ define confluent::java_property (
     section => '',
     setting => $name,
     value   => $value,
-    tag     => 'confluent',
+    tag     => ['confluent', "confluent-${application}"],
   }
 }

@@ -163,6 +163,8 @@ class confluent::kafka::connect::standalone (
       enable => $service_enable,
       tag    => 'confluent'
     }
+    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
   }
 
 }

@@ -30,7 +30,7 @@ define confluent::kafka_environment_variable (
     subsetting        => '',
     key_val_separator => '=',
     quote_char        => '"',
-    tag               => 'confluent',
+    tag               => ['confluent', "confluent-${application}"],
     # lint:ignore:only_variable_string
     value             => "${value}"
     # lint:endignore
