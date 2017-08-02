@@ -75,6 +75,9 @@ class confluent::kafka::connect::distributed (
   include ::confluent
   include ::confluent::kafka::connect
 
+  validate_absolute_path($log_path)
+  validate_absolute_path($config_path)
+
   if($manage_repository) {
     include ::confluent::repository
   }

@@ -71,10 +71,16 @@ class confluent::kafka::connect::standalone (
   $file_limit           = $::confluent::params::connect_standalone_file_limit,
   $manage_repository    = $::confluent::params::manage_repository,
   $stop_timeout_secs    = $::confluent::params::connect_standalone_stop_timeout_secs,
-  $heap_size            = $::confluent::params::connect_standalone_heap_size
+  $heap_size            = $::confluent::params::connect_standalone_heap_size,
+  $offset_storage_path  = $::confluent::params::connect_standalone_offset_storage_path
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
+
+  validate_absolute_path($log_path)
+  validate_absolute_path($config_path)
+  validate_absolute_path($offset_storage_path)
+
 
   if($manage_repository) {
     include ::confluent::repository
@@ -84,7 +90,7 @@ class confluent::kafka::connect::standalone (
     ensure => present,
     alias  => 'kafka-connect-standalone'
   } ->
-  file { $log_path:
+  file { [$log_path, $offset_storage_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -113,6 +119,9 @@ class confluent::kafka::connect::standalone (
   $connect_default_settings = {
     'bootstrap.servers' => {
       'value' => join(any2array($bootstrap_servers), ',')
+    },
+    'offset.storage.file.filename' => {
+      'value' => "${offset_storage_path}/connect.offsets"
     }
   }
 
