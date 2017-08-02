@@ -79,7 +79,7 @@ class confluent::control::center (
   validate_absolute_path($environment_file)
   validate_absolute_path($log_path)
 
-  $application_name = 'c3'
+  $application = 'c3'
 
   $control_center_default_settings = {
     'confluent.controlcenter.id'              => {
@@ -131,17 +131,19 @@ class confluent::control::center (
   }
 
   $ensure_control_center_settings_defaults = {
-    'ensure'      => 'present',
-    'path'        => $config_path,
-    'application' => $application_name
+    'ensure' => 'present',
+    'path'   => $config_path,
   }
 
-  ensure_resources('confluent::java_property', $actual_control_center_settings, $ensure_control_center_settings_defaults
+  ensure_resources(
+    'confluent::java_property',
+    prefix($actual_control_center_settings, "${application}/"),
+    $ensure_control_center_settings_defaults
   )
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
-    'application' => $application_name
+    'application' => $application
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)

@@ -64,7 +64,7 @@ class confluent::schema::registry (
     include ::confluent::repository
   }
 
-  $application_name = 'schema-registry'
+  $application = 'schema-registry'
 
   $schemaregistry_default_settings = {
     'kafkastore.connection.url' => {
@@ -113,15 +113,17 @@ class confluent::schema::registry (
   $ensure_schemaregistry_settings_defaults = {
     'ensure'      => 'present',
     'path'        => $config_path,
-    'application' => $application_name
   }
 
-  ensure_resources('confluent::java_property', $actual_schemaregistry_settings, $ensure_schemaregistry_settings_defaults
+  ensure_resources(
+    'confluent::java_property',
+    prefix($actual_schemaregistry_settings, "${application}/"),
+    $ensure_schemaregistry_settings_defaults
   )
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
-    'application' => $application_name
+    'application' => $application
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)

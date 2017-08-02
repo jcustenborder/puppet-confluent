@@ -42,7 +42,7 @@ describe 'confluent::control::center' do
         context "with data_path => #{data_path}" do
           let(:params) {default_params.merge({'data_path' => data_path})}
           it {is_expected.to contain_file(data_path).with({'owner' => 'control-center', 'group' => 'control-center'})}
-          it {is_expected.to contain_ini_setting("c3_confluent.controlcenter.data.dir").with(
+          it {is_expected.to contain_ini_setting("c3/confluent.controlcenter.data.dir").with(
               'path' => '/etc/confluent-control-center/control-center.properties',
               'value' => data_path
           )}
@@ -58,7 +58,7 @@ describe 'confluent::control::center' do
       }
 
       settings.each do |key, value|
-        it {is_expected.to contain_ini_setting("c3_#{key}").with(
+        it {is_expected.to contain_ini_setting("c3/#{key}").with(
             'path' => '/etc/confluent-control-center/control-center.properties',
             'value' => value
         )}

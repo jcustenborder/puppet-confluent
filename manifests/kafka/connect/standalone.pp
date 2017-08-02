@@ -121,10 +121,13 @@ class confluent::kafka::connect::standalone (
   $ensure_connect_settings_defaults = {
     'ensure'      => 'present',
     'path'        => $config_path,
-    'application' => $application
   }
 
-  ensure_resources('confluent::java_property', $actual_connect_settings, $ensure_connect_settings_defaults)
+  ensure_resources(
+    'confluent::java_property',
+    prefix($actual_connect_settings, "${application}/"),
+    $ensure_connect_settings_defaults
+  )
 
   $actual_java_settings = merge($java_default_settings, $environment_settings)
   $ensure_java_settings_defaults = {

@@ -31,7 +31,7 @@ describe 'confluent::schema::registry' do
       expected_heap = '-Xmx512m'
 
       it {is_expected.to contain_ini_subsetting('schema-registry_SCHEMA_REGISTRY_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
-      it {is_expected.to contain_ini_setting('schema-registry_kafkastore.connection.url').with({'path' => '/etc/schema-registry/schema-registry.properties', 'value' => 'zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181'})}
+      it {is_expected.to contain_ini_setting('schema-registry/kafkastore.connection.url').with({'path' => '/etc/schema-registry/schema-registry.properties', 'value' => 'zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181'})}
       it {is_expected.to contain_package('confluent-schema-registry')}
       it {is_expected.to contain_user('schema-registry')}
       it {is_expected.to contain_service('schema-registry').with({'ensure' => 'running', 'enable' => true})}

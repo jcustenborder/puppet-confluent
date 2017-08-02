@@ -32,7 +32,7 @@ require 'spec_helper'
             it {is_expected.to contain_ini_subsetting("connect-#{class_name}_LOG_DIR").with({'path' => environment_file, 'value' => log_dir})}
             it {is_expected.to contain_file(log_dir).with({'owner' => "connect-#{class_name}", 'group' => "connect-#{class_name}", 'recurse' => true})}
             it {is_expected.to contain_package('confluent-kafka-2.11')}
-            it {is_expected.to contain_ini_setting("connect-#{class_name}_bootstrap.servers").with({'path' => "/etc/kafka/connect-#{class_name}.properties", 'value' => 'kafka-01:9093,kafka-02:9093,kafka-03:9093'})}
+            it {is_expected.to contain_ini_setting("connect-#{class_name}/bootstrap.servers").with({'path' => "/etc/kafka/connect-#{class_name}.properties", 'value' => 'kafka-01:9093,kafka-02:9093,kafka-03:9093'})}
             it {is_expected.to contain_user("connect-#{class_name}")}
             it {is_expected.to contain_service("connect-#{class_name}").with({'ensure' => 'running', 'enable' => true})}
             it {is_expected.to contain_ini_subsetting("connect-#{class_name}_KAFKA_HEAP_OPTS").with({'path' => environment_file, 'value' => expected_heap})}

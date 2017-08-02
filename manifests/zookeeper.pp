@@ -68,7 +68,7 @@ class confluent::zookeeper (
   validate_absolute_path($log_path)
   validate_absolute_path($config_path)
 
-  $application_name = 'zookeeper'
+  $application = 'zookeeper'
 
   $zookeeper_default_settings = {
     'dataDir'                   => {
@@ -136,10 +136,13 @@ class confluent::zookeeper (
   $ensure_zookeeper_settings_defaults = {
     'ensure'      => 'present',
     'path'        => $config_path,
-    'application' => $application_name
   }
 
-  ensure_resources('confluent::java_property', $actual_zookeeper_settings, $ensure_zookeeper_settings_defaults)
+  ensure_resources(
+    'confluent::java_property',
+    prefix($actual_zookeeper_settings, "${application}/"),
+    $ensure_zookeeper_settings_defaults
+  )
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
