@@ -49,8 +49,8 @@
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::kafka::broker (
   $broker_id,
-  $config               = { },
-  $environment_settings = { },
+  $config               = {},
+  $environment_settings = {},
   $config_path          = $::confluent::params::kafka_config_path,
   $environment_file     = $::confluent::params::kafka_environment_path,
   $data_path            = $::confluent::params::kafka_data_path,
@@ -87,10 +87,21 @@ class confluent::kafka::broker (
     'broker.id' => {
       'value' => $broker_id
     },
-    'log.dirs' => {
+    'log.dirs'  => {
       'value' => join(any2array($data_path), ',')
     }
   }
+
+  $actual_kafka_settings = prefix(merge($kafka_default_settings, $config), "${application}/")
+  $ensure_kafka_settings_defaults = {
+    'ensure' => 'present',
+    'path'   => $config_path,
+  }
+  ensure_resources(
+    'confluent::java_property',
+    $actual_kafka_settings,
+    $ensure_kafka_settings_defaults
+  )
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
@@ -107,37 +118,23 @@ class confluent::kafka::broker (
     }
   }
 
-  $actual_kafka_settings = merge($kafka_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
+  $ensure_java_settings_defaults = {
+    'path' => $environment_file,
+  }
+  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
+
 
   user { $user:
     ensure => present
   } ->
-    file { [$log_path, $data_path]:
-      ensure  => directory,
-      owner   => $user,
-      group   => $user,
-      recurse => true,
-      tag     => 'confluent'
-    }
-
-  $ensure_kafka_settings_defaults = {
-    'ensure'      => 'present',
-    'path'        => $config_path,
+  file { [$log_path, $data_path]:
+    ensure  => directory,
+    owner   => $user,
+    group   => $user,
+    recurse => true,
+    tag     => 'confluent'
   }
-
-  ensure_resources(
-    'confluent::java_property',
-    prefix($actual_kafka_settings, "${application}/"),
-    $ensure_kafka_settings_defaults
-  )
-
-  $ensure_java_settings_defaults = {
-    'path'        => $environment_file,
-    'application' => 'kafka'
-  }
-
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'

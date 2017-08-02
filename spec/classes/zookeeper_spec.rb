@@ -34,11 +34,12 @@ describe 'confluent::zookeeper' do
         context "with log_path => #{log_path}" do
           let(:params) {default_params.merge({'log_path' => log_path})}
           it {is_expected.to contain_file(log_path).with({'owner' => 'zookeeper', 'group' => 'zookeeper'})}
+          it {is_expected.to contain_ini_subsetting('zookeeper/LOG_DIR').with({'path' => environment_file, 'value' => log_path})}
         end
       end
 
 
-      it {is_expected.to contain_ini_subsetting('zookeeper_KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
+      it {is_expected.to contain_ini_subsetting('zookeeper/KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
       it {is_expected.to contain_package('confluent-kafka-2.11')}
       it {is_expected.to contain_user('zookeeper')}
       it {is_expected.to contain_service('zookeeper').with({'ensure' => 'running', 'enable' => true})}

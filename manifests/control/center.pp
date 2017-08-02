@@ -81,6 +81,29 @@ class confluent::control::center (
 
   $application = 'c3'
 
+  $default_environment_settings = {
+    'CONTROL_CENTER_HEAP_OPTS' => {
+      'value' => "-Xmx${heap_size}"
+    },
+    'CONTROL_CENTER_OPTS'      => {
+      'value' => '-Djava.net.preferIPv4Stack=true'
+    },
+    'LOG_DIR'                  => {
+      'value' => $log_path
+    }
+  }
+
+  $merged_environment_settings = prefix(merge($default_environment_settings, $environment_settings), "${application}/")
+  $kafka_environment_variable_defaults = {
+    'path'        => $environment_file,
+  }
+
+  ensure_resources(
+    'confluent::kafka_environment_variable',
+    $merged_environment_settings,
+    $kafka_environment_variable_defaults
+  )
+
   $control_center_default_settings = {
     'confluent.controlcenter.id'              => {
       'value' => $control_center_id
@@ -99,20 +122,17 @@ class confluent::control::center (
     }
   }
 
-  $java_default_settings = {
-    'CONTROL_CENTER_HEAP_OPTS' => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'CONTROL_CENTER_OPTS'      => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'LOG_DIR'                  => {
-      'value' => $log_path
-    }
+  $merged_control_center_settings = prefix(merge($control_center_default_settings, $config), "${application}/")
+  $java_property_defaults = {
+    'ensure' => 'present',
+    'path'   => $config_path,
   }
 
-  $actual_control_center_settings = merge($control_center_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  ensure_resources(
+    'confluent::java_property',
+    $merged_control_center_settings,
+    $java_property_defaults
+  )
 
   user { $user:
     ensure => present
@@ -129,24 +149,6 @@ class confluent::control::center (
     ensure => latest,
     tag    => 'confluent',
   }
-
-  $ensure_control_center_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
-  }
-
-  ensure_resources(
-    'confluent::java_property',
-    prefix($actual_control_center_settings, "${application}/"),
-    $ensure_control_center_settings_defaults
-  )
-
-  $ensure_java_settings_defaults = {
-    'path'        => $environment_file,
-    'application' => $application
-  }
-
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'

@@ -87,12 +87,8 @@ class confluent::schema::registry (
     }
   }
 
-
-  $actual_schemaregistry_settings = merge($schemaregistry_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
-
-  $log4j_log_dir = $actual_java_settings['LOG_DIR']['value']
-  validate_absolute_path($log4j_log_dir)
+  $actual_schemaregistry_settings = prefix(merge($schemaregistry_default_settings, $config), "${application}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
 
   user { $user:
     ensure => present
@@ -117,13 +113,12 @@ class confluent::schema::registry (
 
   ensure_resources(
     'confluent::java_property',
-    prefix($actual_schemaregistry_settings, "${application}/"),
+    $actual_schemaregistry_settings,
     $ensure_schemaregistry_settings_defaults
   )
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
-    'application' => $application
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
