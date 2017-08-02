@@ -70,7 +70,7 @@ describe 'confluent::kafka::broker' do
       %w(/var/log/kafka /logvol/var/log/kafka).each do |log_dir|
         context "with param log_dir = '#{log_dir}'" do
           let(:params) {default_params.merge({'log_path' => log_dir})}
-          it {is_expected.to contain_ini_subsetting('kafka_LOG_DIR').with(
+          it {is_expected.to contain_ini_subsetting('kafka/LOG_DIR').with(
               {
                   'path' => environment_file,
                   'value' => log_dir
@@ -93,7 +93,7 @@ describe 'confluent::kafka::broker' do
 
       expected_heap = '-Xmx1024m'
 
-      it {is_expected.to contain_ini_subsetting('kafka_KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
+      it {is_expected.to contain_ini_subsetting('kafka/KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
 
       it {is_expected.to contain_ini_setting('kafka/broker.id').with({'path' => '/etc/kafka/server.properties', 'value' => '0'})}
       it {is_expected.to contain_package('confluent-kafka-2.11')}

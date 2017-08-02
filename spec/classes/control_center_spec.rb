@@ -32,7 +32,7 @@ describe 'confluent::control::center' do
         context "with log_path => #{log_path}" do
           let(:params) {default_params.merge({'log_path' => log_path})}
           it {is_expected.to contain_file(log_path).with({'owner' => 'control-center', 'group' => 'control-center'})}
-          it {is_expected.to contain_ini_subsetting('c3_LOG_DIR').with({'path' => environment_file, 'value' => log_path}
+          it {is_expected.to contain_ini_subsetting('c3/LOG_DIR').with({'path' => environment_file, 'value' => log_path}
           )}
         end
       end
@@ -74,7 +74,7 @@ describe 'confluent::control::center' do
       it {is_expected.to contain_package('confluent-control-center')}
       it {is_expected.to contain_user('control-center')}
       it {is_expected.to contain_service('control-center').with({'ensure' => 'running', 'enable' => true})}
-      it {is_expected.to contain_ini_subsetting('c3_CONTROL_CENTER_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap}
+      it {is_expected.to contain_ini_subsetting('c3/CONTROL_CENTER_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap}
       )}
       service_name = 'control-center'
       system_d_settings = {

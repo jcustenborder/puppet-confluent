@@ -25,12 +25,13 @@ describe 'confluent::schema::registry' do
         context "with log_path => #{log_path}" do
           let(:params) {default_params.merge({'log_path' => log_path})}
           it {is_expected.to contain_file(log_path).with({'owner' => 'schema-registry', 'group' => 'schema-registry'})}
+          it {is_expected.to contain_ini_subsetting('schema-registry/LOG_DIR').with({'path' => environment_file, 'value' => log_path})}
         end
       end
 
       expected_heap = '-Xmx512m'
 
-      it {is_expected.to contain_ini_subsetting('schema-registry_SCHEMA_REGISTRY_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
+      it {is_expected.to contain_ini_subsetting('schema-registry/SCHEMA_REGISTRY_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
       it {is_expected.to contain_ini_setting('schema-registry/kafkastore.connection.url').with({'path' => '/etc/schema-registry/schema-registry.properties', 'value' => 'zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181'})}
       it {is_expected.to contain_package('confluent-schema-registry')}
       it {is_expected.to contain_user('schema-registry')}

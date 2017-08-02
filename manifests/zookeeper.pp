@@ -109,8 +109,8 @@ class confluent::zookeeper (
     }
   }
 
-  $actual_zookeeper_settings = merge($zookeeper_default_settings, $config)
-  $actual_java_settings = merge($java_default_settings, $environment_settings)
+  $actual_zookeeper_settings = prefix(merge($zookeeper_default_settings, $config), "${application}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
 
   $myid_file = "${data_path}/myid"
 
@@ -140,13 +140,12 @@ class confluent::zookeeper (
 
   ensure_resources(
     'confluent::java_property',
-    prefix($actual_zookeeper_settings, "${application}/"),
+    $actual_zookeeper_settings,
     $ensure_zookeeper_settings_defaults
   )
 
   $ensure_java_settings_defaults = {
     'path'        => $environment_file,
-    'application' => 'zookeeper'
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
