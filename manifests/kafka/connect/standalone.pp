@@ -57,9 +57,9 @@
 # @param file_limit Number of file handles to configure. (SystemD only)
 class confluent::kafka::connect::standalone (
   $bootstrap_servers,
+  $connector_configs,
   $config               = { },
   $environment_settings = { },
-  $connector_configs    = [],
   $config_path          = $::confluent::params::connect_standalone_config_path,
   $environment_path     = $::confluent::params::connect_standalone_environment_path,
   $log_path             = $::confluent::params::connect_standalone_log_path,
@@ -81,6 +81,8 @@ class confluent::kafka::connect::standalone (
   validate_absolute_path($config_path)
   validate_absolute_path($offset_storage_path)
 
+  $connector_config_array = any2array($connector_configs)
+  validate_absolute_path($connector_config_array)
 
   if($manage_repository) {
     include ::confluent::repository
@@ -149,6 +151,8 @@ class confluent::kafka::connect::standalone (
     'ensure' => 'present'
   }
 
+  $connector_config_joined = join($connector_config_array, ' ')
+
   $unit_ini_settings = {
     "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka Connect by Confluent', },
     "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
@@ -156,7 +160,7 @@ class confluent::kafka::connect::standalone (
     "${service_name}/Service/User"            => { 'value' => $user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_path, },
     "${service_name}/Service/ExecStart"       => {
-      'value' => "/usr/bin/connect-standalone ${config_path}",
+      'value' => "/usr/bin/connect-standalone ${config_path} ${connector_config_joined}",
     },
     "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },

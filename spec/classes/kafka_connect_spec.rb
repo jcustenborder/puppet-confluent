@@ -9,6 +9,7 @@ require 'spec_helper'
         default_params = {
             'bootstrap_servers' => %w(kafka-01:9093 kafka-02:9093 kafka-03:9093)
         }
+        default_params['connector_configs'] = %w(/etc/kafka/connector1.properties /etc/kafka/connector2.properties) if class_name == 'standalone'
         let(:params) {default_params}
         let(:facts) {default_facts}
 
@@ -50,6 +51,8 @@ require 'spec_helper'
                 "#{service_name}/Install/WantedBy" => 'multi-user.target',
             }
 
+            system_d_settings["#{service_name}/Service/ExecStart"] = "/usr/bin/connect-standalone /etc/kafka/connect-standalone.properties #{default_params['connector_configs'].join(' ')}" if class_name == 'standalone'
+
             system_d_settings.each do |ini_setting, value|
               it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
             end
@@ -59,4 +62,3 @@ require 'spec_helper'
     end
   end
 end
-# end
