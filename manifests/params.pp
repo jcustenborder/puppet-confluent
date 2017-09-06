@@ -76,6 +76,10 @@ class confluent::params {
 
   $kafka_package_name = 'confluent-kafka-2.11'
 
+  $mirror_maker_user = 'mirrormaker'
+  $mirror_maker_service_prefix = 'mirrormaker-'
+
+
   case $::osfamily {
     'RedHat': {
       $connect_distributed_environment_path = '/etc/sysconfig/kafka-connect-distributed'
@@ -84,6 +88,8 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/sysconfig/zookeeper'
       $schema_registry_environment_path = '/etc/sysconfig/schema-registry'
       $control_center_environment_path = '/etc/sysconfig/control-center'
+      $mirror_maker_environment_path_prefix = '/etc/sysconfig/mirrormaker-'
+
       case $::operatingsystemmajrelease {
         '7': {
           $dist_repository_url = "http://packages.confluent.io/rpm/${confluent_version}/7"
@@ -102,6 +108,8 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/default/zookeeper'
       $schema_registry_environment_path = '/etc/default/schema-registry'
       $control_center_environment_path = '/etc/default/control-center'
+      $mirror_maker_environment_path_prefix = '/etc/default/mirrormaker-'
+
       $key_url = "http://packages.confluent.io/deb/${confluent_version}/archive.key"
       $repository_url = "http://packages.confluent.io/deb/${confluent_version}"
     }
