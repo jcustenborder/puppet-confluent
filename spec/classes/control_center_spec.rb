@@ -80,7 +80,7 @@ describe 'confluent::control::center' do
       system_d_settings = {
           "#{service_name}/Service/Type" => 'simple',
           "#{service_name}/Unit/Wants" => 'basic.target',
-          "#{service_name}/Unit/After" => 'basic.target network.target',
+          "#{service_name}/Unit/After" => 'basic.target network-online.target',
           "#{service_name}/Service/User" => 'control-center',
           "#{service_name}/Service/TimeoutStopSec" => '300',
           "#{service_name}/Service/LimitNOFILE" => '128000',
