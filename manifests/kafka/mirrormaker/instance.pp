@@ -62,7 +62,9 @@ define confluent::kafka::mirrormaker::instance (
   $stop_timeout_secs                = 300,
   $manage_service                   = true,
   $service_ensure                   = 'running',
-  $service_enable                   = true
+  $service_enable                   = true,
+  $environment_settings             = {},
+  $heap_size                        = '1g'
 ) {
   include ::confluent::kafka::mirrormaker
 
@@ -86,6 +88,27 @@ define confluent::kafka::mirrormaker::instance (
       File['mirrormaker-config_root'],
     ]
   }
+
+  $java_default_settings = {
+    'KAFKA_HEAP_OPTS' => {
+      'value' => "-Xmx${heap_size}"
+    },
+    'KAFKA_OPTS'      => {
+      'value' => '-Djava.net.preferIPv4Stack=true'
+    },
+    'GC_LOG_ENABLED'  => {
+      'value' => true
+    },
+    'LOG_DIR'         => {
+      'value' => $log_directory
+    }
+  }
+
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
+  $ensure_java_settings_defaults = {
+    'path' => $environment_file,
+  }
+  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'
