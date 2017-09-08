@@ -156,7 +156,7 @@ class confluent::kafka::connect::standalone (
   $unit_ini_settings = {
     "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka Connect by Confluent', },
     "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network.target', },
+    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
     "${service_name}/Service/User"            => { 'value' => $user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_path, },
     "${service_name}/Service/ExecStart"       => {
