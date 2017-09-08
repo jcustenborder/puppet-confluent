@@ -75,6 +75,9 @@ define confluent::kafka::mirrormaker::instance (
   $mirror_maker_user = pick($user, $::confluent::kafka::mirrormaker::user)
 
   $config_directory = "${::confluent::kafka::mirrormaker::config_root}/${title}"
+  $producer_config_path = "${config_directory}/producer.properties"
+  $consumer_config_path = "${config_directory}/consumer.properties"
+
   $log_directory = "${::confluent::kafka::mirrormaker::log_path}/${title}"
   $environment_file = "${::confluent::params::mirror_maker_environment_path_prefix}-${title}"
 
@@ -104,6 +107,8 @@ define confluent::kafka::mirrormaker::instance (
     }
   }
 
+
+
   $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
   $ensure_java_settings_defaults = {
     'path' => $environment_file,
@@ -121,7 +126,8 @@ define confluent::kafka::mirrormaker::instance (
     "${service_name}/Service/User"            => { 'value' => $mirror_maker_user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' =>
-    "/usr/bin/kafka-mirror-maker", },
+    "/usr/bin/kafka-mirror-maker --consumer.config ${consumer_config_path} --producer.config ${producer_config_path}", }
+    ,
     "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },
