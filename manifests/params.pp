@@ -78,7 +78,8 @@ class confluent::params {
 
   $mirror_maker_user = 'mirrormaker'
   $mirror_maker_service_prefix = 'mirrormaker-'
-
+  $mirror_maker_log_path = '/var/log/mirrormaker'
+  $mirror_maker_config_root = '/etc/kafka/mirrormaker'
 
   case $::osfamily {
     'RedHat': {
