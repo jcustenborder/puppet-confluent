@@ -117,7 +117,7 @@ define confluent::kafka::mirrormaker::instance (
   $unit_ini_settings = {
     "${service_name}/Unit/Description"        => { 'value' => "Apache Kafka Mirror Maker - ${title}", },
     "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network.target', },
+    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
     "${service_name}/Service/User"            => { 'value' => $mirror_maker_user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' =>
