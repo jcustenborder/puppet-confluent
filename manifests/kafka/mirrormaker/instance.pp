@@ -86,8 +86,8 @@ define confluent::kafka::mirrormaker::instance (
   $mirror_maker_manage_service = pick($manage_service, $::confluent::kafka::mirrormaker::manage_service)
   $mirror_maker_service_ensure = pick($service_ensure, $::confluent::kafka::mirrormaker::service_ensure)
   $mirror_maker_service_enable = pick($service_enable, $::confluent::kafka::mirrormaker::service_enable)
-  $mirror_maker_environment_settings = pick($environment_settings, $
-    ::confluent::kafka::mirrormaker::environment_settings)
+  $mirror_maker_environment_settings =
+    pick($environment_settings, $::confluent::kafka::mirrormaker::environment_settings)
   $mirror_maker_heap_size = pick($heap_size, $::confluent::kafka::mirrormaker::heap_size)
 
   $config_directory = "${::confluent::kafka::mirrormaker::config_root}/${title}"
