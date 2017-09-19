@@ -44,6 +44,7 @@
 define confluent::kafka::mirrormaker::instance (
   $consumer_config,
   $producer_config,
+  $ensure                           = 'present',
   $abort_on_send_failure            = true,
   $consumer_rebalance_listener      = undef,
   $consumer_rebalance_listener_args = undef,
@@ -85,9 +86,10 @@ define confluent::kafka::mirrormaker::instance (
   $mirror_maker_manage_service = pick($manage_service, $::confluent::kafka::mirrormaker::manage_service)
   $mirror_maker_service_ensure = pick($service_ensure, $::confluent::kafka::mirrormaker::service_ensure)
   $mirror_maker_service_enable = pick($service_enable, $::confluent::kafka::mirrormaker::service_enable)
-  $mirror_maker_environment_settings = pick($environment_settings, $::confluent::kafka::mirrormaker::environment_settings)
+  $mirror_maker_environment_settings = pick($environment_settings, $
+    ::confluent::kafka::mirrormaker::environment_settings)
   $mirror_maker_heap_size = pick($heap_size, $::confluent::kafka::mirrormaker::heap_size)
-  
+
   $config_directory = "${::confluent::kafka::mirrormaker::config_root}/${title}"
   $producer_config_path = "${config_directory}/producer.properties"
   $consumer_config_path = "${config_directory}/consumer.properties"
@@ -127,7 +129,7 @@ define confluent::kafka::mirrormaker::instance (
     $mirror_maker_producer_settings,
     $mirror_maker_producer_setting_defaults
   )
-  
+
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
