@@ -1,5 +1,4 @@
 confluent::kafka::mirrormaker::instance{'testing':
-  client_id => '1234',
   consumer_config => {
     'bootstrap.servers' => {
       'value' => 'kafka-01.remote.net:9092'

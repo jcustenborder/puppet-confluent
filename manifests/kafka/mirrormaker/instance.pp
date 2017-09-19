@@ -42,7 +42,6 @@
 # (String)>
 
 define confluent::kafka::mirrormaker::instance (
-  $client_id,
   $consumer_config,
   $producer_config,
   $abort_on_send_failure            = true,

@@ -11,7 +11,6 @@ describe 'confluent::kafka::mirrormaker::instance' do
       let(:title) {title}
       let(:params) {
         {
-            :client_id => 'instance-01',
             :consumer_config => {
                 'group.id' => {
                     'value' => 'mirrormaker'
