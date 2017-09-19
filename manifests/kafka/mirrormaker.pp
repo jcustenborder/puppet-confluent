@@ -16,6 +16,11 @@ class confluent::kafka::mirrormaker (
 ) inherits confluent::params {
   include ::confluent::kafka
 
+  user { $user:
+    ensure => present,
+    tag    => 'confluent'
+  }
+
   file { $config_root:
     ensure => directory,
     alias  => 'mirrormaker-log_path',

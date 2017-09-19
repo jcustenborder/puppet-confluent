@@ -29,6 +29,8 @@ describe 'confluent::kafka::mirrormaker::instance' do
         }
       }
 
+
+      it {is_expected.to contain_user('mirrormaker')}
       expected_classes = %w(confluent::kafka::mirrormaker confluent::kafka confluent)
       expected_classes.each do |expected_class|
         it {is_expected.to contain_class(expected_class)}
