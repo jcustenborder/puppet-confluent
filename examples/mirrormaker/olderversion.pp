@@ -20,5 +20,5 @@ confluent::kafka::mirrormaker::instance { 'testing':
     }
   },
   whitelist       =>
-    '^productname-v1-(?!.*-unknown).*|^logs-pro|^bons-.*-test|^productname-v2-(realtime|longterm|logs|ets|metrics|mts)-.*-.*'
+    'topic1|foo|.*bar'
 }

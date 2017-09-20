@@ -11,7 +11,7 @@ class {'confluent::kafka::mirrormaker':
           'value' => 'kafka-01.local.net:9092'
         }
       },
-      whitelist => '^productname-v1-(?!.*-unknown).*|^logs-pro|^bons-.*-test|^productname-v2-(realtime|longterm|logs|ets|metrics|mts)-.*-.*'
+      whitelist => 'topic1|foo|.*bar'
     },
     'test-02' => {
       consumer_config => {
@@ -24,7 +24,7 @@ class {'confluent::kafka::mirrormaker':
           'value' => 'kafka-01.local.net:9092'
         }
       },
-      whitelist => '^productname-v1-(?!.*-unknown).*|^logs-pro|^bons-.*-test|^productname-v2-(realtime|longterm|logs|ets|metrics|mts)-.*-.*'
+      whitelist => 'topic1|foo|.*bar'
     },
     'test-03' => {
       consumer_config => {
@@ -37,7 +37,7 @@ class {'confluent::kafka::mirrormaker':
           'value' => 'kafka-01.local.net:9092'
         }
       },
-      whitelist => '^productname-v1-(?!.*-unknown).*|^logs-pro|^bons-.*-test|^productname-v2-(realtime|longterm|logs|ets|metrics|mts)-.*-.*'
+      whitelist => 'topic1|foo|.*bar'
     },
   }
 }

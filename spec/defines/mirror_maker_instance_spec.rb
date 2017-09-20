@@ -24,7 +24,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
                     'value' => 'kafka-01:9092'
                 }
             },
-            :whitelist => '^productname-v1-(?!.*-unknown).*|^logs-pro|^bons-.*-test|^productname-v2-(realtime|longterm|logs|ets|metrics|mts)-.*-.*'
+            :whitelist => 'topic1|foo|.*bar'
         }
       }
 
@@ -49,7 +49,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
           '--offset.commit.interval.ms 60000 ' +
           '--consumer.config /etc/kafka/mirrormaker/testing/consumer.properties ' +
           '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
-          "--whitelist '^productname-v1-(?!.*-unknown).*|^logs-pro|^bons-.*-test|^productname-v2-(realtime|longterm|logs|ets|metrics|mts)-.*-.*'"
+          "--whitelist 'topic1|foo|.*bar'"
 
       service_name = "mirrormaker-#{title}"
       system_d_settings = {
