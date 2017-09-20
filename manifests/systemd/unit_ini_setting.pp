@@ -3,8 +3,8 @@
 # @param ensure present to create the unit, false to remove it.
 # @param value Value to set.
 define confluent::systemd::unit_ini_setting (
-  $ensure,
-  $value = undef
+  Enum['present', 'absent']$ensure,
+  Any $value = undef
 ) {
   include ::confluent::systemd
   validate_re($name, '^[\w-]+\/[\w]+\/[\w]+$')

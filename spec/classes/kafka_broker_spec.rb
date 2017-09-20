@@ -5,7 +5,7 @@ describe 'confluent::kafka::broker' do
     context "on #{operating_system}" do
       osfamily = default_facts['osfamily']
       default_params = {
-          'broker_id' => '0'
+          'broker_id' => 0
       }
 
       environment_file = nil

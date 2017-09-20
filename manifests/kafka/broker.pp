@@ -48,22 +48,22 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::kafka::broker (
-  $broker_id,
-  $config               = {},
-  $environment_settings = {},
-  $config_path          = $::confluent::params::kafka_config_path,
-  $environment_file     = $::confluent::params::kafka_environment_path,
-  $data_path            = $::confluent::params::kafka_data_path,
-  $log_path             = $::confluent::params::kafka_log_path,
-  $user                 = $::confluent::params::kafka_user,
-  $service_name         = $::confluent::params::kafka_service,
-  $manage_service       = $::confluent::params::kafka_manage_service,
-  $service_ensure       = $::confluent::params::kafka_service_ensure,
-  $service_enable       = $::confluent::params::kafka_service_enable,
-  $file_limit           = $::confluent::params::kafka_file_limit,
-  $stop_timeout_secs    = $::confluent::params::kafka_stop_timeout_secs,
-  $manage_repository    = $::confluent::params::manage_repository,
-  $heap_size            = $::confluent::params::kafka_heap_size,
+  Integer $broker_id,
+  Hash $config                                                          = {},
+  Hash $environment_settings                                            = {},
+  Stdlib::Absolutepath $config_path                                     = $::confluent::params::kafka_config_path,
+  Stdlib::Absolutepath $environment_file                                = $::confluent::params::kafka_environment_path,
+  Variant[Stdlib::Absolutepath, Array[Stdlib::Absolutepath]] $data_path = $::confluent::params::kafka_data_path,
+  Stdlib::Absolutepath $log_path                                        = $::confluent::params::kafka_log_path,
+  String $user                                                          = $::confluent::params::kafka_user,
+  String $service_name                                                  = $::confluent::params::kafka_service,
+  Boolean $manage_service                                               = $::confluent::params::kafka_manage_service,
+  Enum['running', 'stopped'] $service_ensure                            = $::confluent::params::kafka_service_ensure,
+  Boolean $service_enable                                               = $::confluent::params::kafka_service_enable,
+  Integer $file_limit                                                   = $::confluent::params::kafka_file_limit,
+  Integer $stop_timeout_secs                                            = $::confluent::params::kafka_stop_timeout_secs,
+  Boolean $manage_repository                                            = $::confluent::params::manage_repository,
+  String $heap_size                                                     = $::confluent::params::kafka_heap_size,
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka

@@ -46,25 +46,25 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::control::center (
-  $bootstrap_servers,
-  $zookeeper_connect,
-  $connect_cluster      = [],
-  $control_center_id    = 1,
-  $config               = {},
-  $environment_settings = {},
-  $data_path            = $::confluent::params::control_center_data_path,
-  $config_path          = $::confluent::params::control_center_config_path,
-  $environment_file     = $::confluent::params::control_center_environment_path,
-  $log_path             = $::confluent::params::control_center_log_path,
-  $user                 = $::confluent::params::control_center_user,
-  $service_name         = $::confluent::params::control_center_service,
-  $manage_service       = $::confluent::params::control_center_manage_service,
-  $service_ensure       = $::confluent::params::control_center_service_ensure,
-  $service_enable       = $::confluent::params::control_center_service_enable,
-  $file_limit           = $::confluent::params::control_center_file_limit,
-  $manage_repository    = $::confluent::params::manage_repository,
-  $stop_timeout_secs    = $::confluent::params::control_center_stop_timeout_secs,
-  $heap_size            = $::confluent::params::control_center_heap_size
+  Variant[String, Array[String]] $bootstrap_servers,
+  Variant[String, Array[String]] $zookeeper_connect,
+  Variant[String, Array[String]] $connect_cluster = [],
+  Integer $control_center_id                      = 1,
+  Hash $config                                    = {},
+  Hash $environment_settings                      = {},
+  Stdlib::Absolutepath $data_path                 = $::confluent::params::control_center_data_path,
+  Stdlib::Absolutepath $config_path               = $::confluent::params::control_center_config_path,
+  Stdlib::Absolutepath $environment_file          = $::confluent::params::control_center_environment_path,
+  Stdlib::Absolutepath $log_path                  = $::confluent::params::control_center_log_path,
+  String $user                                    = $::confluent::params::control_center_user,
+  String $service_name                            = $::confluent::params::control_center_service,
+  Boolean $manage_service                         = $::confluent::params::control_center_manage_service,
+  Enum['running', 'stopped'] $service_ensure      = $::confluent::params::control_center_service_ensure,
+  Boolean $service_enable                         = $::confluent::params::control_center_service_enable,
+  Integer $file_limit                             = $::confluent::params::control_center_file_limit,
+  Boolean $manage_repository                      = $::confluent::params::manage_repository,
+  Integer $stop_timeout_secs                      = $::confluent::params::control_center_stop_timeout_secs,
+  String $heap_size                               = $::confluent::params::control_center_heap_size
 
 ) inherits confluent::params {
   include ::confluent
@@ -95,7 +95,7 @@ class confluent::control::center (
 
   $merged_environment_settings = prefix(merge($default_environment_settings, $environment_settings), "${application}/")
   $kafka_environment_variable_defaults = {
-    'path'        => $environment_file,
+    'path' => $environment_file,
   }
 
   ensure_resources(

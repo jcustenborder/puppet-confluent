@@ -39,22 +39,22 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::zookeeper (
-  $zookeeper_id,
-  $config               = {},
-  $environment_settings = {},
-  $config_path          = $::confluent::params::zookeeper_config_path,
-  $environment_file     = $::confluent::params::zookeeper_environment_path,
-  $data_path            = $::confluent::params::zookeeper_data_path,
-  $log_path             = $::confluent::params::zookeeper_log_path,
-  $user                 = $::confluent::params::zookeeper_user,
-  $service_name         = $::confluent::params::zookeeper_service,
-  $manage_service       = $::confluent::params::zookeeper_manage_service,
-  $service_ensure       = $::confluent::params::zookeeper_service_ensure,
-  $service_enable       = $::confluent::params::zookeeper_service_enable,
-  $file_limit           = $::confluent::params::zookeeper_file_limit,
-  $manage_repository    = $::confluent::params::manage_repository,
-  $stop_timeout_secs    = $::confluent::params::zookeeper_stop_timeout_secs,
-  $heap_size            = $::confluent::params::zookeeper_heap_size,
+  Integer $zookeeper_id,
+  Hash $config                               = {},
+  Hash $environment_settings                 = {},
+  Stdlib::Absolutepath $config_path          = $::confluent::params::zookeeper_config_path,
+  Stdlib::Absolutepath $environment_file     = $::confluent::params::zookeeper_environment_path,
+  Stdlib::Absolutepath $data_path            = $::confluent::params::zookeeper_data_path,
+  Stdlib::Absolutepath $log_path             = $::confluent::params::zookeeper_log_path,
+  String $user                               = $::confluent::params::zookeeper_user,
+  String $service_name                       = $::confluent::params::zookeeper_service,
+  Boolean $manage_service                    = $::confluent::params::zookeeper_manage_service,
+  Enum['running', 'stopped'] $service_ensure = $::confluent::params::zookeeper_service_ensure,
+  Boolean $service_enable                    = $::confluent::params::zookeeper_service_enable,
+  Integer $file_limit                        = $::confluent::params::zookeeper_file_limit,
+  Boolean $manage_repository                 = $::confluent::params::manage_repository,
+  Integer $stop_timeout_secs                 = $::confluent::params::zookeeper_stop_timeout_secs,
+  String $heap_size                          = $::confluent::params::zookeeper_heap_size,
 ) inherits confluent::params {
   include ::confluent::kafka
 
@@ -134,8 +134,8 @@ class confluent::zookeeper (
   }
 
   $ensure_zookeeper_settings_defaults = {
-    'ensure'      => 'present',
-    'path'        => $config_path,
+    'ensure' => 'present',
+    'path'   => $config_path,
   }
 
   ensure_resources(
@@ -145,7 +145,7 @@ class confluent::zookeeper (
   )
 
   $ensure_java_settings_defaults = {
-    'path'        => $environment_file,
+    'path' => $environment_file,
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)

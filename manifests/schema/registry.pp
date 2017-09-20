@@ -36,29 +36,23 @@
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::schema::registry (
-  $kafkastore_connection_url,
-  $config               = {},
-  $environment_settings = {},
-  $config_path          = $::confluent::params::schema_registry_config_path,
-  $environment_file     = $::confluent::params::schema_registry_environment_path,
-  $log_path             = $::confluent::params::schema_registry_log_path,
-  $user                 = $::confluent::params::schema_registry_user,
-  $service_name         = $::confluent::params::schema_registry_service,
-  $manage_service       = $::confluent::params::schema_registry_manage_service,
-  $service_ensure       = $::confluent::params::schema_registry_service_ensure,
-  $service_enable       = $::confluent::params::schema_registry_service_enable,
-  $file_limit           = $::confluent::params::schema_registry_file_limit,
-  $manage_repository    = $::confluent::params::manage_repository,
-  $stop_timeout_secs    = $::confluent::params::schema_registry_stop_timeout_secs,
-  $heap_size            = $::confluent::params::schema_registry_heap_size,
+  Variant[String, Array[String]] $kafkastore_connection_url,
+  Hash $config                               = {},
+  Hash $environment_settings                 = {},
+  Stdlib::Absolutepath $config_path          = $::confluent::params::schema_registry_config_path,
+  Stdlib::Absolutepath $environment_file     = $::confluent::params::schema_registry_environment_path,
+  Stdlib::Absolutepath $log_path             = $::confluent::params::schema_registry_log_path,
+  String $user                               = $::confluent::params::schema_registry_user,
+  String $service_name                       = $::confluent::params::schema_registry_service,
+  Boolean $manage_service                    = $::confluent::params::schema_registry_manage_service,
+  Enum['running', 'stopped'] $service_ensure = $::confluent::params::schema_registry_service_ensure,
+  Boolean $service_enable                    = $::confluent::params::schema_registry_service_enable,
+  Integer $file_limit                        = $::confluent::params::schema_registry_file_limit,
+  Boolean $manage_repository                 = $::confluent::params::manage_repository,
+  Integer $stop_timeout_secs                 = $::confluent::params::schema_registry_stop_timeout_secs,
+  String $heap_size                          = $::confluent::params::schema_registry_heap_size,
 ) inherits confluent::params {
   include ::confluent
-
-  validate_hash($config)
-  validate_hash($environment_settings)
-  validate_absolute_path($config_path)
-  validate_absolute_path($environment_file)
-  validate_absolute_path($log_path)
 
   if($manage_repository) {
     include ::confluent::repository
@@ -107,8 +101,8 @@ class confluent::schema::registry (
   }
 
   $ensure_schemaregistry_settings_defaults = {
-    'ensure'      => 'present',
-    'path'        => $config_path,
+    'ensure' => 'present',
+    'path'   => $config_path,
   }
 
   ensure_resources(
@@ -118,7 +112,7 @@ class confluent::schema::registry (
   )
 
   $ensure_java_settings_defaults = {
-    'path'        => $environment_file,
+    'path' => $environment_file,
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
