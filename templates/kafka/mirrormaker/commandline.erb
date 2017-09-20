@@ -1,0 +1,14 @@
+<%-
+  require 'shellwords'
+  args = %w(/usr/bin/kafka-mirror-maker)
+
+  args << ['--abort.on.send.failure', @abort_on_send_failure ? 'true' : 'false'] if @abort_on_send_failure
+  args << ['--new.consumer'] if @mirror_maker_new_consumer
+  args << ['--num.streams', @mirror_maker_num_streams] if @mirror_maker_num_streams
+  args << ['--offset.commit.interval.ms', @mirror_maker_offset_commit_interval_ms] if @mirror_maker_offset_commit_interval_ms
+  args << ['--consumer.config', Shellwords.escape(@consumer_config_path)]
+  args << ['--producer.config', Shellwords.escape(@producer_config_path)]
+  args << ['--whitelist', "'#{@whitelist}'"] if @whitelist
+  args << ['--blacklist', "'#{@blacklist}'"] if @blacklist
+
+-%><%= args.join(' ') %>
