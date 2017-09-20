@@ -1,4 +1,4 @@
-class {'confluent::kafka::mirrormaker':
+class { 'confluent::kafka::mirrormaker':
   instances => {
     'test-01' => {
       consumer_config => {
@@ -11,7 +11,7 @@ class {'confluent::kafka::mirrormaker':
           'value' => 'kafka-01.local.net:9092'
         }
       },
-      whitelist => 'topic1|foo|.*bar'
+      whitelist       => 'topic1|foo|.*bar'
     },
     'test-02' => {
       consumer_config => {
@@ -24,7 +24,7 @@ class {'confluent::kafka::mirrormaker':
           'value' => 'kafka-01.local.net:9092'
         }
       },
-      whitelist => 'topic1|foo|.*bar'
+      whitelist       => 'topic1|foo|.*bar'
     },
     'test-03' => {
       consumer_config => {
@@ -37,7 +37,7 @@ class {'confluent::kafka::mirrormaker':
           'value' => 'kafka-01.local.net:9092'
         }
       },
-      whitelist => 'topic1|foo|.*bar'
+      whitelist       => 'topic1|foo|.*bar'
     },
   }
 }

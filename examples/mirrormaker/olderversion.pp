@@ -4,7 +4,7 @@ class { 'confluent::repository::redhat':
   gpgkey_url          => 'http://packages.confluent.io/archive.key',
 }
 
-class {'confluent::kafka':
+class { 'confluent::kafka':
   package_name => 'confluent-kafka-2.10.5'
 }
 
