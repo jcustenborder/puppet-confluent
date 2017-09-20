@@ -42,53 +42,50 @@
 # (String)>
 
 define confluent::kafka::mirrormaker::instance (
-  $consumer_config,
-  $producer_config,
-  $ensure                           = 'present',
-  $abort_on_send_failure            = true,
-  $consumer_rebalance_listener      = undef,
-  $consumer_rebalance_listener_args = undef,
-  $message_handler                  = undef,
-  $message_handler_args             = undef,
-  $whitelist                        = undef,
-  $blacklist                        = undef,
-  $num_streams                      = undef,
-  $new_consumer                     = undef,
-  $offset_commit_interval_ms        = undef,
-  $service_name                     = "mirrormaker-${title}",
-  $user                             = undef,
-  $file_limit                       = undef,
-  $service_stop_timeout_secs        = undef,
-  $manage_service                   = undef,
-  $service_ensure                   = undef,
-  $service_enable                   = undef,
-  $environment_settings             = {},
-  $heap_size                        = undef
+  Hash $consumer_config,
+  Hash $producer_config,
+  Enum['present', 'absent'] $ensure                          = 'present',
+  Variant[Undef, Boolean] $abort_on_send_failure             = undef,
+  Variant[Undef, String] $consumer_rebalance_listener        = undef,
+  Variant[Undef, String] $consumer_rebalance_listener_args   = undef,
+  Variant[Undef, String] $message_handler                    = undef,
+  Variant[Undef, String] $message_handler_args               = undef,
+  Variant[Undef, Regexp, String] $whitelist                  = undef,
+  Variant[Undef, Regexp, String] $blacklist                  = undef,
+  Variant[Undef, Integer] $num_streams                       = undef,
+  Variant[Undef, Boolean] $new_consumer                      = undef,
+  Variant[Undef, Integer] $offset_commit_interval_ms         = undef,
+  Variant[Undef, String] $service_name                       = "mirrormaker-${title}",
+  Variant[Undef, String] $user                               = undef,
+  Variant[Undef, Integer] $file_limit                        = undef,
+  Variant[Undef, Integer] $service_stop_timeout_secs         = undef,
+  Variant[Undef, Boolean] $manage_service                    = undef,
+  Variant[Undef, Enum['running', 'stopped']] $service_ensure = undef,
+  Variant[Undef, Boolean] $service_enable                    = undef,
+  Hash $environment_settings                                 = {},
+  Undef $heap_size                                           = undef
 ) {
   include ::confluent::kafka::mirrormaker
-
-  validate_re($title, '^[a-zA-Z\d_-]+$')
-  validate_hash($consumer_config)
-  validate_hash($producer_config)
 
   if(undef == $whitelist and undef == $blacklist) {
     fail('$blacklist or $whitelist must be specified.')
   }
 
-  $mirror_maker_user = pick($user, $::confluent::kafka::mirrormaker::user)
-  $mirror_maker_num_streams = pick($num_streams, $::confluent::kafka::mirrormaker::num_streams)
-  $mirror_maker_new_consumer = pick($new_consumer, $::confluent::kafka::mirrormaker::new_consumer)
-  $mirror_maker_offset_commit_interval_ms =
+  $mm_abort_on_send_failure = pick($abort_on_send_failure, $::confluent::kafka::mirrormaker::abort_on_send_failure)
+  $mm_user = pick($user, $::confluent::kafka::mirrormaker::user)
+  $mm_num_streams = pick($num_streams, $::confluent::kafka::mirrormaker::num_streams)
+  $mm_new_consumer = pick($new_consumer, $::confluent::kafka::mirrormaker::new_consumer)
+  $mm_offset_commit_interval_ms =
     pick($offset_commit_interval_ms, $::confluent::kafka::mirrormaker::offset_commit_interval_ms)
-  $mirror_maker_file_limit = pick($file_limit, $::confluent::kafka::mirrormaker::file_limit)
-  $mirror_maker_service_stop_timeout_secs =
+  $mm_file_limit = pick($file_limit, $::confluent::kafka::mirrormaker::file_limit)
+  $mm_service_stop_timeout_secs =
     pick($service_stop_timeout_secs, $::confluent::kafka::mirrormaker::service_stop_timeout_secs)
-  $mirror_maker_manage_service = pick($manage_service, $::confluent::kafka::mirrormaker::manage_service)
-  $mirror_maker_service_ensure = pick($service_ensure, $::confluent::kafka::mirrormaker::service_ensure)
-  $mirror_maker_service_enable = pick($service_enable, $::confluent::kafka::mirrormaker::service_enable)
-  $mirror_maker_environment_settings =
+  $mm_manage_service = pick($manage_service, $::confluent::kafka::mirrormaker::manage_service)
+  $mm_service_ensure = pick($service_ensure, $::confluent::kafka::mirrormaker::service_ensure)
+  $mm_service_enable = pick($service_enable, $::confluent::kafka::mirrormaker::service_enable)
+  $mm_environment_settings =
     pick($environment_settings, $::confluent::kafka::mirrormaker::environment_settings)
-  $mirror_maker_heap_size = pick($heap_size, $::confluent::kafka::mirrormaker::heap_size)
+  $mm_heap_size = pick($heap_size, $::confluent::kafka::mirrormaker::heap_size)
 
   $config_directory = "${::confluent::kafka::mirrormaker::config_root}/${title}"
   $producer_config_path = "${config_directory}/producer.properties"
@@ -99,7 +96,7 @@ define confluent::kafka::mirrormaker::instance (
 
   file { [$config_directory, $log_directory]:
     ensure  => directory,
-    owner   => $mirror_maker_user,
+    owner   => $mm_user,
     group   => 'root',
     tag     => 'confluent',
     require => [
@@ -133,7 +130,7 @@ define confluent::kafka::mirrormaker::instance (
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
-      'value' => "-Xmx${mirror_maker_heap_size}"
+      'value' => "-Xmx${mm_heap_size}"
     },
     'KAFKA_OPTS'      => {
       'value' => '-Djava.net.preferIPv4Stack=true'
@@ -146,7 +143,7 @@ define confluent::kafka::mirrormaker::instance (
     }
   }
 
-  $actual_java_settings = prefix(merge($java_default_settings, $mirror_maker_environment_settings), "${service_name}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $mm_environment_settings), "${service_name}/")
   $ensure_java_settings_defaults = {
     'path' => $environment_file,
   }
@@ -162,23 +159,23 @@ define confluent::kafka::mirrormaker::instance (
     "${service_name}/Unit/Description"        => { 'value' => "Apache Kafka Mirror Maker - ${title}", },
     "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
     "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $mirror_maker_user, },
+    "${service_name}/Service/User"            => { 'value' => $mm_user, },
     "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
     "${service_name}/Service/ExecStart"       => { 'value' => $commandline, },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $mirror_maker_file_limit, },
+    "${service_name}/Service/LimitNOFILE"     => { 'value' => $mm_file_limit, },
     "${service_name}/Service/KillMode"        => { 'value' => 'process', },
     "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $mirror_maker_service_stop_timeout_secs, },
+    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $mm_service_stop_timeout_secs, },
     "${service_name}/Service/Type"            => { 'value' => 'simple', },
     "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
-  if($mirror_maker_manage_service) {
+  if($mm_manage_service) {
     service { $service_name:
-      ensure => $mirror_maker_service_ensure,
-      enable => $mirror_maker_service_enable,
+      ensure => $mm_service_ensure,
+      enable => $mm_service_enable,
       tag    => 'confluent'
     }
     Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]

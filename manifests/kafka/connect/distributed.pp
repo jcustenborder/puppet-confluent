@@ -56,27 +56,24 @@
 # @param service_enable Enable setting to pass to the service resource.
 # @param file_limit Number of file handles to configure. (SystemD only)
 class confluent::kafka::connect::distributed (
-  $bootstrap_servers,
-  $config               = {},
-  $environment_settings = {},
-  $config_path          = $::confluent::params::connect_distributed_config_path,
-  $environment_file     = $::confluent::params::connect_distributed_environment_path,
-  $log_path             = $::confluent::params::connect_distributed_log_path,
-  $user                 = $::confluent::params::connect_distributed_user,
-  $service_name         = $::confluent::params::connect_distributed_service,
-  $manage_service       = $::confluent::params::connect_distributed_manage_service,
-  $service_ensure       = $::confluent::params::connect_distributed_service_ensure,
-  $service_enable       = $::confluent::params::connect_distributed_service_enable,
-  $file_limit           = $::confluent::params::connect_distributed_file_limit,
-  $manage_repository    = $::confluent::params::manage_repository,
-  $stop_timeout_secs    = $::confluent::params::connect_distributed_stop_timeout_secs,
-  $heap_size            = $::confluent::params::connect_distributed_heap_size
+  Variant[String, Array[String]] $bootstrap_servers,
+  Hash $config                               = {},
+  Hash $environment_settings                 = {},
+  Stdlib::Absolutepath $config_path          = $::confluent::params::connect_distributed_config_path,
+  Stdlib::Absolutepath $environment_file     = $::confluent::params::connect_distributed_environment_path,
+  Stdlib::Absolutepath $log_path             = $::confluent::params::connect_distributed_log_path,
+  String $user                               = $::confluent::params::connect_distributed_user,
+  String $service_name                       = $::confluent::params::connect_distributed_service,
+  Boolean $manage_service                    = $::confluent::params::connect_distributed_manage_service,
+  Enum['running', 'stopped'] $service_ensure = $::confluent::params::connect_distributed_service_ensure,
+  Boolean $service_enable                    = $::confluent::params::connect_distributed_service_enable,
+  Integer $file_limit                        = $::confluent::params::connect_distributed_file_limit,
+  Boolean $manage_repository                 = $::confluent::params::manage_repository,
+  Integer $stop_timeout_secs                 = $::confluent::params::connect_distributed_stop_timeout_secs,
+  String $heap_size                          = $::confluent::params::connect_distributed_heap_size
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
-
-  validate_absolute_path($log_path)
-  validate_absolute_path($config_path)
 
   if($manage_repository) {
     include ::confluent::repository
@@ -121,8 +118,8 @@ class confluent::kafka::connect::distributed (
   $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${application}/")
 
   $ensure_connect_settings_defaults = {
-    'ensure'      => 'present',
-    'path'        => $config_path,
+    'ensure' => 'present',
+    'path'   => $config_path,
   }
 
   ensure_resources(
@@ -133,7 +130,7 @@ class confluent::kafka::connect::distributed (
 
   $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
   $ensure_java_settings_defaults = {
-    'path'        => $environment_file,
+    'path' => $environment_file,
   }
 
   ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)

@@ -1,6 +1,6 @@
 class confluent::repository::debian (
-  $key_url        = $::confluent::params::key_url,
-  $repository_url = $::confluent::params::repository_url
+  Variant[Stdlib::Httpsurl, Stdlib::Httpurl] $key_url        = $::confluent::params::key_url,
+  Variant[Stdlib::Httpsurl, Stdlib::Httpurl] $repository_url = $::confluent::params::repository_url
 ) inherits confluent::params {
   include ::apt
 

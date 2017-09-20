@@ -12,13 +12,10 @@
 # @param path The path to the file containing the java property.
 # @param application The application requesting the change. Property names are often duplicated. This ensures a unique resource name
 define confluent::java_property (
-  $path,
-  $ensure = 'present',
-  $value  = unset,
+  Stdlib::Absolutepath $path,
+  Enum['present', 'absent'] $ensure = 'present',
+  Any $value  = unset,
 ) {
-  validate_re($name, '^[^\/]+\/.+$')
-  validate_absolute_path($path)
-
   $name_parts = split($name, '/')
   $application = $name_parts[0]
   $property = $name_parts[1]

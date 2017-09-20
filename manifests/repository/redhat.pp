@@ -2,9 +2,9 @@
 #
 #
 class confluent::repository::redhat (
-  $dist_repository_url = $::confluent::params::dist_repository_url,
-  $repository_url      = $::confluent::params::repository_url,
-  $gpgkey_url          = $::confluent::params::gpgkey_url
+  Variant[Stdlib::Httpsurl, Stdlib::Httpurl] $dist_repository_url = $::confluent::params::dist_repository_url,
+  Variant[Stdlib::Httpsurl, Stdlib::Httpurl] $repository_url      = $::confluent::params::repository_url,
+  Variant[Stdlib::Httpsurl, Stdlib::Httpurl] $gpgkey_url          = $::confluent::params::gpgkey_url
 ) inherits confluent::params {
 
   yumrepo { 'Confluent':
@@ -14,6 +14,7 @@ class confluent::repository::redhat (
     enabled  => '1',
     gpgcheck => '1',
     gpgkey   => $gpgkey_url,
+    tag      => 'confluent'
   }
   yumrepo { 'Confluent.dist':
     ensure   => 'present',
@@ -22,8 +23,8 @@ class confluent::repository::redhat (
     enabled  => '1',
     gpgcheck => '1',
     gpgkey   => $gpgkey_url,
+    tag      => 'confluent'
   }
 
-  #Ensure that repositories are configured before packages are installed.
-  Yumrepo<| |> -> Package<| provider == 'yum' |>
+  Yumrepo<| tag == 'confluent' |> -> Package<| tag == 'confluent' |>
 }

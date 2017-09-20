@@ -14,9 +14,6 @@ describe 'confluent::kafka::mirrormaker' do
               },
           }
       }
-
-
-
     end
   end
 end
