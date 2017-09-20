@@ -2,12 +2,16 @@
   require 'shellwords'
   args = %w(/usr/bin/kafka-mirror-maker)
 
-  args << ['--abort.on.send.failure', @mm_abort_on_send_failure.to_s] if @mm_abort_on_send_failure
+  args << ['--abort.on.send.failure', @mm_abort_on_send_failure.to_s]
   args << ['--new.consumer'] if @mm_new_consumer && true == @mm_new_consumer
-  args << ['--num.streams', @mm_num_streams] if @mm_num_streams
+  args << ['--num.streams', @mm_num_streams.to_s] if @mm_num_streams
   args << ['--offset.commit.interval.ms', @mm_offset_commit_interval_ms] if @mm_offset_commit_interval_ms
   args << ['--consumer.config', Shellwords.escape(@consumer_config_path)]
   args << ['--producer.config', Shellwords.escape(@producer_config_path)]
+  args << ['--consumer.rebalance.listener', @consumer_rebalance_listener] if @consumer_rebalance_listener
+  args << ['--rebalance.listener.args', "'#{@consumer_rebalance_listener_args}'"] if @consumer_rebalance_listener_args
+  args << ['--message.handler', @message_handler] if @message_handler
+  args << ['--message.handler.args', "'#{@message_handler_args}'"] if @message_handler_args
   args << ['--whitelist', "'#{@whitelist}'"] if @whitelist
   args << ['--blacklist', "'#{@blacklist}'"] if @blacklist
 
