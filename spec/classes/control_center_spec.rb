@@ -32,7 +32,7 @@ describe 'confluent::control::center' do
         context "with log_path => #{log_path}" do
           let(:params) {default_params.merge({'log_path' => log_path})}
           it {is_expected.to contain_file(log_path).with({'owner' => 'control-center', 'group' => 'control-center'})}
-          it {is_expected.to contain_ini_subsetting('c3/LOG_DIR').with({'path' => environment_file, 'value' => log_path}
+          it {is_expected.to contain_ini_subsetting('control-center/LOG_DIR').with({'path' => environment_file, 'value' => log_path}
           )}
         end
       end
@@ -42,7 +42,7 @@ describe 'confluent::control::center' do
         context "with data_path => #{data_path}" do
           let(:params) {default_params.merge({'data_path' => data_path})}
           it {is_expected.to contain_file(data_path).with({'owner' => 'control-center', 'group' => 'control-center'})}
-          it {is_expected.to contain_ini_setting("c3/confluent.controlcenter.data.dir").with(
+          it {is_expected.to contain_ini_setting("control-center/confluent.controlcenter.data.dir").with(
               'path' => '/etc/confluent-control-center/control-center.properties',
               'value' => data_path
           )}
@@ -58,7 +58,7 @@ describe 'confluent::control::center' do
       }
 
       settings.each do |key, value|
-        it {is_expected.to contain_ini_setting("c3/#{key}").with(
+        it {is_expected.to contain_ini_setting("control-center/#{key}").with(
             'path' => '/etc/confluent-control-center/control-center.properties',
             'value' => value
         )}
@@ -74,7 +74,7 @@ describe 'confluent::control::center' do
       it {is_expected.to contain_package('confluent-control-center')}
       it {is_expected.to contain_user('control-center')}
       it {is_expected.to contain_service('control-center').with({'ensure' => 'running', 'enable' => true})}
-      it {is_expected.to contain_ini_subsetting('c3/CONTROL_CENTER_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap}
+      it {is_expected.to contain_ini_subsetting('control-center/CONTROL_CENTER_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap}
       )}
       service_name = 'control-center'
       system_d_settings = {

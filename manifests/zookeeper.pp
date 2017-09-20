@@ -43,6 +43,7 @@ class confluent::zookeeper (
   Hash $config                               = {},
   Hash $environment_settings                 = {},
   Stdlib::Absolutepath $config_path          = $::confluent::params::zookeeper_config_path,
+  Stdlib::Absolutepath $logging_config_path  = $::confluent::params::zookeeper_logging_config_path,
   Stdlib::Absolutepath $environment_file     = $::confluent::params::zookeeper_environment_path,
   Stdlib::Absolutepath $data_path            = $::confluent::params::zookeeper_data_path,
   Stdlib::Absolutepath $log_path             = $::confluent::params::zookeeper_log_path,
@@ -61,8 +62,6 @@ class confluent::zookeeper (
   if($manage_repository) {
     include ::confluent::repository
   }
-
-  $application = 'zookeeper'
 
   $zookeeper_default_settings = {
     'dataDir'                   => {
@@ -89,22 +88,29 @@ class confluent::zookeeper (
   }
 
   $java_default_settings = {
-    'KAFKA_HEAP_OPTS' => {
+    'KAFKA_HEAP_OPTS'  => {
       'value' => "-Xmx${heap_size}"
     },
-    'KAFKA_OPTS'      => {
+    'KAFKA_OPTS'       => {
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
-    'GC_LOG_ENABLED'  => {
+    'GC_LOG_ENABLED'   => {
       'value' => true
     },
-    'LOG_DIR'         => {
+    'LOG_DIR'          => {
       'value' => $log_path
+    },
+    'KAFKA_LOG4J_OPTS' => {
+      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
   }
 
-  $actual_zookeeper_settings = prefix(merge($zookeeper_default_settings, $config), "${application}/")
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
+
+  $actual_zookeeper_settings = prefix(merge($zookeeper_default_settings, $config), "${service_name}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
 
   $myid_file = "${data_path}/myid"
 

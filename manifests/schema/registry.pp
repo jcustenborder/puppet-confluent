@@ -40,6 +40,7 @@ class confluent::schema::registry (
   Hash $config                               = {},
   Hash $environment_settings                 = {},
   Stdlib::Absolutepath $config_path          = $::confluent::params::schema_registry_config_path,
+  Stdlib::Absolutepath $logging_config_path  = $::confluent::params::schema_registry_logging_config_path,
   Stdlib::Absolutepath $environment_file     = $::confluent::params::schema_registry_environment_path,
   Stdlib::Absolutepath $log_path             = $::confluent::params::schema_registry_log_path,
   String $user                               = $::confluent::params::schema_registry_user,
@@ -57,9 +58,6 @@ class confluent::schema::registry (
   if($manage_repository) {
     include ::confluent::repository
   }
-
-  $application = 'schema-registry'
-
   $schemaregistry_default_settings = {
     'kafkastore.connection.url' => {
       'value' => join(any2array($kafkastore_connection_url), ',')
@@ -78,11 +76,18 @@ class confluent::schema::registry (
     },
     'LOG_DIR'                   => {
       'value' => $log_path
+    },
+    'KAFKA_LOG4J_OPTS' => {
+      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
   }
 
-  $actual_schemaregistry_settings = prefix(merge($schemaregistry_default_settings, $config), "${application}/")
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
+  $actual_schemaregistry_settings = prefix(merge($schemaregistry_default_settings, $config), "${service_name}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
+
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
 
   user { $user:
     ensure => present
