@@ -2,6 +2,7 @@ class confluent::kafka::mirrormaker (
   String $user                               = $::confluent::params::mirror_maker_user,
   Stdlib::Absolutepath $log_path             = $::confluent::params::mirror_maker_log_path,
   Stdlib::Absolutepath $config_root          = $::confluent::params::mirror_maker_config_root,
+  Boolean $abort_on_send_failure             = true,
   Boolean $new_consumer                      = true,
   Integer $num_streams                       = 1,
   Integer $offset_commit_interval_ms         = 60000,
