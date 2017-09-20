@@ -16,12 +16,10 @@ define confluent::kafka_environment_variable (
   Enum['present', 'absent'] $ensure = 'present',
   Any $value                        = undef,
 ) {
-  validate_re($name, '^[^\/]+\/.+$')
   $name_parts = split($name, '/')
   $application = $name_parts[0]
   $property = $name_parts[1]
 
-  validate_absolute_path($path)
   ini_subsetting { $name:
     ensure            => $ensure,
     path              => $path,

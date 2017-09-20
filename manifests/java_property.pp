@@ -16,9 +16,6 @@ define confluent::java_property (
   Enum['present', 'absent'] $ensure = 'present',
   Any $value  = unset,
 ) {
-  validate_re($name, '^[^\/]+\/.+$')
-  validate_absolute_path($path)
-
   $name_parts = split($name, '/')
   $application = $name_parts[0]
   $property = $name_parts[1]

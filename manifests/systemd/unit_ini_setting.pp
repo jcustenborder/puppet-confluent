@@ -7,7 +7,7 @@ define confluent::systemd::unit_ini_setting (
   Any $value = undef
 ) {
   include ::confluent::systemd
-  validate_re($name, '^[\w-]+\/[\w]+\/[\w]+$')
+
   $name_parts = split($name, '/')
   $unit_name = $name_parts[0]
   $section = $name_parts[1]

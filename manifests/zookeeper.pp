@@ -62,12 +62,6 @@ class confluent::zookeeper (
     include ::confluent::repository
   }
 
-  validate_hash($config)
-  validate_hash($environment_settings)
-  validate_absolute_path($config_path)
-  validate_absolute_path($log_path)
-  validate_absolute_path($config_path)
-
   $application = 'zookeeper'
 
   $zookeeper_default_settings = {

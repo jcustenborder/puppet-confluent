@@ -5,7 +5,7 @@ describe 'confluent::zookeeper' do
     context "on #{operating_system}" do
       osfamily = default_facts['osfamily']
       default_params = {
-          'zookeeper_id' => '1',
+          'zookeeper_id' => 1,
       }
       environment_file = nil
 

@@ -67,10 +67,6 @@ define confluent::kafka::mirrormaker::instance (
 ) {
   include ::confluent::kafka::mirrormaker
 
-  validate_re($title, '^[a-zA-Z\d_-]+$')
-  validate_hash($consumer_config)
-  validate_hash($producer_config)
-
   if(undef == $whitelist and undef == $blacklist) {
     fail('$blacklist or $whitelist must be specified.')
   }

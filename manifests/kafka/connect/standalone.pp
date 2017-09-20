@@ -77,12 +77,8 @@ class confluent::kafka::connect::standalone (
   include ::confluent
   include ::confluent::kafka::connect
 
-  validate_absolute_path($log_path)
-  validate_absolute_path($config_path)
-  validate_absolute_path($offset_storage_path)
-
   $connector_config_array = any2array($connector_configs)
-  validate_absolute_path($connector_config_array)
+
 
   if($manage_repository) {
     include ::confluent::repository

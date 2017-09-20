@@ -73,12 +73,6 @@ class confluent::control::center (
     include ::confluent::repository
   }
 
-  validate_hash($config)
-  validate_hash($environment_settings)
-  validate_absolute_path($config_path)
-  validate_absolute_path($environment_file)
-  validate_absolute_path($log_path)
-
   $application = 'c3'
 
   $default_environment_settings = {
