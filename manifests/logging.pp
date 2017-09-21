@@ -15,7 +15,7 @@ define confluent::logging (
     'log4j.appender.roller.layout.ConversionPattern' => { 'value' => '[%d] %p %m (%c)%n' },
   }
   $merged_config = merge($default_config, $config)
-  $prefixed = prefix($merged_config, $title)
+  $prefixed = prefix($merged_config, "${title}/")
 
   $java_property_defaults = {
     'ensure' => 'present',
