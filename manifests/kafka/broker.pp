@@ -113,6 +113,11 @@ class confluent::kafka::broker (
     }
   }
 
+  confluent::logging { $service_name:
+    path   => $logging_config_path,
+    config => $logging_config
+  }
+
   $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
   $ensure_java_settings_defaults = {
     'path' => $environment_file,
