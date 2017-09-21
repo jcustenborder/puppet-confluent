@@ -126,7 +126,7 @@ class confluent::zookeeper (
   } ->
   file { $myid_file:
     ensure  => present,
-    content => $zookeeper_id,
+    content => "${zookeeper_id}",
     mode    => '0644',
     group   => $user,
     owner   => $user,
