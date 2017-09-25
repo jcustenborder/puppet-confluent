@@ -11,6 +11,7 @@ class confluent::params {
   $connect_distributed_service_enable = true
   $connect_distributed_file_limit = 128000
   $connect_distributed_config_path = '/etc/kafka/connect-distributed.properties'
+  $connect_distributed_logging_config_path = '/etc/kafka/connect-distributed.logging.properties'
   $connect_distributed_log_path = '/var/log/kafka-connect-distributed'
   $connect_distributed_stop_timeout_secs = 300
   $connect_distributed_heap_size = '512m'
@@ -22,6 +23,7 @@ class confluent::params {
   $connect_standalone_service_enable = true
   $connect_standalone_file_limit = 128000
   $connect_standalone_config_path = '/etc/kafka/connect-standalone.properties'
+  $connect_standalone_logging_config_path = '/etc/kafka/connect-standalone.logging.properties'
   $connect_standalone_log_path = '/var/log/kafka-connect-standalone'
   $connect_standalone_stop_timeout_secs = 300
   $connect_standalone_heap_size = '512m'
@@ -34,10 +36,85 @@ class confluent::params {
   $kafka_service_enable = true
   $kafka_file_limit = 128000
   $kafka_config_path = '/etc/kafka/server.properties'
+  $kafka_logging_config_path = '/etc/kafka/server.logging.properties'
   $kafka_log_path = '/var/log/kafka'
   $kafka_data_path = '/var/lib/kafka'
   $kafka_stop_timeout_secs = 300
   $kafka_heap_size = '1024m'
+  $kafka_logging_config = {
+    'log4j.rootLogger'                                   => {
+      'value' => 'INFO, stdout, roller, authorizer'
+    },
+    'log4j.appender.stdout'                              => {
+      'value' => 'org.apache.log4j.ConsoleAppender'
+    },
+    'log4j.appender.stdout.layout'                       => {
+      'value' => 'org.apache.log4j.PatternLayout'
+    },
+    'log4j.appender.stdout.layout.ConversionPattern'     => {
+      'value' => '[%d] %p %m (%c)%n'
+    },
+    'log4j.appender.roller'                              => {
+      'value' => 'org.apache.log4j.DailyRollingFileAppender'
+    },
+    'log4j.appender.roller.DatePattern'                  => {
+      'value' => "'.'yyyy-MM-dd-HH"
+    },
+    'log4j.appender.roller.File'                         => {
+      'value' => '${kafka.logs.dir}/server.log' },
+    'log4j.appender.roller.layout'                       => { 'value' => 'org.apache.log4j.PatternLayout' },
+    'log4j.appender.roller.layout.ConversionPattern'     => { 'value' => '[%d] %p %m (%c)%n' },
+    'log4j.appender.state'                               => { 'value' =>
+    'org.apache.log4j.DailyRollingFileAppender' },
+    'log4j.appender.state.DatePattern'                   => { 'value' => "'.'yyyy-MM-dd-HH" },
+    'log4j.appender.state.File'                          => { 'value' => '${kafka.logs.dir}/state-change.log' }
+    ,
+    'log4j.appender.state.layout'                        => { 'value' => 'org.apache.log4j.PatternLayout' },
+    'log4j.appender.state.layout.ConversionPattern'      => { 'value' => '[%d] %p %m (%c)%n' },
+    'log4j.appender.request'                             => { 'value' =>
+    'org.apache.log4j.DailyRollingFileAppender' },
+    'log4j.appender.request.DatePattern'                 => { 'value' => "'.'yyyy-MM-dd-HH" },
+    'log4j.appender.request.File'                        => { 'value' => '${kafka.logs.dir}/kafka-request.log'
+    },
+    'log4j.appender.request.layout'                      => { 'value' => 'org.apache.log4j.PatternLayout' },
+    'log4j.appender.request.layout.ConversionPattern'    => { 'value' => '[%d] %p %m (%c)%n' },
+    'log4j.appender.cleaner'                             => { 'value' =>
+    'org.apache.log4j.DailyRollingFileAppender' },
+    'log4j.appender.cleaner.DatePattern'                 => { 'value' => "'.'yyyy-MM-dd-HH" },
+    'log4j.appender.cleaner.File'                        => { 'value' => '${kafka.logs.dir}/log-cleaner.log' },
+    'log4j.appender.cleaner.layout'                      => { 'value' => 'org.apache.log4j.PatternLayout' },
+    'log4j.appender.cleaner.layout.ConversionPattern'    => { 'value' => '[%d] %p %m (%c)%n' },
+    'log4j.appender.controller'                          => { 'value' =>
+    'org.apache.log4j.DailyRollingFileAppender' },
+    'log4j.appender.controller.DatePattern'              => { 'value' => "'.'yyyy-MM-dd-HH" },
+    'log4j.appender.controller.File'                     => { 'value' => '${kafka.logs.dir}/controller.log' },
+    'log4j.appender.controller.layout'                   => { 'value' => 'org.apache.log4j.PatternLayout' },
+    'log4j.appender.controller.layout.ConversionPattern' => { 'value' => '[%d] %p %m (%c)%n' },
+    'log4j.appender.authorizer'                          => { 'value' =>
+    'org.apache.log4j.DailyRollingFileAppender' },
+    'log4j.appender.authorizer.DatePattern'              => { 'value' => "'.'yyyy-MM-dd-HH" },
+    'log4j.appender.authorizer.File'                     => { 'value' =>
+    '${kafka.logs.dir}/kafka-authorizer.log' },
+    'log4j.appender.authorizer.layout'                   => { 'value' => 'org.apache.log4j.PatternLayout' },
+    'log4j.appender.authorizer.layout.ConversionPattern' => { 'value' => '[%d] %p %m (%c)%n' },
+    'log4j.logger.org.I0Itec.zkclient.ZkClient'          => { 'value' => 'INFO' },
+    'log4j.logger.org.apache.zookeeper'                  => { 'value' => 'INFO' },
+    'log4j.logger.kafka'                                 => { 'value' => 'INFO' },
+    'log4j.logger.org.apache.kafka'                      => { 'value' => 'INFO' },
+    'log4j.logger.kafka.request.logger'                  => { 'value' => 'WARN, request' },
+    'log4j.additivity.kafka.request.logger'              => { 'value' => 'false' },
+    'log4j.logger.kafka.network.RequestChannel$'         => { 'value' => 'WARN, request' },
+    'log4j.additivity.kafka.network.RequestChannel$'     => { 'value' => 'false' },
+    'log4j.logger.kafka.controller'                      => { 'value' => 'TRACE, controller' },
+    'log4j.additivity.kafka.controller'                  => { 'value' => 'false' },
+    'log4j.logger.kafka.log.LogCleaner'                  => { 'value' => 'INFO, cleaner' },
+    'log4j.additivity.kafka.log.LogCleaner'              => { 'value' => 'false' },
+    'log4j.logger.state.change.logger'                   => { 'value' => 'TRACE, state' },
+    'log4j.additivity.state.change.logger'               => { 'value' => 'false' },
+    'log4j.logger.kafka.authorizer.logger'               => { 'value' => 'WARN, authorizer' },
+    'log4j.additivity.kafka.authorizer.logger'           => { 'value' => 'false' },
+
+  }
 
   $zookeeper_user = 'zookeeper'
   $zookeeper_service = 'zookeeper'
@@ -46,6 +123,7 @@ class confluent::params {
   $zookeeper_service_enable = true
   $zookeeper_file_limit = 128000
   $zookeeper_config_path = '/etc/kafka/zookeeper.properties'
+  $zookeeper_logging_config_path = '/etc/kafka/zookeeper.logging.properties'
   $zookeeper_log_path = '/var/log/zookeeper'
   $zookeeper_data_path = '/var/lib/zookeeper'
   $zookeeper_stop_timeout_secs = 300
@@ -58,6 +136,7 @@ class confluent::params {
   $schema_registry_service_enable = true
   $schema_registry_file_limit = 128000
   $schema_registry_config_path = '/etc/schema-registry/schema-registry.properties'
+  $schema_registry_logging_config_path = '/etc/schema-registry/schema-registry.logging.properties'
   $schema_registry_log_path = '/var/log/schema-registry'
   $schema_registry_stop_timeout_secs = 300
   $schema_registry_heap_size = '512m'
@@ -69,6 +148,7 @@ class confluent::params {
   $control_center_service_enable = true
   $control_center_file_limit = 128000
   $control_center_config_path = '/etc/confluent-control-center/control-center.properties'
+  $control_center_logging_config_path = '/etc/confluent-control-center/control-center.logging.properties'
   $control_center_log_path = '/var/log/control-center'
   $control_center_data_path = '/var/lib/control-center'
   $control_center_stop_timeout_secs = 300

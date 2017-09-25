@@ -54,6 +54,7 @@ class confluent::control::center (
   Hash $environment_settings                      = {},
   Stdlib::Absolutepath $data_path                 = $::confluent::params::control_center_data_path,
   Stdlib::Absolutepath $config_path               = $::confluent::params::control_center_config_path,
+  Stdlib::Absolutepath $logging_config_path       = $::confluent::params::control_center_logging_config_path,
   Stdlib::Absolutepath $environment_file          = $::confluent::params::control_center_environment_path,
   Stdlib::Absolutepath $log_path                  = $::confluent::params::control_center_log_path,
   String $user                                    = $::confluent::params::control_center_user,
@@ -73,7 +74,7 @@ class confluent::control::center (
     include ::confluent::repository
   }
 
-  $application = 'c3'
+
 
   $default_environment_settings = {
     'CONTROL_CENTER_HEAP_OPTS' => {
@@ -84,10 +85,17 @@ class confluent::control::center (
     },
     'LOG_DIR'                  => {
       'value' => $log_path
+    },
+    'KAFKA_LOG4J_OPTS'         => {
+      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
   }
 
-  $merged_environment_settings = prefix(merge($default_environment_settings, $environment_settings), "${application}/")
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
+
+  $merged_environment_settings = prefix(merge($default_environment_settings, $environment_settings), "${service_name}/")
   $kafka_environment_variable_defaults = {
     'path' => $environment_file,
   }
@@ -116,7 +124,7 @@ class confluent::control::center (
     }
   }
 
-  $merged_control_center_settings = prefix(merge($control_center_default_settings, $config), "${application}/")
+  $merged_control_center_settings = prefix(merge($control_center_default_settings, $config), "${service_name}/")
   $java_property_defaults = {
     'ensure' => 'present',
     'path'   => $config_path,

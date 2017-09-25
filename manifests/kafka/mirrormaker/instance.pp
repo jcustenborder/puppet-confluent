@@ -90,6 +90,7 @@ define confluent::kafka::mirrormaker::instance (
   $config_directory = "${::confluent::kafka::mirrormaker::config_root}/${title}"
   $producer_config_path = "${config_directory}/producer.properties"
   $consumer_config_path = "${config_directory}/consumer.properties"
+  $logging_config_path = "${config_directory}/logging.properties"
 
   $log_directory = "${::confluent::kafka::mirrormaker::log_path}/${title}"
   $environment_file = "${::confluent::params::mirror_maker_environment_path_prefix}-${title}"
@@ -140,7 +141,14 @@ define confluent::kafka::mirrormaker::instance (
     },
     'LOG_DIR'         => {
       'value' => $log_directory
+    },
+    'KAFKA_LOG4J_OPTS' => {
+      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
+  }
+
+  confluent::logging { $service_name:
+    path => $logging_config_path
   }
 
   $actual_java_settings = prefix(merge($java_default_settings, $mm_environment_settings), "${service_name}/")

@@ -60,6 +60,7 @@ class confluent::kafka::connect::distributed (
   Hash $config                               = {},
   Hash $environment_settings                 = {},
   Stdlib::Absolutepath $config_path          = $::confluent::params::connect_distributed_config_path,
+  Stdlib::Absolutepath $logging_config_path  = $::confluent::params::connect_distributed_logging_config_path,
   Stdlib::Absolutepath $environment_file     = $::confluent::params::connect_distributed_environment_path,
   Stdlib::Absolutepath $log_path             = $::confluent::params::connect_distributed_log_path,
   String $user                               = $::confluent::params::connect_distributed_user,
@@ -91,8 +92,9 @@ class confluent::kafka::connect::distributed (
     tag     => 'confluent'
   }
 
-  $application = 'connect-distributed'
-
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
 
   $java_default_settings = {
     'KAFKA_HEAP_OPTS' => {
@@ -106,6 +108,9 @@ class confluent::kafka::connect::distributed (
     },
     'LOG_DIR'         => {
       'value' => $log_path
+    },
+    'KAFKA_LOG4J_OPTS' => {
+      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
   }
 
@@ -115,7 +120,7 @@ class confluent::kafka::connect::distributed (
     }
   }
 
-  $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${application}/")
+  $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${service_name}/")
 
   $ensure_connect_settings_defaults = {
     'ensure' => 'present',
@@ -128,7 +133,7 @@ class confluent::kafka::connect::distributed (
     $ensure_connect_settings_defaults
   )
 
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
   $ensure_java_settings_defaults = {
     'path' => $environment_file,
   }

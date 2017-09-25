@@ -61,6 +61,7 @@ class confluent::kafka::connect::standalone (
   Hash $config                               = {},
   Hash $environment_settings                 = {},
   Stdlib::Absolutepath $config_path          = $::confluent::params::connect_standalone_config_path,
+  Stdlib::Absolutepath $logging_config_path  = $::confluent::params::connect_standalone_logging_config_path,
   Stdlib::Absolutepath $environment_path     = $::confluent::params::connect_standalone_environment_path,
   Stdlib::Absolutepath $log_path             = $::confluent::params::connect_standalone_log_path,
   String $user                               = $::confluent::params::connect_standalone_user,
@@ -96,21 +97,21 @@ class confluent::kafka::connect::standalone (
     tag     => 'confluent'
   }
 
-  $application = 'connect-standalone'
-
-
   $java_default_settings = {
-    'KAFKA_HEAP_OPTS' => {
+    'KAFKA_HEAP_OPTS'  => {
       'value' => "-Xmx${heap_size}"
     },
-    'KAFKA_OPTS'      => {
+    'KAFKA_OPTS'       => {
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
-    'GC_LOG_ENABLED'  => {
+    'GC_LOG_ENABLED'   => {
       'value' => true
     },
-    'LOG_DIR'         => {
+    'LOG_DIR'          => {
       'value' => $log_path
+    },
+    'KAFKA_LOG4J_OPTS' => {
+      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
   }
 
@@ -123,7 +124,7 @@ class confluent::kafka::connect::standalone (
     }
   }
 
-  $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${application}/")
+  $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${service_name}/")
 
   $ensure_connect_settings_defaults = {
     'ensure' => 'present',
@@ -136,7 +137,7 @@ class confluent::kafka::connect::standalone (
     $ensure_connect_settings_defaults
   )
 
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${application}/")
+  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
   $ensure_java_settings_defaults = {
     'path' => $environment_path,
   }
@@ -167,6 +168,10 @@ class confluent::kafka::connect::standalone (
   }
 
   ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
+
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
 
   if($manage_service) {
     service { $service_name:
