@@ -59,10 +59,10 @@ class confluent::kafka::connect::distributed (
   Variant[String, Array[String]] $bootstrap_servers,
   Hash $config                               = {},
   Hash $environment_settings                 = {},
-  Stdlib::Absolutepath $config_path          = $::confluent::params::connect_distributed_config_path,
-  Stdlib::Absolutepath $logging_config_path  = $::confluent::params::connect_distributed_logging_config_path,
-  Stdlib::Absolutepath $environment_file     = $::confluent::params::connect_distributed_environment_path,
-  Stdlib::Absolutepath $log_path             = $::confluent::params::connect_distributed_log_path,
+  Stdlib::Unixpath $config_path              = $::confluent::params::connect_distributed_config_path,
+  Stdlib::Unixpath $logging_config_path      = $::confluent::params::connect_distributed_logging_config_path,
+  Stdlib::Unixpath $environment_file         = $::confluent::params::connect_distributed_environment_path,
+  Stdlib::Unixpath $log_path                 = $::confluent::params::connect_distributed_log_path,
   String $user                               = $::confluent::params::connect_distributed_user,
   String $service_name                       = $::confluent::params::connect_distributed_service,
   Boolean $manage_service                    = $::confluent::params::connect_distributed_manage_service,
@@ -97,16 +97,16 @@ class confluent::kafka::connect::distributed (
   }
 
   $java_default_settings = {
-    'KAFKA_HEAP_OPTS' => {
+    'KAFKA_HEAP_OPTS'  => {
       'value' => "-Xmx${heap_size}"
     },
-    'KAFKA_OPTS'      => {
+    'KAFKA_OPTS'       => {
       'value' => '-Djava.net.preferIPv4Stack=true'
     },
-    'GC_LOG_ENABLED'  => {
+    'GC_LOG_ENABLED'   => {
       'value' => true
     },
-    'LOG_DIR'         => {
+    'LOG_DIR'          => {
       'value' => $log_path
     },
     'KAFKA_LOG4J_OPTS' => {

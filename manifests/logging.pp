@@ -1,5 +1,5 @@
 define confluent::logging (
-  Stdlib::Absolutepath $path,
+  Stdlib::Unixpath $path,
   Enum['absent', 'present'] $ensure = present,
   Hash $config                      = {}
 ) {

@@ -39,10 +39,10 @@ class confluent::schema::registry (
   Variant[String, Array[String]] $kafkastore_connection_url,
   Hash $config                               = {},
   Hash $environment_settings                 = {},
-  Stdlib::Absolutepath $config_path          = $::confluent::params::schema_registry_config_path,
-  Stdlib::Absolutepath $logging_config_path  = $::confluent::params::schema_registry_logging_config_path,
-  Stdlib::Absolutepath $environment_file     = $::confluent::params::schema_registry_environment_path,
-  Stdlib::Absolutepath $log_path             = $::confluent::params::schema_registry_log_path,
+  Stdlib::Unixpath $config_path              = $::confluent::params::schema_registry_config_path,
+  Stdlib::Unixpath $logging_config_path      = $::confluent::params::schema_registry_logging_config_path,
+  Stdlib::Unixpath $environment_file         = $::confluent::params::schema_registry_environment_path,
+  Stdlib::Unixpath $log_path                 = $::confluent::params::schema_registry_log_path,
   String $user                               = $::confluent::params::schema_registry_user,
   String $service_name                       = $::confluent::params::schema_registry_service,
   Boolean $manage_service                    = $::confluent::params::schema_registry_manage_service,
@@ -77,7 +77,7 @@ class confluent::schema::registry (
     'LOG_DIR'                   => {
       'value' => $log_path
     },
-    'KAFKA_LOG4J_OPTS' => {
+    'KAFKA_LOG4J_OPTS'          => {
       'value' => "-Dlog4j.configuration=file:${logging_config_path}"
     }
   }
