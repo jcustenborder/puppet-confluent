@@ -7,7 +7,7 @@ define confluent::systemd::unit (
     'Unit'    => {
       'Wants' => 'basic.target',
       'After' => 'basic.target network-online.target',
-      'Documentation' => 'docs.confluent.io/current/'
+      'Documentation' => 'https://docs.confluent.io/current/'
     },
     'Service' => {
       'KillMode'       => 'process',
