@@ -1,10 +1,10 @@
 define confluent::properties (
   $ensure,
+  Hash $config,
   Stdlib::Unixpath $path,
   $mode         = '0644',
   String $owner = 'root',
   String $group = 'root',
-  Hash $config
 ) {
   case $ensure {
     'present': {
@@ -16,6 +16,14 @@ define confluent::properties (
         tag     => "confluent-${title}",
         content => template('confluent/properties.erb')
       }
+    }
+    'absent': {
+      file { $path:
+        ensure => $ensure
+      }
+    }
+    default: {
+      fail("''${ensure}' is not a valid value for ensure. Valid values are present or absent.")
     }
   }
 }
