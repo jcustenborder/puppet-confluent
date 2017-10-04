@@ -27,6 +27,8 @@ define confluent::systemd::unit (
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    content => template('confluent/systemd.erb')
+    tag     => "confluent-${title}",
+    content => template('confluent/systemd.erb'),
+    notify  => Exec['kafka-systemctl-daemon-reload']
   }
 }
