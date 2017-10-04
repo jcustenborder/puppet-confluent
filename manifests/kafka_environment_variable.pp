@@ -12,7 +12,7 @@
 # @param value The value to be set.
 # @param application The application requesting the change. Property names are often duplicated. This ensures a unique resource name
 define confluent::kafka_environment_variable (
-  Stdlib::Absolutepath $path,
+  Stdlib::Unixpath $path,
   Enum['present', 'absent'] $ensure = 'present',
   Any $value                        = undef,
 ) {
