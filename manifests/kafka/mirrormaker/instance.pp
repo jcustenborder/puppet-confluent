@@ -106,23 +106,23 @@ define confluent::kafka::mirrormaker::instance (
     ]
   }
 
-  confluent::properties{"${service_name}-consumer":
+  confluent::properties { "${service_name}-consumer":
     ensure => present,
-    path => $consumer_config_path,
+    path   => $consumer_config_path,
     config => $consumer_config
   }
 
-  confluent::properties{"${service_name}-producer":
+  confluent::properties { "${service_name}-producer":
     ensure => present,
-    path => $producer_config_path,
+    path   => $producer_config_path,
     config => $producer_config
   }
 
   $java_default_settings = {
-    'KAFKA_HEAP_OPTS' => "-Xmx${mm_heap_size}",
-    'KAFKA_OPTS'      => '-Djava.net.preferIPv4Stack=true',
-    'GC_LOG_ENABLED'  => true,
-    'LOG_DIR'         => $log_directory,
+    'KAFKA_HEAP_OPTS'  => "-Xmx${mm_heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_directory,
     'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
   }
 
