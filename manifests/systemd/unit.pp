@@ -5,15 +5,16 @@ define confluent::systemd::unit (
 
   $default_config = {
     'Unit'    => {
-      'Wants' => 'basic.target',
-      'After' => 'basic.target network-online.target',
+      'Wants'         => 'basic.target',
+      'After'         => 'basic.target network-online.target',
       'Documentation' => 'https://docs.confluent.io/current/'
     },
     'Service' => {
       'KillMode'       => 'process',
       'RestartSec'     => 5,
       'TimeoutStopSec' => 300,
-      'Type'           => 'simple'
+      'Type'           => 'simple',
+      'LimitNOFILE'    => 128000
     },
     'Install' => {
       'WantedBy' => 'multi-user.target'
