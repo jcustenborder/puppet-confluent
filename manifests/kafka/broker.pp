@@ -74,55 +74,55 @@ class confluent::kafka::broker (
     include ::confluent::repository
   }
 
-  $kafka_default_settings = {
-    'broker.id' => {
-      'value' => $broker_id
-    },
-    'log.dirs'  => {
-      'value' => join(any2array($data_path), ',')
-    }
+  $default_config = {
+    'broker.id'                                => $broker_id,
+    'log.dirs'                                 => join(any2array($data_path), ','),
+    'confluent.support.customer.id'            => 'anonymous',
+    'confluent.support.metrics.enable'         => true,
+    'group.initial.rebalance.delay.ms'         => 0,
+    'log.retention.check.interval.ms'          => 300000,
+    'log.retention.hours'                      => 168,
+    'log.segment.bytes'                        => 1073741824,
+    'num.io.threads'                           => 8,
+    'num.network.threads'                      => 3,
+    'num.partitions'                           => 1,
+    'num.recovery.threads.per.data.dir'        => 1,
+    'offsets.topic.replication.factor'         => 1,
+    'socket.receive.buffer.bytes'              => 102400,
+    'socket.request.max.bytes'                 => 104857600,
+    'socket.send.buffer.bytes'                 => 102400,
+    'transaction.state.log.min.isr'            => 1,
+    'transaction.state.log.replication.factor' => 1,
+    'zookeeper.connect'                        => 'localhost:2181',
+    'zookeeper.connection.timeout.ms'          => 6000,
+  }
+  $actual_config = merge($default_config, $config)
+
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
 
-  $actual_kafka_settings = prefix(merge($kafka_default_settings, $config), "${service_name}/")
-  $ensure_kafka_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
+  $default_environment_settings = {
+    'KAFKA_HEAP_OPTS'  => "-Xmx${heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_path,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
   }
-  ensure_resources(
-    'confluent::java_property',
-    $actual_kafka_settings,
-    $ensure_kafka_settings_defaults
-  )
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
 
-  $java_default_settings = {
-    'KAFKA_HEAP_OPTS'  => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'KAFKA_OPTS'       => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'   => {
-      'value' => true
-    },
-    'LOG_DIR'          => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
   }
 
   confluent::logging { $service_name:
     path   => $logging_config_path,
     config => $logging_config
   }
-
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
-  }
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
-
 
   user { $user:
     ensure => present
@@ -163,6 +163,7 @@ class confluent::kafka::broker (
       enable => $service_enable,
       tag    => 'confluent'
     }
+    File<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
     Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
     Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
   }

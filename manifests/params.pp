@@ -42,78 +42,56 @@ class confluent::params {
   $kafka_stop_timeout_secs = 300
   $kafka_heap_size = '1024m'
   $kafka_logging_config = {
-    'log4j.rootLogger'                                   => {
-      'value' => 'INFO, stdout, roller, authorizer'
-    },
-    'log4j.appender.stdout'                              => {
-      'value' => 'org.apache.log4j.ConsoleAppender'
-    },
-    'log4j.appender.stdout.layout'                       => {
-      'value' => 'org.apache.log4j.PatternLayout'
-    },
-    'log4j.appender.stdout.layout.ConversionPattern'     => {
-      'value' => '[%d] %p %m (%c)%n'
-    },
-    'log4j.appender.roller'                              => {
-      'value' => 'org.apache.log4j.DailyRollingFileAppender'
-    },
-    'log4j.appender.roller.DatePattern'                  => {
-      'value' => "'.'yyyy-MM-dd-HH"
-    },
-    'log4j.appender.roller.File'                         => {
-      'value' => '${kafka.logs.dir}/server.log' },
-    'log4j.appender.roller.layout'                       => { 'value' => 'org.apache.log4j.PatternLayout' },
-    'log4j.appender.roller.layout.ConversionPattern'     => { 'value' => '[%d] %p %m (%c)%n' },
-    'log4j.appender.state'                               => { 'value' =>
-    'org.apache.log4j.DailyRollingFileAppender' },
-    'log4j.appender.state.DatePattern'                   => { 'value' => "'.'yyyy-MM-dd-HH" },
-    'log4j.appender.state.File'                          => { 'value' => '${kafka.logs.dir}/state-change.log' }
-    ,
-    'log4j.appender.state.layout'                        => { 'value' => 'org.apache.log4j.PatternLayout' },
-    'log4j.appender.state.layout.ConversionPattern'      => { 'value' => '[%d] %p %m (%c)%n' },
-    'log4j.appender.request'                             => { 'value' =>
-    'org.apache.log4j.DailyRollingFileAppender' },
-    'log4j.appender.request.DatePattern'                 => { 'value' => "'.'yyyy-MM-dd-HH" },
-    'log4j.appender.request.File'                        => { 'value' => '${kafka.logs.dir}/kafka-request.log'
-    },
-    'log4j.appender.request.layout'                      => { 'value' => 'org.apache.log4j.PatternLayout' },
-    'log4j.appender.request.layout.ConversionPattern'    => { 'value' => '[%d] %p %m (%c)%n' },
-    'log4j.appender.cleaner'                             => { 'value' =>
-    'org.apache.log4j.DailyRollingFileAppender' },
-    'log4j.appender.cleaner.DatePattern'                 => { 'value' => "'.'yyyy-MM-dd-HH" },
-    'log4j.appender.cleaner.File'                        => { 'value' => '${kafka.logs.dir}/log-cleaner.log' },
-    'log4j.appender.cleaner.layout'                      => { 'value' => 'org.apache.log4j.PatternLayout' },
-    'log4j.appender.cleaner.layout.ConversionPattern'    => { 'value' => '[%d] %p %m (%c)%n' },
-    'log4j.appender.controller'                          => { 'value' =>
-    'org.apache.log4j.DailyRollingFileAppender' },
-    'log4j.appender.controller.DatePattern'              => { 'value' => "'.'yyyy-MM-dd-HH" },
-    'log4j.appender.controller.File'                     => { 'value' => '${kafka.logs.dir}/controller.log' },
-    'log4j.appender.controller.layout'                   => { 'value' => 'org.apache.log4j.PatternLayout' },
-    'log4j.appender.controller.layout.ConversionPattern' => { 'value' => '[%d] %p %m (%c)%n' },
-    'log4j.appender.authorizer'                          => { 'value' =>
-    'org.apache.log4j.DailyRollingFileAppender' },
-    'log4j.appender.authorizer.DatePattern'              => { 'value' => "'.'yyyy-MM-dd-HH" },
-    'log4j.appender.authorizer.File'                     => { 'value' =>
-    '${kafka.logs.dir}/kafka-authorizer.log' },
-    'log4j.appender.authorizer.layout'                   => { 'value' => 'org.apache.log4j.PatternLayout' },
-    'log4j.appender.authorizer.layout.ConversionPattern' => { 'value' => '[%d] %p %m (%c)%n' },
-    'log4j.logger.org.I0Itec.zkclient.ZkClient'          => { 'value' => 'INFO' },
-    'log4j.logger.org.apache.zookeeper'                  => { 'value' => 'INFO' },
-    'log4j.logger.kafka'                                 => { 'value' => 'INFO' },
-    'log4j.logger.org.apache.kafka'                      => { 'value' => 'INFO' },
-    'log4j.logger.kafka.request.logger'                  => { 'value' => 'WARN, request' },
-    'log4j.additivity.kafka.request.logger'              => { 'value' => 'false' },
-    'log4j.logger.kafka.network.RequestChannel$'         => { 'value' => 'WARN, request' },
-    'log4j.additivity.kafka.network.RequestChannel$'     => { 'value' => 'false' },
-    'log4j.logger.kafka.controller'                      => { 'value' => 'TRACE, controller' },
-    'log4j.additivity.kafka.controller'                  => { 'value' => 'false' },
-    'log4j.logger.kafka.log.LogCleaner'                  => { 'value' => 'INFO, cleaner' },
-    'log4j.additivity.kafka.log.LogCleaner'              => { 'value' => 'false' },
-    'log4j.logger.state.change.logger'                   => { 'value' => 'TRACE, state' },
-    'log4j.additivity.state.change.logger'               => { 'value' => 'false' },
-    'log4j.logger.kafka.authorizer.logger'               => { 'value' => 'WARN, authorizer' },
-    'log4j.additivity.kafka.authorizer.logger'           => { 'value' => 'false' },
-
+    'log4j.rootLogger'                                   => 'INFO, stdout, roller, authorizer',
+    'log4j.appender.stdout'                              => 'org.apache.log4j.ConsoleAppender',
+    'log4j.appender.stdout.layout'                       => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.stdout.layout.ConversionPattern'     => '[%d] %p %m (%c)%n',
+    'log4j.appender.roller'                              => 'org.apache.log4j.DailyRollingFileAppender',
+    'log4j.appender.roller.DatePattern'                  => "'.'yyyy-MM-dd-HH",
+    'log4j.appender.roller.File'                         => '${kafka.logs.dir}/server.log',
+    'log4j.appender.roller.layout'                       => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.roller.layout.ConversionPattern'     => '[%d] %p %m (%c)%n',
+    'log4j.appender.state'                               => 'org.apache.log4j.DailyRollingFileAppender',
+    'log4j.appender.state.DatePattern'                   => "'.'yyyy-MM-dd-HH",
+    'log4j.appender.state.File'                          => '${kafka.logs.dir}/state-change.log',
+    'log4j.appender.state.layout'                        => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.state.layout.ConversionPattern'      => '[%d] %p %m (%c)%n',
+    'log4j.appender.request'                             => 'org.apache.log4j.DailyRollingFileAppender',
+    'log4j.appender.request.DatePattern'                 => "'.'yyyy-MM-dd-HH",
+    'log4j.appender.request.File'                        => '${kafka.logs.dir}/kafka-request.log',
+    'log4j.appender.request.layout'                      => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.request.layout.ConversionPattern'    => '[%d] %p %m (%c)%n',
+    'log4j.appender.cleaner'                             => 'org.apache.log4j.DailyRollingFileAppender',
+    'log4j.appender.cleaner.DatePattern'                 => "'.'yyyy-MM-dd-HH",
+    'log4j.appender.cleaner.File'                        => '${kafka.logs.dir}/log-cleaner.log',
+    'log4j.appender.cleaner.layout'                      => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.cleaner.layout.ConversionPattern'    => '[%d] %p %m (%c)%n',
+    'log4j.appender.controller'                          => 'org.apache.log4j.DailyRollingFileAppender',
+    'log4j.appender.controller.DatePattern'              => "'.'yyyy-MM-dd-HH",
+    'log4j.appender.controller.File'                     => '${kafka.logs.dir}/controller.log',
+    'log4j.appender.controller.layout'                   => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.controller.layout.ConversionPattern' => '[%d] %p %m (%c)%n',
+    'log4j.appender.authorizer'                          => 'org.apache.log4j.DailyRollingFileAppender',
+    'log4j.appender.authorizer.DatePattern'              => "'.'yyyy-MM-dd-HH",
+    'log4j.appender.authorizer.File'                     => '${kafka.logs.dir}/kafka-authorizer.log',
+    'log4j.appender.authorizer.layout'                   => 'org.apache.log4j.PatternLayout',
+    'log4j.appender.authorizer.layout.ConversionPattern' => '[%d] %p %m (%c)%n',
+    'log4j.logger.org.I0Itec.zkclient.ZkClient'          => 'INFO',
+    'log4j.logger.org.apache.zookeeper'                  => 'INFO',
+    'log4j.logger.kafka'                                 => 'INFO',
+    'log4j.logger.org.apache.kafka'                      => 'INFO',
+    'log4j.logger.kafka.request.logger'                  => 'WARN, request',
+    'log4j.additivity.kafka.request.logger'              => false,
+    'log4j.logger.kafka.network.RequestChannel$'         => 'WARN, request',
+    'log4j.additivity.kafka.network.RequestChannel$'     => false,
+    'log4j.logger.kafka.controller'                      => 'TRACE, controller',
+    'log4j.additivity.kafka.controller'                  => false,
+    'log4j.logger.kafka.log.LogCleaner'                  => 'INFO, cleaner',
+    'log4j.additivity.kafka.log.LogCleaner'              => false,
+    'log4j.logger.state.change.logger'                   => 'TRACE, state',
+    'log4j.additivity.state.change.logger'               => false,
+    'log4j.logger.kafka.authorizer.logger'               => 'WARN, authorizer',
+    'log4j.additivity.kafka.authorizer.logger'           => false,
   }
 
   $zookeeper_user = 'zookeeper'

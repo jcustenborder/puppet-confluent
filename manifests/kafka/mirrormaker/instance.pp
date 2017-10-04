@@ -106,56 +106,37 @@ define confluent::kafka::mirrormaker::instance (
     ]
   }
 
-  $mirror_maker_consumer_settings = prefix($consumer_config, "${service_name}-consumer/")
-  $mirror_maker_consumer_setting_defaults = {
-    'ensure' => 'present',
-    'path'   => $consumer_config_path,
+  confluent::properties{"${service_name}-consumer":
+    ensure => present,
+    path => $consumer_config_path,
+    config => $consumer_config
   }
-  ensure_resources(
-    'confluent::java_property',
-    $mirror_maker_consumer_settings,
-    $mirror_maker_consumer_setting_defaults
-  )
 
-  $mirror_maker_producer_settings = prefix($producer_config, "${service_name}-producer/")
-  $mirror_maker_producer_setting_defaults = {
-    'ensure' => 'present',
-    'path'   => $producer_config_path,
+  confluent::properties{"${service_name}-producer":
+    ensure => present,
+    path => $producer_config_path,
+    config => $producer_config
   }
-  ensure_resources(
-    'confluent::java_property',
-    $mirror_maker_producer_settings,
-    $mirror_maker_producer_setting_defaults
-  )
-
 
   $java_default_settings = {
-    'KAFKA_HEAP_OPTS' => {
-      'value' => "-Xmx${mm_heap_size}"
-    },
-    'KAFKA_OPTS'      => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'  => {
-      'value' => true
-    },
-    'LOG_DIR'         => {
-      'value' => $log_directory
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+    'KAFKA_HEAP_OPTS' => "-Xmx${mm_heap_size}",
+    'KAFKA_OPTS'      => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'  => true,
+    'LOG_DIR'         => $log_directory,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
   }
 
   confluent::logging { $service_name:
     path => $logging_config_path
   }
 
-  $actual_java_settings = prefix(merge($java_default_settings, $mm_environment_settings), "${service_name}/")
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
+  $actual_environment_settings = prefix(merge($java_default_settings, $mm_environment_settings), "${service_name}/")
+
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
   }
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'

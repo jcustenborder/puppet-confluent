@@ -61,7 +61,7 @@ class confluent::kafka::connect::distributed (
   Hash $environment_settings                 = {},
   Stdlib::Unixpath $config_path              = $::confluent::params::connect_distributed_config_path,
   Stdlib::Unixpath $logging_config_path      = $::confluent::params::connect_distributed_logging_config_path,
-  Stdlib::Unixpath $environment_file         = $::confluent::params::connect_distributed_environment_path,
+  Stdlib::Unixpath $environment_path         = $::confluent::params::connect_distributed_environment_path,
   Stdlib::Unixpath $log_path                 = $::confluent::params::connect_distributed_log_path,
   String $user                               = $::confluent::params::connect_distributed_user,
   String $service_name                       = $::confluent::params::connect_distributed_service,
@@ -96,49 +96,31 @@ class confluent::kafka::connect::distributed (
     path => $logging_config_path
   }
 
-  $java_default_settings = {
-    'KAFKA_HEAP_OPTS'  => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'KAFKA_OPTS'       => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'   => {
-      'value' => true
-    },
-    'LOG_DIR'          => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  $default_environment_settings = {
+    'KAFKA_HEAP_OPTS'  => "-Xmx${heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_path,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
+  }
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_path,
+    config => $actual_environment_settings
   }
 
-  $connect_default_settings = {
-    'bootstrap.servers' => {
-      'value' => join(any2array($bootstrap_servers), ',')
-    }
+  $default_config = {
+    'bootstrap.servers' => join(any2array($bootstrap_servers), ',')
+  }
+  $actual_config = merge($default_config, $config)
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
 
-  $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${service_name}/")
 
-  $ensure_connect_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
-  }
-
-  ensure_resources(
-    'confluent::java_property',
-    $actual_connect_settings,
-    $ensure_connect_settings_defaults
-  )
-
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
-  }
-
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'
@@ -149,7 +131,7 @@ class confluent::kafka::connect::distributed (
     "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
     "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
     "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
+    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_path, },
     "${service_name}/Service/ExecStart"       => {
       'value' => "/usr/bin/connect-distributed ${config_path}",
     },

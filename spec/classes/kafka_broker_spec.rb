@@ -26,13 +26,7 @@ describe 'confluent::kafka::broker' do
         let(:params) {
           default_params.merge({'data_path' => data_paths})
         }
-        it {
-          is_expected.to contain_ini_setting('kafka/log.dirs').with(
-              {
-                  'value' => data_paths.join(',')
-              }
-          )
-        }
+        it {is_expected.to contain_file('/etc/kafka/server.properties').with_content(/log.dirs=#{data_paths.join(',')}/)}
 
         data_paths.each do |data_path|
           it {
@@ -49,13 +43,8 @@ describe 'confluent::kafka::broker' do
 
       %w(/var/lib/kafka /datavol/var/lib/kafka).each do |data_path|
         context "with param data_path = '#{data_path}'" do
-          let(:params) {default_params.merge({'data_path' => data_path})}
-          it {is_expected.to contain_ini_setting('kafka/log.dirs').with(
-              {
-                  'value' => data_path
-              }
-          )
-          }
+          let(:params) {super().merge({'data_path' => data_path})}
+          it {is_expected.to contain_file('/etc/kafka/server.properties').with_content(/log.dirs=#{data_path}/)}
           it {is_expected.to contain_file(data_path).with(
               {
                   'owner' => 'kafka',
@@ -69,13 +58,8 @@ describe 'confluent::kafka::broker' do
 
       %w(/var/log/kafka /logvol/var/log/kafka).each do |log_dir|
         context "with param log_dir = '#{log_dir}'" do
-          let(:params) {default_params.merge({'log_path' => log_dir})}
-          it {is_expected.to contain_ini_subsetting('kafka/LOG_DIR').with(
-              {
-                  'path' => environment_file,
-                  'value' => log_dir
-              }
-          )}
+          let(:params) {super().merge({'log_path' => log_dir})}
+          it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_dir}"/)}
           it {is_expected.to contain_file(log_dir).with(
               {
                   'owner' => 'kafka',
@@ -93,9 +77,8 @@ describe 'confluent::kafka::broker' do
 
       expected_heap = '-Xmx1024m'
 
-      it {is_expected.to contain_ini_subsetting('kafka/KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
-
-      it {is_expected.to contain_ini_setting('kafka/broker.id').with({'path' => '/etc/kafka/server.properties', 'value' => '0'})}
+      it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
+      it {is_expected.to contain_file('/etc/kafka/server.properties').with_content(/broker.id=0/)}
       it {is_expected.to contain_package('confluent-kafka-2.11')}
       it {is_expected.to contain_user('kafka')}
       it {is_expected.to contain_service('kafka').with({'ensure' => 'running', 'enable' => true})}

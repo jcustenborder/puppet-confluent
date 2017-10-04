@@ -60,10 +60,10 @@ class confluent::kafka::connect::standalone (
   Variant[Stdlib::Unixpath, Array[Stdlib::Unixpath]] $connector_configs,
   Hash $config                               = {},
   Hash $environment_settings                 = {},
-  Stdlib::Unixpath $config_path          = $::confluent::params::connect_standalone_config_path,
-  Stdlib::Unixpath $logging_config_path  = $::confluent::params::connect_standalone_logging_config_path,
-  Stdlib::Unixpath $environment_path     = $::confluent::params::connect_standalone_environment_path,
-  Stdlib::Unixpath $log_path             = $::confluent::params::connect_standalone_log_path,
+  Stdlib::Unixpath $config_path              = $::confluent::params::connect_standalone_config_path,
+  Stdlib::Unixpath $logging_config_path      = $::confluent::params::connect_standalone_logging_config_path,
+  Stdlib::Unixpath $environment_path         = $::confluent::params::connect_standalone_environment_path,
+  Stdlib::Unixpath $log_path                 = $::confluent::params::connect_standalone_log_path,
   String $user                               = $::confluent::params::connect_standalone_user,
   String $service_name                       = $::confluent::params::connect_standalone_service,
   Boolean $manage_service                    = $::confluent::params::connect_standalone_manage_service,
@@ -73,7 +73,7 @@ class confluent::kafka::connect::standalone (
   Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::connect_standalone_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::connect_standalone_heap_size,
-  Stdlib::Unixpath $offset_storage_path  = $::confluent::params::connect_standalone_offset_storage_path
+  Stdlib::Unixpath $offset_storage_path      = $::confluent::params::connect_standalone_offset_storage_path
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -97,52 +97,29 @@ class confluent::kafka::connect::standalone (
     tag     => 'confluent'
   }
 
-  $java_default_settings = {
-    'KAFKA_HEAP_OPTS'  => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'KAFKA_OPTS'       => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'   => {
-      'value' => true
-    },
-    'LOG_DIR'          => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  $default_environment_settings = {
+    'KAFKA_HEAP_OPTS'  => "-Xmx${heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_path,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
+  }
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_path,
+    config => $actual_environment_settings
   }
 
-  $connect_default_settings = {
-    'bootstrap.servers'            => {
-      'value' => join(any2array($bootstrap_servers), ',')
-    },
-    'offset.storage.file.filename' => {
-      'value' => "${offset_storage_path}/connect.offsets"
-    }
+  $default_config = {
+    'bootstrap.servers' => join(any2array($bootstrap_servers), ',')
   }
-
-  $actual_connect_settings = prefix(merge($connect_default_settings, $config), "${service_name}/")
-
-  $ensure_connect_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
+  $actual_config = merge($default_config, $config)
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
-
-  ensure_resources(
-    'confluent::java_property',
-    $actual_connect_settings,
-    $ensure_connect_settings_defaults
-  )
-
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
-  $ensure_java_settings_defaults = {
-    'path' => $environment_path,
-  }
-
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'

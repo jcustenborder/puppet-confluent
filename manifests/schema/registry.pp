@@ -58,32 +58,35 @@ class confluent::schema::registry (
   if($manage_repository) {
     include ::confluent::repository
   }
-  $schemaregistry_default_settings = {
-    'kafkastore.connection.url' => {
-      'value' => join(any2array($kafkastore_connection_url), ',')
-    }
+  $default_config = {
+    'kafkastore.connection.url' => join(any2array($kafkastore_connection_url), ','),
+    'listeners'                 => 'http://0.0.0.0:8081',
+    'kafkastore.topic'          => '_schemas',
+    'debug'                     => false
   }
 
-  $java_default_settings = {
-    'SCHEMA_REGISTRY_HEAP_OPTS' => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'SCHEMA_REGISTRY_OPTS'      => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'            => {
-      'value' => true
-    },
-    'LOG_DIR'                   => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS'          => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  $actual_config = merge($default_config, $config)
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
 
-  $actual_schemaregistry_settings = prefix(merge($schemaregistry_default_settings, $config), "${service_name}/")
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
+
+  $default_environment_settings = {
+    'SCHEMA_REGISTRY_HEAP_OPTS' => "-Xmx${heap_size}",
+    'SCHEMA_REGISTRY_OPTS'      => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'            => true,
+    'LOG_DIR'                   => $log_path,
+    'KAFKA_LOG4J_OPTS'          => "-Dlog4j.configuration=file:${logging_config_path}"
+  }
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
+
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
+  }
 
   confluent::logging { $service_name:
     path => $logging_config_path
@@ -104,23 +107,6 @@ class confluent::schema::registry (
     ensure => latest,
     tag    => 'confluent',
   }
-
-  $ensure_schemaregistry_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
-  }
-
-  ensure_resources(
-    'confluent::java_property',
-    $actual_schemaregistry_settings,
-    $ensure_schemaregistry_settings_defaults
-  )
-
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
-  }
-
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
   $unit_ini_setting_defaults = {
     'ensure' => 'present'
