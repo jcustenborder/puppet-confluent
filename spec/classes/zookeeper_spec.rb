@@ -24,7 +24,7 @@ describe 'confluent::zookeeper' do
       data_paths = %w(/var/lib/zookeeper /data/var/lib/zookeeper)
       data_paths.each do |data_path|
         context "with data_path => #{data_path}" do
-          let(:params) {default_params.merge({'data_path' => data_path})}
+          let(:params) {super().merge({'data_path' => data_path})}
           it {is_expected.to contain_file(data_path)}
         end
       end
@@ -32,14 +32,14 @@ describe 'confluent::zookeeper' do
       log_paths = %w(/var/log/zookeeper /logs/var/lib/zookeeper)
       log_paths.each do |log_path|
         context "with log_path => #{log_path}" do
-          let(:params) {default_params.merge({'log_path' => log_path})}
+          let(:params) {super().merge({'log_path' => log_path})}
           it {is_expected.to contain_file(log_path).with({'owner' => 'zookeeper', 'group' => 'zookeeper'})}
-          it {is_expected.to contain_ini_subsetting('zookeeper/LOG_DIR').with({'path' => environment_file, 'value' => log_path})}
+          it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_path}"/)}
         end
       end
 
 
-      it {is_expected.to contain_ini_subsetting('zookeeper/KAFKA_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap})}
+      it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
       it {is_expected.to contain_package('confluent-kafka-2.11')}
       it {is_expected.to contain_user('zookeeper')}
       it {is_expected.to contain_service('zookeeper').with({'ensure' => 'running', 'enable' => true})}

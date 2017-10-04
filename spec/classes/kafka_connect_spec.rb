@@ -14,10 +14,12 @@ require 'spec_helper'
         let(:facts) {default_facts}
 
         environment_file = nil
+        config_file = "/etc/kafka/connect-#{class_name}.properties"
 
         case osfamily
           when 'Debian'
             environment_file = "/etc/default/kafka-connect-#{class_name}"
+
           when 'RedHat'
             environment_file = "/etc/sysconfig/kafka-connect-#{class_name}"
         end
@@ -30,13 +32,14 @@ require 'spec_helper'
           context "with param log_dir = '#{log_dir}'" do
             let(:params) {default_params.merge({'log_path' => log_dir})}
 
-            it {is_expected.to contain_ini_subsetting("connect-#{class_name}/LOG_DIR").with({'path' => environment_file, 'value' => log_dir})}
+            it {is_expected.to contain_file(config_file).with_content(/bootstrap.servers=kafka-01:9093,kafka-02:9093,kafka-03:9093/)}
+            it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_dir}"/)}
+            it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
+
             it {is_expected.to contain_file(log_dir).with({'owner' => "connect-#{class_name}", 'group' => "connect-#{class_name}", 'recurse' => true})}
             it {is_expected.to contain_package('confluent-kafka-2.11')}
-            it {is_expected.to contain_ini_setting("connect-#{class_name}/bootstrap.servers").with({'path' => "/etc/kafka/connect-#{class_name}.properties", 'value' => 'kafka-01:9093,kafka-02:9093,kafka-03:9093'})}
             it {is_expected.to contain_user("connect-#{class_name}")}
             it {is_expected.to contain_service("connect-#{class_name}").with({'ensure' => 'running', 'enable' => true})}
-            it {is_expected.to contain_ini_subsetting("connect-#{class_name}/KAFKA_HEAP_OPTS").with({'path' => environment_file, 'value' => expected_heap})}
 
             service_name = "connect-#{class_name}"
             system_d_settings = {

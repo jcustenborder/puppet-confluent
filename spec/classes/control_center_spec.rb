@@ -9,12 +9,11 @@ describe 'confluent::control::center' do
           'connect_cluster' => %w(kafka-connect-01:8083 kafka-connect-02:8083 kafka-connect-03:8083),
           'zookeeper_connect' => %w(zookeeper-01:2181 zookeeper-02:2181 zookeeper-03:2181),
           'config' => {
-              'confluent.controlcenter.streams.consumer.request.timeout.ms' => {
-                  'value' => '180000'
-              },
+              'confluent.controlcenter.streams.consumer.request.timeout.ms' => 180000
           }
       }
 
+      config_path = '/etc/confluent-control-center/control-center.properties'
       environment_file = nil
 
       case osfamily
@@ -32,8 +31,7 @@ describe 'confluent::control::center' do
         context "with log_path => #{log_path}" do
           let(:params) {default_params.merge({'log_path' => log_path})}
           it {is_expected.to contain_file(log_path).with({'owner' => 'control-center', 'group' => 'control-center'})}
-          it {is_expected.to contain_ini_subsetting('control-center/LOG_DIR').with({'path' => environment_file, 'value' => log_path}
-          )}
+          it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_path}"/)}
         end
       end
 
@@ -42,10 +40,7 @@ describe 'confluent::control::center' do
         context "with data_path => #{data_path}" do
           let(:params) {default_params.merge({'data_path' => data_path})}
           it {is_expected.to contain_file(data_path).with({'owner' => 'control-center', 'group' => 'control-center'})}
-          it {is_expected.to contain_ini_setting("control-center/confluent.controlcenter.data.dir").with(
-              'path' => '/etc/confluent-control-center/control-center.properties',
-              'value' => data_path
-          )}
+          it {is_expected.to contain_file(config_path).with_content(/confluent.controlcenter.data.dir=#{data_path}/)}
         end
       end
 
@@ -58,11 +53,7 @@ describe 'confluent::control::center' do
       }
 
       settings.each do |key, value|
-        it {is_expected.to contain_ini_setting("control-center/#{key}").with(
-            'path' => '/etc/confluent-control-center/control-center.properties',
-            'value' => value
-        )}
-
+        it {is_expected.to contain_file(config_path).with_content(/#{key}=#{value}/)}
       end
 
 
@@ -74,8 +65,8 @@ describe 'confluent::control::center' do
       it {is_expected.to contain_package('confluent-control-center')}
       it {is_expected.to contain_user('control-center')}
       it {is_expected.to contain_service('control-center').with({'ensure' => 'running', 'enable' => true})}
-      it {is_expected.to contain_ini_subsetting('control-center/CONTROL_CENTER_HEAP_OPTS').with({'path' => environment_file, 'value' => expected_heap}
-      )}
+      it {is_expected.to contain_file(environment_file).with_content(/CONTROL_CENTER_HEAP_OPTS="#{expected_heap}"/)}
+
       service_name = 'control-center'
       system_d_settings = {
           "#{service_name}/Service/Type" => 'simple',

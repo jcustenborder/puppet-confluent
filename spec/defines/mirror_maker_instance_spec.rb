@@ -12,17 +12,11 @@ describe 'confluent::kafka::mirrormaker::instance' do
 
       default_params = {
           :consumer_config => {
-              'group.id' => {
-                  'value' => 'mirrormaker'
-              },
-              'bootstrap.servers' => {
-                  'value' => 'kafka-01:9092'
-              }
+              'group.id' => 'mirrormaker',
+              'bootstrap.servers' => 'kafka-01:9092'
           },
           :producer_config => {
-              'bootstrap.servers' => {
-                  'value' => 'kafka-01:9092'
-              }
+              'bootstrap.servers' => 'kafka-01:9092'
           },
           :whitelist => 'topic1|foo|.*bar'
       }
