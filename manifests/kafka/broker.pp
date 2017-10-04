@@ -139,23 +139,20 @@ class confluent::kafka::broker (
     'ensure' => 'present'
   }
 
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka by Confluent', },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
-    "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/kafka-server-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/kafka-server-stop', },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Apache Kafka by Confluent'
+      },
+      'Service' => {
+        'User'            => $user,
+        'EnvironmentFile' => $environment_file,
+        'ExecStart'       => "/usr/bin/kafka-server-start ${config_path}",
+        'ExecStop'        => '/usr/bin/kafka-server-stop',
+        'LimitNOFILE'     => $file_limit,
+      }
+    }
   }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($manage_service) {
     service { $service_name:

@@ -86,20 +86,35 @@ describe 'confluent::kafka::broker' do
       it {is_expected.to contain_file('/var/lib/kafka')}
 
       service_name = 'kafka'
+      unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       system_d_settings = {
-          "#{service_name}/Service/Type" => 'simple',
-          "#{service_name}/Unit/Wants" => 'basic.target',
-          "#{service_name}/Unit/After" => 'basic.target network-online.target',
-          "#{service_name}/Service/User" => 'kafka',
-          "#{service_name}/Service/TimeoutStopSec" => '300',
-          "#{service_name}/Service/LimitNOFILE" => '128000',
-          "#{service_name}/Service/KillMode" => 'process',
-          "#{service_name}/Service/RestartSec" => '5',
-          "#{service_name}/Install/WantedBy" => 'multi-user.target',
+          'Service' => {
+              'Type' =>'simple'
+          },
+          'Unit' => {
+              'Wants' => 'basic.target',
+              'After' => 'basic.target network-online.target',
+          },
+          'Service' => {
+              'User' => 'kafka',
+              'TimeoutStopSec' => 300,
+              'LimitNOFILE' => 128000,
+              'KillMode' => 'process',
+              'RestartSec' => 5,
+          },
+          'Install' => {
+              'WantedBy' => 'multi-user.target'
+          }
       }
 
-      system_d_settings.each do |ini_setting, value|
-        it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+      system_d_settings.each do |section, section_values|
+        it {is_expected.to contain_file(unit_file).with_content(/#{section}/)}
+
+        section_values.each do |key, value|
+          it {is_expected.to contain_file(unit_file).with_content(/#{key}=#{value}/)}
+        end
+
+        it {is_expected.to contain_file('/etc/kafka/server.properties').with_content(/broker.id=0/)}
       end
     end
   end
