@@ -132,7 +132,7 @@ class confluent::zookeeper (
         'ExecStop'        => '/usr/bin/zookeeper-server-stop',
         'LimitNOFILE'     => $file_limit,
       }
-    }
+    },
   }
 
   if($manage_service) {
@@ -142,5 +142,8 @@ class confluent::zookeeper (
       tag    => 'confluent'
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 }

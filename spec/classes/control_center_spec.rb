@@ -21,6 +21,8 @@ describe 'confluent::control::center' do
       service_name = 'control-center'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       config_path = '/etc/confluent-control-center/control-center.properties'
+      logging_config_path='/etc/confluent-control-center/control-center.logging.properties'
+
       environment_file = nil
 
       case osfamily
@@ -70,6 +72,13 @@ describe 'confluent::control::center' do
       it {is_expected.to contain_user(user)}
       it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
       it {is_expected.to contain_file(environment_file).with_content(/CONTROL_CENTER_HEAP_OPTS="#{expected_heap}"/)}
+
+      it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
+      it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{config_path}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
 
       system_d_settings = {
           'Unit' => {

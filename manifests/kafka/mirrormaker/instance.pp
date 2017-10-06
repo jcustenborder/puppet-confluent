@@ -118,6 +118,10 @@ define confluent::kafka::mirrormaker::instance (
     config => $producer_config
   }
 
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
+
   $default_environment_settings = {
     'KAFKA_HEAP_OPTS'  => "-Xmx${mm_heap_size}",
     'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
@@ -126,8 +130,12 @@ define confluent::kafka::mirrormaker::instance (
     'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
   }
 
-  confluent::logging { $service_name:
-    path => $logging_config_path
+  $actual_environment_settings = merge($default_environment_settings, $mm_environment_settings)
+
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
   }
 
   $commandline = template('confluent/kafka/mirrormaker/commandline.erb')
@@ -135,7 +143,7 @@ define confluent::kafka::mirrormaker::instance (
   confluent::systemd::unit { $service_name:
     config => {
       'Unit'    => {
-        'Description' => 'Schema Registry by Confluent'
+        'Description' => 'Apache Kafka Mirror Maker by Confluent'
       },
       'Service' => {
         'User'            => $mm_user,
@@ -147,21 +155,16 @@ define confluent::kafka::mirrormaker::instance (
     }
   }
 
-  $actual_environment_settings = merge($default_environment_settings, $mm_environment_settings)
-
-  confluent::environment { $service_name:
-    ensure => present,
-    path   => $environment_file,
-    config => $actual_environment_settings
-  }
-
   if($mm_manage_service) {
     service { $service_name:
       ensure => $mm_service_ensure,
       enable => $mm_service_enable,
       tag    => 'confluent'
     }
-    File<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    File<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties["${service_name}-consumer"] ~> Service[$service_name]
+    Confluent::Properties["${service_name}-producer"] ~> Service[$service_name]
   }
 }

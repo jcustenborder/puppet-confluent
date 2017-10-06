@@ -120,30 +120,19 @@ class confluent::kafka::connect::distributed (
     config => $actual_config
   }
 
-
-
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Apache Kafka Connect by Confluent'
+      },
+      'Service' => {
+        'User'            => $user,
+        'EnvironmentFile' => $environment_path,
+        'ExecStart'       => "/usr/bin/connect-distributed ${config_path}",
+        'LimitNOFILE'     => $file_limit,
+      }
+    }
   }
-
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka Connect by Confluent', },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_path, },
-    "${service_name}/Service/ExecStart"       => {
-      'value' => "/usr/bin/connect-distributed ${config_path}",
-    },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
-  }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($manage_service) {
     service { $service_name:
@@ -151,8 +140,10 @@ class confluent::kafka::connect::distributed (
       enable => $service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 
 }

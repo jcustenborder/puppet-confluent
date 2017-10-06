@@ -16,6 +16,7 @@ describe 'confluent::kafka::broker' do
       user = 'kafka'
       group = 'kafka'
       config_path = '/etc/kafka/server.properties'
+      logging_config_path='/etc/kafka/server.properties'
       service_name = 'kafka'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       environment_file = nil
@@ -83,9 +84,14 @@ describe 'confluent::kafka::broker' do
       it {is_expected.to contain_file(config_path).with_content(/broker.id=0/)}
       it {is_expected.to contain_package('confluent-kafka-2.11')}
       it {is_expected.to contain_user(user)}
-      it {is_expected.to contain_service('kafka').with({'ensure' => 'running', 'enable' => true})}
       it {is_expected.to contain_file('/var/lib/kafka').with({'owner' => user, 'group' => group})}
 
+      it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
+      it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{config_path}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
 
       system_d_settings = {
           'Unit' => {

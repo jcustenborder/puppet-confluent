@@ -3,6 +3,7 @@ require 'spec_helper'
 describe 'confluent::kafka::mirrormaker::instance' do
   supported_osfamalies.each do |operating_system, default_facts|
     context "on #{operating_system}" do
+      osfamily = default_facts['osfamily']
       title = 'testing'
       let(:facts) {default_facts}
       let(:title) {title}
@@ -19,7 +20,19 @@ describe 'confluent::kafka::mirrormaker::instance' do
       }
 
       service_name = "mirrormaker-#{title}"
+
+      case osfamily
+        when 'Debian'
+          environment_file = "/etc/default/mirrormaker-#{title}"
+        when 'RedHat'
+          environment_file = "/etc/sysconfig/mirrormaker-#{title}"
+      end
+
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
+      producer_config='/etc/kafka/mirrormaker/testing/consumer.properties'
+      consumer_config='/etc/kafka/mirrormaker/testing/producer.properties'
+      logging_config_path='/etc/kafka/mirrormaker/testing/logging.properties'
+
       user = 'mirrormaker'
 
       context 'with whitelist' do
@@ -53,7 +66,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             },
             'Service' => {
                 'Type' => 'simple',
-                # 'ExecStart' => "/usr/bin/zookeeper-server-start #{config_path}",
+                'ExecStart' => command_line,
                 'User' => user,
                 'TimeoutStopSec' => 300,
                 'LimitNOFILE' => 32000,
@@ -72,7 +85,15 @@ describe 'confluent::kafka::mirrormaker::instance' do
             it {is_expected.to contain_file(unit_file).with_content(/#{key}=#{value}/)}
           end
         end
-        
+
+        it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
+        it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{producer_config}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{consumer_config}]")}
+
       end
 
       context 'with blacklist' do

@@ -14,6 +14,7 @@ describe 'confluent::zookeeper' do
       user = 'zookeeper'
       group = 'zookeeper'
       config_path = '/etc/kafka/zookeeper.properties'
+      logging_config_path='/etc/kafka/zookeeper.logging.properties'
       service_name = 'zookeeper'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       environment_file = nil
@@ -49,7 +50,13 @@ describe 'confluent::zookeeper' do
       it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
       it {is_expected.to contain_package('confluent-kafka-2.11')}
       it {is_expected.to contain_user(user)}
+
+      it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
       it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{config_path}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+      it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
 
       system_d_settings = {
           'Unit' => {

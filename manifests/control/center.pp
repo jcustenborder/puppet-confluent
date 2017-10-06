@@ -125,10 +125,6 @@ class confluent::control::center (
     tag    => 'confluent',
   }
 
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
-  }
-
   confluent::systemd::unit { $service_name:
     config => {
       'Service' => {
@@ -148,5 +144,8 @@ class confluent::control::center (
       tag    => 'confluent'
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 }

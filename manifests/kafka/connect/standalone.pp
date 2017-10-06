@@ -97,6 +97,10 @@ class confluent::kafka::connect::standalone (
     tag     => 'confluent'
   }
 
+  confluent::logging { $service_name:
+    path => $logging_config_path
+  }
+
   $default_environment_settings = {
     'KAFKA_HEAP_OPTS'  => "-Xmx${heap_size}",
     'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
@@ -121,33 +125,20 @@ class confluent::kafka::connect::standalone (
     config => $actual_config
   }
 
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
-  }
-
   $connector_config_joined = join($connector_config_array, ' ')
 
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka Connect by Confluent', },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_path, },
-    "${service_name}/Service/ExecStart"       => {
-      'value' => "/usr/bin/connect-standalone ${config_path} ${connector_config_joined}",
-    },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
-  }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
-
-  confluent::logging { $service_name:
-    path => $logging_config_path
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Apache Kafka Connect by Confluent'
+      },
+      'Service' => {
+        'User'            => $user,
+        'EnvironmentFile' => $environment_path,
+        'ExecStart'       => "/usr/bin/connect-standalone ${config_path} ${connector_config_joined}",
+        'LimitNOFILE'     => $file_limit,
+      }
+    }
   }
 
   if($manage_service) {
@@ -156,8 +147,10 @@ class confluent::kafka::connect::standalone (
       enable => $service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 
 }

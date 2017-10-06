@@ -108,10 +108,6 @@ class confluent::schema::registry (
     tag    => 'confluent',
   }
 
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
-  }
-
   confluent::systemd::unit { $service_name:
     config => {
       'Unit'    => {
@@ -133,8 +129,10 @@ class confluent::schema::registry (
       enable => $service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 
 }
