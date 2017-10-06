@@ -89,7 +89,6 @@ describe 'confluent::kafka::mirrormaker::instance' do
         it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
         it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
         it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
-        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
         it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
         it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{producer_config}]")}
         it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{consumer_config}]")}

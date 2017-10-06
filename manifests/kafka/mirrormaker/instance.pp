@@ -70,7 +70,6 @@ define confluent::kafka::mirrormaker::instance (
   if(undef == $whitelist and undef == $blacklist) {
     fail('$blacklist or $whitelist must be specified.')
   }
-
   $mm_abort_on_send_failure = pick($abort_on_send_failure, $::confluent::kafka::mirrormaker::abort_on_send_failure)
   $mm_user = pick($user, $::confluent::kafka::mirrormaker::user)
   $mm_num_streams = pick($num_streams, $::confluent::kafka::mirrormaker::num_streams)
