@@ -4,10 +4,20 @@ describe 'confluent::zookeeper' do
   supported_osfamalies.each do |operating_system, default_facts|
     context "on #{operating_system}" do
       osfamily = default_facts['osfamily']
-      default_params = {
-          'zookeeper_id' => 1,
+      let(:facts) {default_facts}
+      let(:params) {
+        {
+            'zookeeper_id' => 1,
+        }
       }
+
+      user = 'zookeeper'
+      group = 'zookeeper'
+      config_path = '/etc/kafka/zookeeper.properties'
+      service_name = 'zookeeper'
+      unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       environment_file = nil
+
 
       case osfamily
         when 'Debian'
@@ -16,8 +26,6 @@ describe 'confluent::zookeeper' do
           environment_file = '/etc/sysconfig/zookeeper'
       end
 
-      let(:facts) {default_facts}
-      let(:params) {default_params}
 
       expected_heap = '-Xmx512m'
 
@@ -25,7 +33,7 @@ describe 'confluent::zookeeper' do
       data_paths.each do |data_path|
         context "with data_path => #{data_path}" do
           let(:params) {super().merge({'data_path' => data_path})}
-          it {is_expected.to contain_file(data_path)}
+          it {is_expected.to contain_file(data_path).with({'owner' => user, 'group' => group})}
         end
       end
 
@@ -33,33 +41,43 @@ describe 'confluent::zookeeper' do
       log_paths.each do |log_path|
         context "with log_path => #{log_path}" do
           let(:params) {super().merge({'log_path' => log_path})}
-          it {is_expected.to contain_file(log_path).with({'owner' => 'zookeeper', 'group' => 'zookeeper'})}
+          it {is_expected.to contain_file(log_path).with({'owner' => user, 'group' => group})}
           it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_path}"/)}
         end
       end
 
-
       it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
       it {is_expected.to contain_package('confluent-kafka-2.11')}
-      it {is_expected.to contain_user('zookeeper')}
-      it {is_expected.to contain_service('zookeeper').with({'ensure' => 'running', 'enable' => true})}
+      it {is_expected.to contain_user(user)}
+      it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
 
-      service_name = 'zookeeper'
       system_d_settings = {
-          "#{service_name}/Service/Type" => 'simple',
-          "#{service_name}/Unit/Wants" => 'basic.target',
-          "#{service_name}/Unit/After" => 'basic.target network-online.target',
-          "#{service_name}/Service/User" => 'zookeeper',
-          "#{service_name}/Service/TimeoutStopSec" => '300',
-          "#{service_name}/Service/LimitNOFILE" => '128000',
-          "#{service_name}/Service/KillMode" => 'process',
-          "#{service_name}/Service/RestartSec" => '5',
-          "#{service_name}/Install/WantedBy" => 'multi-user.target',
+          'Unit' => {
+              'Wants' => 'basic.target',
+              'After' => 'basic.target network-online.target',
+          },
+          'Service' => {
+              'Type' => 'simple',
+              'ExecStart' => "/usr/bin/zookeeper-server-start #{config_path}",
+              'User' => user,
+              'TimeoutStopSec' => 300,
+              'LimitNOFILE' => 128000,
+              'KillMode' => 'process',
+              'RestartSec' => 5,
+          },
+          'Install' => {
+              'WantedBy' => 'multi-user.target'
+          }
       }
 
-      system_d_settings.each do |ini_setting, value|
-        it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+      system_d_settings.each do |section, section_values|
+        it {is_expected.to contain_file(unit_file).with_content(/#{section}/)}
+
+        section_values.each do |key, value|
+          it {is_expected.to contain_file(unit_file).with_content(/#{key}=#{value}/)}
+        end
       end
+
     end
   end
 end

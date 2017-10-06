@@ -1,6 +1,6 @@
 define confluent::environment (
   Enum['present', 'absent'] $ensure,
-  Hash $config,
+  Hash[String, Variant[String, Integer, Boolean]] $config,
   Stdlib::Unixpath $path,
   $mode         = '0644',
   String $owner = 'root',

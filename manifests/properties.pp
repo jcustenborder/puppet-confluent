@@ -1,6 +1,6 @@
 define confluent::properties (
-  $ensure,
-  Hash $config,
+  Enum['present', 'absent'] $ensure,
+  Hash[String, Variant[String, Integer, Boolean]] $config,
   Stdlib::Unixpath $path,
   $mode         = '0644',
   String $owner = 'root',

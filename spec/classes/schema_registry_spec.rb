@@ -8,7 +8,12 @@ describe 'confluent::schema::registry' do
           'kafkastore_connection_url' => %w(zookeeper-01:2181 zookeeper-02:2181 zookeeper-03:2181)
       }
 
-      CONFIG_PATH='/etc/schema-registry/schema-registry.properties'
+      user = 'schema-registry'
+      group = 'schema-registry'
+      service_name = 'schema-registry'
+      unit_file = "/usr/lib/systemd/system/#{service_name}.service"
+      environment_file = nil
+      config_path='/etc/schema-registry/schema-registry.properties'
 
       environment_file = nil
 
@@ -26,7 +31,7 @@ describe 'confluent::schema::registry' do
       log_paths.each do |log_path|
         context "with log_path => #{log_path}" do
           let(:params) {default_params.merge({'log_path' => log_path})}
-          it {is_expected.to contain_file(log_path).with({'owner' => 'schema-registry', 'group' => 'schema-registry'})}
+          it {is_expected.to contain_file(log_path).with({'owner' => user, 'group' => group})}
           it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_path}"/)}
         end
       end
@@ -34,26 +39,36 @@ describe 'confluent::schema::registry' do
       expected_heap = '-Xmx512m'
 
       it {is_expected.to contain_file(environment_file).with_content(/SCHEMA_REGISTRY_HEAP_OPTS="#{expected_heap}"/)}
-      it {is_expected.to contain_file(CONFIG_PATH).with_content(/kafkastore.connection.url=zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181/)}
+      it {is_expected.to contain_file(config_path).with_content(/kafkastore.connection.url=zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181/)}
       it {is_expected.to contain_package('confluent-schema-registry')}
-      it {is_expected.to contain_user('schema-registry')}
-      it {is_expected.to contain_service('schema-registry').with({'ensure' => 'running', 'enable' => true})}
+      it {is_expected.to contain_user(user)}
+      it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
 
-      service_name = 'schema-registry'
       system_d_settings = {
-          "#{service_name}/Service/Type" => 'simple',
-          "#{service_name}/Unit/Wants" => 'basic.target',
-          "#{service_name}/Unit/After" => 'basic.target network-online.target',
-          "#{service_name}/Service/User" => 'schema-registry',
-          "#{service_name}/Service/TimeoutStopSec" => '300',
-          "#{service_name}/Service/LimitNOFILE" => '128000',
-          "#{service_name}/Service/KillMode" => 'process',
-          "#{service_name}/Service/RestartSec" => '5',
-          "#{service_name}/Install/WantedBy" => 'multi-user.target',
+          'Unit' => {
+              'Wants' => 'basic.target',
+              'After' => 'basic.target network-online.target',
+          },
+          'Service' => {
+              'Type' => 'simple',
+              'ExecStart' => "/usr/bin/schema-registry-start #{config_path}",
+              'User' => user,
+              'TimeoutStopSec' => 300,
+              'LimitNOFILE' => 128000,
+              'KillMode' => 'process',
+              'RestartSec' => 5,
+          },
+          'Install' => {
+              'WantedBy' => 'multi-user.target'
+          }
       }
 
-      system_d_settings.each do |ini_setting, value|
-        it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+      system_d_settings.each do |section, section_values|
+        it {is_expected.to contain_file(unit_file).with_content(/#{section}/)}
+
+        section_values.each do |key, value|
+          it {is_expected.to contain_file(unit_file).with_content(/#{key}=#{value}/)}
+        end
       end
 
     end

@@ -118,7 +118,7 @@ define confluent::kafka::mirrormaker::instance (
     config => $producer_config
   }
 
-  $java_default_settings = {
+  $default_environment_settings = {
     'KAFKA_HEAP_OPTS'  => "-Xmx${mm_heap_size}",
     'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
     'GC_LOG_ENABLED'   => true,
@@ -130,36 +130,30 @@ define confluent::kafka::mirrormaker::instance (
     path => $logging_config_path
   }
 
-  $actual_environment_settings = prefix(merge($java_default_settings, $mm_environment_settings), "${service_name}/")
+  $commandline = template('confluent/kafka/mirrormaker/commandline.erb')
+
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Schema Registry by Confluent'
+      },
+      'Service' => {
+        'User'            => $mm_user,
+        'EnvironmentFile' => $environment_file,
+        'ExecStart'       => $commandline,
+        'LimitNOFILE'     => $mm_file_limit,
+        'TimeoutStopSec'  => $mm_service_stop_timeout_secs
+      }
+    }
+  }
+
+  $actual_environment_settings = merge($default_environment_settings, $mm_environment_settings)
 
   confluent::environment { $service_name:
     ensure => present,
     path   => $environment_file,
     config => $actual_environment_settings
   }
-
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
-  }
-
-  $commandline = template('confluent/kafka/mirrormaker/commandline.erb')
-
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => "Apache Kafka Mirror Maker - ${title}", },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $mm_user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
-    "${service_name}/Service/ExecStart"       => { 'value' => $commandline, },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $mm_file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $mm_service_stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
-  }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($mm_manage_service) {
     service { $service_name:
