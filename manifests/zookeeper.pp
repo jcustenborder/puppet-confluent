@@ -44,7 +44,7 @@ class confluent::zookeeper (
   Hash $environment_settings                 = {},
   Stdlib::Unixpath $config_path              = $::confluent::params::zookeeper_config_path,
   Stdlib::Unixpath $logging_config_path      = $::confluent::params::zookeeper_logging_config_path,
-  Stdlib::Unixpath $environment_file         = $::confluent::params::zookeeper_environment_path,
+  Stdlib::Unixpath $environment_path         = $::confluent::params::zookeeper_environment_path,
   Stdlib::Unixpath $data_path                = $::confluent::params::zookeeper_data_path,
   Stdlib::Unixpath $log_path                 = $::confluent::params::zookeeper_log_path,
   String $user                               = $::confluent::params::zookeeper_user,
@@ -63,54 +63,41 @@ class confluent::zookeeper (
     include ::confluent::repository
   }
 
-  $zookeeper_default_settings = {
-    'dataDir'                   => {
-      'value' => $data_path
-    },
-    'clientPort'                => {
-      'value' => 2181
-    },
-    'maxClientCnxns'            => {
-      'value' => 0
-    },
-    'initLimit'                 => {
-      'value' => 5
-    },
-    'syncLimit'                 => {
-      'value' => 2
-    },
-    'autopurge.snapRetainCount' => {
-      'value' => 10
-    },
-    'autopurge.purgeInterval'   => {
-      'value' => 1
-    },
+  $default_config = {
+    'dataDir'                   => $data_path,
+    'clientPort'                => 2181,
+    'maxClientCnxns'            => 0,
+    'initLimit'                 => 5,
+    'syncLimit'                 => 2,
+    'autopurge.snapRetainCount' => 10,
+    'autopurge.purgeInterval'   => 1,
+  }
+  $actual_config = merge($default_config, $config)
+
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
 
-  $java_default_settings = {
-    'KAFKA_HEAP_OPTS'  => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'KAFKA_OPTS'       => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'   => {
-      'value' => true
-    },
-    'LOG_DIR'          => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  $default_environment_settings = {
+    'KAFKA_HEAP_OPTS'  => "-Xmx${heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_path,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
+  }
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
+
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_path,
+    config => $actual_environment_settings
   }
 
   confluent::logging { $service_name:
     path => $logging_config_path
   }
-
-  $actual_zookeeper_settings = prefix(merge($zookeeper_default_settings, $config), "${service_name}/")
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
 
   $myid_file = "${data_path}/myid"
 
@@ -126,52 +113,27 @@ class confluent::zookeeper (
   } ->
   file { $myid_file:
     ensure  => present,
-    content => "${zookeeper_id}",
+    content => inline_template("<%=@zookeeper_id%>"),
     mode    => '0644',
     group   => $user,
     owner   => $user,
     tag     => 'confluent'
   }
 
-  $ensure_zookeeper_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Apache Zookeeper by Confluent'
+      },
+      'Service' => {
+        'User'            => $user,
+        'EnvironmentFile' => $environment_path,
+        'ExecStart'       => "/usr/bin/zookeeper-server-start ${config_path}",
+        'ExecStop'        => '/usr/bin/zookeeper-server-stop',
+        'LimitNOFILE'     => $file_limit,
+      }
+    },
   }
-
-  ensure_resources(
-    'confluent::java_property',
-    $actual_zookeeper_settings,
-    $ensure_zookeeper_settings_defaults
-  )
-
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
-  }
-
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
-
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
-  }
-
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => 'Apache Zookeeper by Confluent', },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
-    "${service_name}/Service/ExecStart"       => { 'value' =>
-    "/usr/bin/zookeeper-server-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/zookeeper-server-stop', },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
-  }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($manage_service) {
     service { $service_name:
@@ -179,7 +141,9 @@ class confluent::zookeeper (
       enable => $service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 }

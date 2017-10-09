@@ -1,0 +1,8 @@
+# Managed by puppet
+<%- @systemd_config.sort.each do |section, section_config| -%>
+[<%= section %>]
+<%- section_config.sort.each do |key, value| -%>
+<%=key%>=<%=value%>
+<%- end -%>
+
+<% end %>

@@ -74,67 +74,40 @@ class confluent::control::center (
     include ::confluent::repository
   }
 
-
-
   $default_environment_settings = {
-    'CONTROL_CENTER_HEAP_OPTS' => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'CONTROL_CENTER_OPTS'      => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'LOG_DIR'                  => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS'         => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+    'CONTROL_CENTER_HEAP_OPTS' => "-Xmx${heap_size}",
+    'CONTROL_CENTER_OPTS'      => '-Djava.net.preferIPv4Stack=true',
+    'LOG_DIR'                  => $log_path,
+    'KAFKA_LOG4J_OPTS'         => "-Dlog4j.configuration=file:${logging_config_path}"
   }
 
   confluent::logging { $service_name:
     path => $logging_config_path
   }
 
-  $merged_environment_settings = prefix(merge($default_environment_settings, $environment_settings), "${service_name}/")
-  $kafka_environment_variable_defaults = {
-    'path' => $environment_file,
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
+
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
   }
 
-  ensure_resources(
-    'confluent::kafka_environment_variable',
-    $merged_environment_settings,
-    $kafka_environment_variable_defaults
-  )
-
-  $control_center_default_settings = {
-    'confluent.controlcenter.id'              => {
-      'value' => $control_center_id
-    },
-    'confluent.controlcenter.data.dir'        => {
-      'value' => $data_path
-    },
-    'bootstrap.servers'                       => {
-      'value' => join(any2array($bootstrap_servers), ',')
-    },
-    'confluent.controlcenter.connect.cluster' => {
-      'value' => join(any2array($connect_cluster), ',')
-    },
-    'zookeeper.connect'                       => {
-      'value' => join(any2array($zookeeper_connect), ',')
-    }
+  $default_config = {
+    'confluent.controlcenter.id'              => $control_center_id,
+    'confluent.controlcenter.data.dir'        => $data_path,
+    'bootstrap.servers'                       => join(any2array($bootstrap_servers), ','),
+    'confluent.controlcenter.connect.cluster' => join(any2array($connect_cluster), ','),
+    'zookeeper.connect'                       => join(any2array($zookeeper_connect), ',')
   }
 
-  $merged_control_center_settings = prefix(merge($control_center_default_settings, $config), "${service_name}/")
-  $java_property_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
+  $actual_config = merge($default_config, $config)
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
 
-  ensure_resources(
-    'confluent::java_property',
-    $merged_control_center_settings,
-    $java_property_defaults
-  )
 
   user { $user:
     ensure => present
@@ -152,27 +125,17 @@ class confluent::control::center (
     tag    => 'confluent',
   }
 
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Service' => {
+        'EnvironmentFile' => $environment_file,
+        'User'            => $user,
+        'ExecStart'       => "/usr/bin/control-center-start ${config_path}",
+        'LimitNOFILE'     => $file_limit,
+        'TimeoutStopSec'  => $stop_timeout_secs
+      }
+    }
   }
-
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => 'Confluent Control Center', },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
-    "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/control-center-start ${config_path}", },
-    # "${service_name}/Service/ExecStop'               => { 'value' => "/usr/bin/zookeeper-server-stop", },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
-  }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($manage_service) {
     service { $service_name:
@@ -180,7 +143,9 @@ class confluent::control::center (
       enable => $service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 }

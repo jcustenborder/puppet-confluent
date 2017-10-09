@@ -70,7 +70,6 @@ define confluent::kafka::mirrormaker::instance (
   if(undef == $whitelist and undef == $blacklist) {
     fail('$blacklist or $whitelist must be specified.')
   }
-
   $mm_abort_on_send_failure = pick($abort_on_send_failure, $::confluent::kafka::mirrormaker::abort_on_send_failure)
   $mm_user = pick($user, $::confluent::kafka::mirrormaker::user)
   $mm_num_streams = pick($num_streams, $::confluent::kafka::mirrormaker::num_streams)
@@ -106,79 +105,54 @@ define confluent::kafka::mirrormaker::instance (
     ]
   }
 
-  $mirror_maker_consumer_settings = prefix($consumer_config, "${service_name}-consumer/")
-  $mirror_maker_consumer_setting_defaults = {
-    'ensure' => 'present',
-    'path'   => $consumer_config_path,
+  confluent::properties { "${service_name}-consumer":
+    ensure => present,
+    path   => $consumer_config_path,
+    config => $consumer_config
   }
-  ensure_resources(
-    'confluent::java_property',
-    $mirror_maker_consumer_settings,
-    $mirror_maker_consumer_setting_defaults
-  )
 
-  $mirror_maker_producer_settings = prefix($producer_config, "${service_name}-producer/")
-  $mirror_maker_producer_setting_defaults = {
-    'ensure' => 'present',
-    'path'   => $producer_config_path,
-  }
-  ensure_resources(
-    'confluent::java_property',
-    $mirror_maker_producer_settings,
-    $mirror_maker_producer_setting_defaults
-  )
-
-
-  $java_default_settings = {
-    'KAFKA_HEAP_OPTS' => {
-      'value' => "-Xmx${mm_heap_size}"
-    },
-    'KAFKA_OPTS'      => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'  => {
-      'value' => true
-    },
-    'LOG_DIR'         => {
-      'value' => $log_directory
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  confluent::properties { "${service_name}-producer":
+    ensure => present,
+    path   => $producer_config_path,
+    config => $producer_config
   }
 
   confluent::logging { $service_name:
     path => $logging_config_path
   }
 
-  $actual_java_settings = prefix(merge($java_default_settings, $mm_environment_settings), "${service_name}/")
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
+  $default_environment_settings = {
+    'KAFKA_HEAP_OPTS'  => "-Xmx${mm_heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_directory,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
   }
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
 
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
+  $actual_environment_settings = merge($default_environment_settings, $mm_environment_settings)
+
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
   }
 
   $commandline = template('confluent/kafka/mirrormaker/commandline.erb')
 
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => "Apache Kafka Mirror Maker - ${title}", },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $mm_user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
-    "${service_name}/Service/ExecStart"       => { 'value' => $commandline, },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $mm_file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $mm_service_stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Apache Kafka Mirror Maker by Confluent'
+      },
+      'Service' => {
+        'User'            => $mm_user,
+        'EnvironmentFile' => $environment_file,
+        'ExecStart'       => $commandline,
+        'LimitNOFILE'     => $mm_file_limit,
+        'TimeoutStopSec'  => $mm_service_stop_timeout_secs
+      }
+    }
   }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($mm_manage_service) {
     service { $service_name:
@@ -186,7 +160,10 @@ define confluent::kafka::mirrormaker::instance (
       enable => $mm_service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties["${service_name}-consumer"] ~> Service[$service_name]
+    Confluent::Properties["${service_name}-producer"] ~> Service[$service_name]
   }
 }

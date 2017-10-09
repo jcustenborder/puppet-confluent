@@ -49,23 +49,24 @@
 # @param file_limit File limit to set for the Kafka service (SystemD) only.
 class confluent::kafka::broker (
   Integer $broker_id,
-  Hash $config                                                  = {},
-  Hash $logging_config                                          = $::confluent::params::kafka_logging_config,
-  Hash $environment_settings                                    = {},
-  Stdlib::Unixpath $config_path                                 = $::confluent::params::kafka_config_path,
-  Stdlib::Unixpath $logging_config_path                         = $::confluent::params::kafka_logging_config_path,
-  Stdlib::Unixpath $environment_file                            = $::confluent::params::kafka_environment_path,
-  Variant[Stdlib::Unixpath, Array[Stdlib::Unixpath]] $data_path = $::confluent::params::kafka_data_path,
-  Stdlib::Unixpath $log_path                                    = $::confluent::params::kafka_log_path,
-  String $user                                                  = $::confluent::params::kafka_user,
-  String $service_name                                          = $::confluent::params::kafka_service,
-  Boolean $manage_service                                       = $::confluent::params::kafka_manage_service,
-  Enum['running', 'stopped'] $service_ensure                    = $::confluent::params::kafka_service_ensure,
-  Boolean $service_enable                                       = $::confluent::params::kafka_service_enable,
-  Integer $file_limit                                           = $::confluent::params::kafka_file_limit,
-  Integer $stop_timeout_secs                                    = $::confluent::params::kafka_stop_timeout_secs,
-  Boolean $manage_repository                                    = $::confluent::params::manage_repository,
-  String $heap_size                                             = $::confluent::params::kafka_heap_size,
+  Hash[String, Variant[String, Integer, Boolean]] $config               = {},
+  Hash[String, Variant[String, Integer, Boolean]] $logging_config       = $::confluent::params::kafka_logging_config,
+  Hash[String, Variant[String, Integer, Boolean]] $environment_settings = {},
+  Stdlib::Unixpath $config_path                                         = $::confluent::params::kafka_config_path,
+  Stdlib::Unixpath $logging_config_path                                 =
+  $::confluent::params::kafka_logging_config_path,
+  Stdlib::Unixpath $environment_file                                    = $::confluent::params::kafka_environment_path,
+  Variant[Stdlib::Unixpath, Array[Stdlib::Unixpath]] $data_path         = $::confluent::params::kafka_data_path,
+  Stdlib::Unixpath $log_path                                            = $::confluent::params::kafka_log_path,
+  String $user                                                          = $::confluent::params::kafka_user,
+  String $service_name                                                  = $::confluent::params::kafka_service,
+  Boolean $manage_service                                               = $::confluent::params::kafka_manage_service,
+  Enum['running', 'stopped'] $service_ensure                            = $::confluent::params::kafka_service_ensure,
+  Boolean $service_enable                                               = $::confluent::params::kafka_service_enable,
+  Integer $file_limit                                                   = $::confluent::params::kafka_file_limit,
+  Integer $stop_timeout_secs                                            = $::confluent::params::kafka_stop_timeout_secs,
+  Boolean $manage_repository                                            = $::confluent::params::manage_repository,
+  String $heap_size                                                     = $::confluent::params::kafka_heap_size,
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
@@ -74,55 +75,55 @@ class confluent::kafka::broker (
     include ::confluent::repository
   }
 
-  $kafka_default_settings = {
-    'broker.id' => {
-      'value' => $broker_id
-    },
-    'log.dirs'  => {
-      'value' => join(any2array($data_path), ',')
-    }
+  $default_config = {
+    'broker.id'                                => $broker_id,
+    'log.dirs'                                 => join(any2array($data_path), ','),
+    'confluent.support.customer.id'            => 'anonymous',
+    'confluent.support.metrics.enable'         => true,
+    'group.initial.rebalance.delay.ms'         => 0,
+    'log.retention.check.interval.ms'          => 300000,
+    'log.retention.hours'                      => 168,
+    'log.segment.bytes'                        => 1073741824,
+    'num.io.threads'                           => 8,
+    'num.network.threads'                      => 3,
+    'num.partitions'                           => 1,
+    'num.recovery.threads.per.data.dir'        => 1,
+    'offsets.topic.replication.factor'         => 1,
+    'socket.receive.buffer.bytes'              => 102400,
+    'socket.request.max.bytes'                 => 104857600,
+    'socket.send.buffer.bytes'                 => 102400,
+    'transaction.state.log.min.isr'            => 1,
+    'transaction.state.log.replication.factor' => 1,
+    'zookeeper.connect'                        => 'localhost:2181',
+    'zookeeper.connection.timeout.ms'          => 6000,
+  }
+  $actual_config = merge($default_config, $config)
+
+  confluent::properties { $service_name:
+    ensure => present,
+    path   => $config_path,
+    config => $actual_config
   }
 
-  $actual_kafka_settings = prefix(merge($kafka_default_settings, $config), "${service_name}/")
-  $ensure_kafka_settings_defaults = {
-    'ensure' => 'present',
-    'path'   => $config_path,
+  $default_environment_settings = {
+    'KAFKA_HEAP_OPTS'  => "-Xmx${heap_size}",
+    'KAFKA_OPTS'       => '-Djava.net.preferIPv4Stack=true',
+    'GC_LOG_ENABLED'   => true,
+    'LOG_DIR'          => $log_path,
+    'KAFKA_LOG4J_OPTS' => "-Dlog4j.configuration=file:${logging_config_path}"
   }
-  ensure_resources(
-    'confluent::java_property',
-    $actual_kafka_settings,
-    $ensure_kafka_settings_defaults
-  )
+  $actual_environment_settings = merge($default_environment_settings, $environment_settings)
 
-  $java_default_settings = {
-    'KAFKA_HEAP_OPTS'  => {
-      'value' => "-Xmx${heap_size}"
-    },
-    'KAFKA_OPTS'       => {
-      'value' => '-Djava.net.preferIPv4Stack=true'
-    },
-    'GC_LOG_ENABLED'   => {
-      'value' => true
-    },
-    'LOG_DIR'          => {
-      'value' => $log_path
-    },
-    'KAFKA_LOG4J_OPTS' => {
-      'value' => "-Dlog4j.configuration=file:${logging_config_path}"
-    }
+  confluent::environment { $service_name:
+    ensure => present,
+    path   => $environment_file,
+    config => $actual_environment_settings
   }
 
   confluent::logging { $service_name:
     path   => $logging_config_path,
     config => $logging_config
   }
-
-  $actual_java_settings = prefix(merge($java_default_settings, $environment_settings), "${service_name}/")
-  $ensure_java_settings_defaults = {
-    'path' => $environment_file,
-  }
-  ensure_resources('confluent::kafka_environment_variable', $actual_java_settings, $ensure_java_settings_defaults)
-
 
   user { $user:
     ensure => present
@@ -135,27 +136,20 @@ class confluent::kafka::broker (
     tag     => 'confluent'
   }
 
-  $unit_ini_setting_defaults = {
-    'ensure' => 'present'
+  confluent::systemd::unit { $service_name:
+    config => {
+      'Unit'    => {
+        'Description' => 'Apache Kafka by Confluent'
+      },
+      'Service' => {
+        'User'            => $user,
+        'EnvironmentFile' => $environment_file,
+        'ExecStart'       => "/usr/bin/kafka-server-start ${config_path}",
+        'ExecStop'        => '/usr/bin/kafka-server-stop',
+        'LimitNOFILE'     => $file_limit,
+      }
+    }
   }
-
-  $unit_ini_settings = {
-    "${service_name}/Unit/Description"        => { 'value' => 'Apache Kafka by Confluent', },
-    "${service_name}/Unit/Wants"              => { 'value' => 'basic.target', },
-    "${service_name}/Unit/After"              => { 'value' => 'basic.target network-online.target', },
-    "${service_name}/Service/User"            => { 'value' => $user, },
-    "${service_name}/Service/EnvironmentFile" => { 'value' => $environment_file, },
-    "${service_name}/Service/ExecStart"       => { 'value' => "/usr/bin/kafka-server-start ${config_path}", },
-    "${service_name}/Service/ExecStop"        => { 'value' => '/usr/bin/kafka-server-stop', },
-    "${service_name}/Service/LimitNOFILE"     => { 'value' => $file_limit, },
-    "${service_name}/Service/KillMode"        => { 'value' => 'process', },
-    "${service_name}/Service/RestartSec"      => { 'value' => 5, },
-    "${service_name}/Service/TimeoutStopSec"  => { 'value' => $stop_timeout_secs, },
-    "${service_name}/Service/Type"            => { 'value' => 'simple', },
-    "${service_name}/Install/WantedBy"        => { 'value' => 'multi-user.target', },
-  }
-
-  ensure_resources('confluent::systemd::unit_ini_setting', $unit_ini_settings, $unit_ini_setting_defaults)
 
   if($manage_service) {
     service { $service_name:
@@ -163,7 +157,9 @@ class confluent::kafka::broker (
       enable => $service_enable,
       tag    => 'confluent'
     }
-    Ini_setting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
-    Ini_subsetting<| tag == "confluent-${service_name}" |> ~> Service[$service_name]
+    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+    Confluent::Environment[$service_name] ~> Service[$service_name]
+    Confluent::Logging[$service_name] ~> Service[$service_name]
+    Confluent::Properties[$service_name] ~> Service[$service_name]
   }
 }

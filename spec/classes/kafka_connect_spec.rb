@@ -13,11 +13,19 @@ require 'spec_helper'
         let(:params) {default_params}
         let(:facts) {default_facts}
 
+        user = "connect-#{class_name}"
+        group = "connect-#{class_name}"
+        service_name = "connect-#{class_name}"
+        unit_file = "/usr/lib/systemd/system/#{service_name}.service"
         environment_file = nil
+
+        config_path = "/etc/kafka/connect-#{class_name}.properties"
+        logging_config_path="/etc/kafka/connect-#{class_name}.logging.properties"
 
         case osfamily
           when 'Debian'
             environment_file = "/etc/default/kafka-connect-#{class_name}"
+
           when 'RedHat'
             environment_file = "/etc/sysconfig/kafka-connect-#{class_name}"
         end
@@ -30,31 +38,46 @@ require 'spec_helper'
           context "with param log_dir = '#{log_dir}'" do
             let(:params) {default_params.merge({'log_path' => log_dir})}
 
-            it {is_expected.to contain_ini_subsetting("connect-#{class_name}/LOG_DIR").with({'path' => environment_file, 'value' => log_dir})}
+            it {is_expected.to contain_file(config_path).with_content(/bootstrap.servers=kafka-01:9093,kafka-02:9093,kafka-03:9093/)}
+            it {is_expected.to contain_file(environment_file).with_content(/LOG_DIR="#{log_dir}"/)}
+            it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
+
             it {is_expected.to contain_file(log_dir).with({'owner' => "connect-#{class_name}", 'group' => "connect-#{class_name}", 'recurse' => true})}
             it {is_expected.to contain_package('confluent-kafka-2.11')}
-            it {is_expected.to contain_ini_setting("connect-#{class_name}/bootstrap.servers").with({'path' => "/etc/kafka/connect-#{class_name}.properties", 'value' => 'kafka-01:9093,kafka-02:9093,kafka-03:9093'})}
-            it {is_expected.to contain_user("connect-#{class_name}")}
-            it {is_expected.to contain_service("connect-#{class_name}").with({'ensure' => 'running', 'enable' => true})}
-            it {is_expected.to contain_ini_subsetting("connect-#{class_name}/KAFKA_HEAP_OPTS").with({'path' => environment_file, 'value' => expected_heap})}
+            it {is_expected.to contain_user(user)}
 
-            service_name = "connect-#{class_name}"
+            it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
+            it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
+            it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{config_path}]")}
+            it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+            it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+            it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
+
             system_d_settings = {
-                "#{service_name}/Service/Type" => 'simple',
-                "#{service_name}/Unit/Wants" => 'basic.target',
-                "#{service_name}/Unit/After" => 'basic.target network-online.target',
-                "#{service_name}/Service/User" => "connect-#{class_name}",
-                "#{service_name}/Service/TimeoutStopSec" => '300',
-                "#{service_name}/Service/LimitNOFILE" => '128000',
-                "#{service_name}/Service/KillMode" => 'process',
-                "#{service_name}/Service/RestartSec" => '5',
-                "#{service_name}/Install/WantedBy" => 'multi-user.target',
+                'Unit' => {
+                    'Wants' => 'basic.target',
+                    'After' => 'basic.target network-online.target',
+                },
+                'Service' => {
+                    'Type' => 'simple',
+                    'ExecStart' => "/usr/bin/connect-distributed #{config_path}",
+                    'User' => user,
+                    'TimeoutStopSec' => 300,
+                    'LimitNOFILE' => 128000,
+                    'KillMode' => 'process',
+                    'RestartSec' => 5,
+                },
+                'Install' => {
+                    'WantedBy' => 'multi-user.target'
+                }
             }
+            system_d_settings['Service']['ExecStart'] = "/usr/bin/connect-standalone /etc/kafka/connect-standalone.properties #{default_params['connector_configs'].join(' ')}" if class_name == 'standalone'
+            system_d_settings.each do |section, section_values|
+              it {is_expected.to contain_file(unit_file).with_content(/#{section}/)}
 
-            system_d_settings["#{service_name}/Service/ExecStart"] = "/usr/bin/connect-standalone /etc/kafka/connect-standalone.properties #{default_params['connector_configs'].join(' ')}" if class_name == 'standalone'
-
-            system_d_settings.each do |ini_setting, value|
-              it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+              section_values.each do |key, value|
+                it {is_expected.to contain_file(unit_file).with_content(/#{key}=#{value}/)}
+              end
             end
           end
         end

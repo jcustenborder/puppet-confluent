@@ -3,31 +3,37 @@ require 'spec_helper'
 describe 'confluent::kafka::mirrormaker::instance' do
   supported_osfamalies.each do |operating_system, default_facts|
     context "on #{operating_system}" do
-      title = 'testing'
-
-
       osfamily = default_facts['osfamily']
+      title = 'testing'
       let(:facts) {default_facts}
       let(:title) {title}
 
       default_params = {
           :consumer_config => {
-              'group.id' => {
-                  'value' => 'mirrormaker'
-              },
-              'bootstrap.servers' => {
-                  'value' => 'kafka-01:9092'
-              }
+              'group.id' => 'mirrormaker',
+              'bootstrap.servers' => 'kafka-01:9092'
           },
           :producer_config => {
-              'bootstrap.servers' => {
-                  'value' => 'kafka-01:9092'
-              }
+              'bootstrap.servers' => 'kafka-01:9092'
           },
           :whitelist => 'topic1|foo|.*bar'
       }
 
       service_name = "mirrormaker-#{title}"
+
+      case osfamily
+        when 'Debian'
+          environment_file = "/etc/default/mirrormaker-#{title}"
+        when 'RedHat'
+          environment_file = "/etc/sysconfig/mirrormaker-#{title}"
+      end
+
+      unit_file = "/usr/lib/systemd/system/#{service_name}.service"
+      producer_config='/etc/kafka/mirrormaker/testing/consumer.properties'
+      consumer_config='/etc/kafka/mirrormaker/testing/producer.properties'
+      logging_config_path='/etc/kafka/mirrormaker/testing/logging.properties'
+
+      user = 'mirrormaker'
 
       context 'with whitelist' do
         let(:params) {default_params}
@@ -42,7 +48,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
         it {is_expected.to contain_file("/var/log/mirrormaker/#{title}").with({'owner' => 'mirrormaker', 'group' => 'root'})}
 
         it {is_expected.to contain_file('/etc/kafka/mirrormaker').with({'owner' => 'root', 'group' => 'root'})}
-        it {is_expected.to contain_file("/etc/kafka/mirrormaker/#{title}").with({'owner' => 'mirrormaker', 'group' => 'root'})}
+        it {is_expected.to contain_file("/etc/kafka/mirrormaker/#{title}").with({'owner' => user, 'group' => 'root'})}
 
         command_line = '/usr/bin/kafka-mirror-maker ' +
             '--abort.on.send.failure true ' +
@@ -53,23 +59,40 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--whitelist 'topic1|foo|.*bar'"
 
-
         system_d_settings = {
-            "#{service_name}/Service/Type" => 'simple',
-            "#{service_name}/Unit/Wants" => 'basic.target',
-            "#{service_name}/Unit/After" => 'basic.target network-online.target',
-            "#{service_name}/Service/User" => 'mirrormaker',
-            "#{service_name}/Service/TimeoutStopSec" => '300',
-            "#{service_name}/Service/ExecStart" => command_line,
-            "#{service_name}/Service/LimitNOFILE" => '32000',
-            "#{service_name}/Service/KillMode" => 'process',
-            "#{service_name}/Service/RestartSec" => '5',
-            "#{service_name}/Install/WantedBy" => 'multi-user.target',
+            'Unit' => {
+                'Wants' => 'basic.target',
+                'After' => 'basic.target network-online.target',
+            },
+            'Service' => {
+                'Type' => 'simple',
+                'ExecStart' => command_line,
+                'User' => user,
+                'TimeoutStopSec' => 300,
+                'LimitNOFILE' => 32000,
+                'KillMode' => 'process',
+                'RestartSec' => 5,
+            },
+            'Install' => {
+                'WantedBy' => 'multi-user.target'
+            }
         }
 
-        system_d_settings.each do |ini_setting, value|
-          it {is_expected.to contain_ini_setting(ini_setting).with({'value' => value})}
+        system_d_settings.each do |section, section_values|
+          it {is_expected.to contain_file(unit_file).with_content(/#{section}/)}
+
+          section_values.each do |key, value|
+            it {is_expected.to contain_file(unit_file).with_content(/#{key}=#{value}/)}
+          end
         end
+
+        it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
+        it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{producer_config}]")}
+        it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{consumer_config}]")}
+
       end
 
       context 'with blacklist' do
@@ -86,7 +109,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--blacklist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
       context 'with abort_on_send_failure' do
@@ -102,7 +125,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--whitelist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
       context 'with old consumer' do
@@ -117,7 +140,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--whitelist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
       context 'with offset_commit_interval_ms' do
@@ -133,7 +156,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--whitelist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
       context 'with consumer_rebalance_listener' do
@@ -152,7 +175,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             "--rebalance.listener.args 'This is a grouping of arguments' " +
             "--whitelist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
       context 'with message_handler' do
@@ -171,7 +194,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             "--message.handler.args 'This is a grouping of arguments' " +
             "--whitelist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
       context 'with num_streams' do
@@ -187,7 +210,7 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--whitelist 'topic1|foo|.*bar'"
 
-        it {is_expected.to contain_ini_setting("#{service_name}/Service/ExecStart").with({'value' => command_line})}
+        it {is_expected.to contain_file(unit_file).with_content(/ExecStart=#{command_line}/)}
       end
 
     end
