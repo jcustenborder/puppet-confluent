@@ -23,7 +23,8 @@ module Helpers
             'os' => {
                 'name' => 'Debian',
                 'release' => {
-                    'full' => '8.0'
+                    'full' => '8.0',
+                    'major' => '8'
                 }
             },
             'osfamily' => 'Debian',
