@@ -67,6 +67,7 @@ class confluent::kafka::broker (
   Integer $stop_timeout_secs                                            = $::confluent::params::kafka_stop_timeout_secs,
   Boolean $manage_repository                                            = $::confluent::params::manage_repository,
   String $heap_size                                                     = $::confluent::params::kafka_heap_size,
+  Boolean $restart_on_logging_change                                    = true
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
@@ -159,7 +160,9 @@ class confluent::kafka::broker (
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Logging[$service_name] ~> Service[$service_name]
     Confluent::Properties[$service_name] ~> Service[$service_name]
+    if($restart_on_logging_change) {
+      Confluent::Logging[$service_name] ~> Service[$service_name]
+    }
   }
 }

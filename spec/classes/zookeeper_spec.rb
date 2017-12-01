@@ -58,6 +58,12 @@ describe 'confluent::zookeeper' do
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
 
+      it {is_expected.to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+      context 'with restart_on_logging_change => false' do
+        let(:params) {super().merge({'restart_on_logging_change' => false})}
+        it {is_expected.not_to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+      end
+
       system_d_settings = {
           'Unit' => {
               'Wants' => 'basic.target',

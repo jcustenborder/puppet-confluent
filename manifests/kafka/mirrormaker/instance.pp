@@ -63,7 +63,8 @@ define confluent::kafka::mirrormaker::instance (
   Variant[Undef, Enum['running', 'stopped']] $service_ensure = undef,
   Variant[Undef, Boolean] $service_enable                    = undef,
   Hash $environment_settings                                 = {},
-  Undef $heap_size                                           = undef
+  Undef $heap_size                                           = undef,
+  Boolean $restart_on_logging_change                         = true
 ) {
   include ::confluent::kafka::mirrormaker
 
@@ -162,8 +163,10 @@ define confluent::kafka::mirrormaker::instance (
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Logging[$service_name] ~> Service[$service_name]
     Confluent::Properties["${service_name}-consumer"] ~> Service[$service_name]
     Confluent::Properties["${service_name}-producer"] ~> Service[$service_name]
+    if($restart_on_logging_change) {
+      Confluent::Logging[$service_name] ~> Service[$service_name]
+    }
   }
 }
