@@ -59,6 +59,12 @@ describe 'confluent::kafka::mirrormaker::instance' do
             '--producer.config /etc/kafka/mirrormaker/testing/producer.properties ' +
             "--whitelist 'topic1|foo|.*bar'"
 
+        it {is_expected.to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+        context 'with restart_on_logging_change => false' do
+          let(:params) {super().merge({'restart_on_logging_change' => false})}
+          it {is_expected.not_to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+        end
+
         system_d_settings = {
             'Unit' => {
                 'Wants' => 'basic.target',

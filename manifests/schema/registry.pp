@@ -52,6 +52,7 @@ class confluent::schema::registry (
   Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::schema_registry_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::schema_registry_heap_size,
+  Boolean $restart_on_logging_change         = true
 ) inherits confluent::params {
   include ::confluent
 
@@ -131,8 +132,10 @@ class confluent::schema::registry (
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Logging[$service_name] ~> Service[$service_name]
     Confluent::Properties[$service_name] ~> Service[$service_name]
+    if($restart_on_logging_change) {
+      Confluent::Logging[$service_name] ~> Service[$service_name]
+    }
   }
 
 }

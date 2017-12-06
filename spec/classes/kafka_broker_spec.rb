@@ -16,7 +16,7 @@ describe 'confluent::kafka::broker' do
       user = 'kafka'
       group = 'kafka'
       config_path = '/etc/kafka/server.properties'
-      logging_config_path='/etc/kafka/server.properties'
+      logging_config_path='/etc/kafka/server.logging.properties'
       service_name = 'kafka'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       environment_file = nil
@@ -92,6 +92,12 @@ describe 'confluent::kafka::broker' do
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
+
+      it {is_expected.to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+      context 'with restart_on_logging_change => false' do
+        let(:params) {super().merge({'restart_on_logging_change' => false})}
+        it {is_expected.not_to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+      end
 
       system_d_settings = {
           'Unit' => {

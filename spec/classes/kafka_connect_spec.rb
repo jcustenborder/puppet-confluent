@@ -34,6 +34,12 @@ require 'spec_helper'
 
         log_dirs = ["/var/log/kafka-connect-#{class_name}", "/app/var/log/kafka-connect-#{class_name}"]
 
+        it {is_expected.to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+        context 'with restart_on_logging_change => false' do
+          let(:params) {super().merge({'restart_on_logging_change' => false})}
+          it {is_expected.not_to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
+        end
+
         log_dirs.each do |log_dir|
           context "with param log_dir = '#{log_dir}'" do
             let(:params) {default_params.merge({'log_path' => log_dir})}

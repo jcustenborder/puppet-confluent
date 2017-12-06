@@ -71,7 +71,8 @@ class confluent::kafka::connect::distributed (
   Integer $file_limit                        = $::confluent::params::connect_distributed_file_limit,
   Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::connect_distributed_stop_timeout_secs,
-  String $heap_size                          = $::confluent::params::connect_distributed_heap_size
+  String $heap_size                          = $::confluent::params::connect_distributed_heap_size,
+  Boolean $restart_on_logging_change         = true
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -142,8 +143,10 @@ class confluent::kafka::connect::distributed (
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Logging[$service_name] ~> Service[$service_name]
     Confluent::Properties[$service_name] ~> Service[$service_name]
+    if($restart_on_logging_change) {
+      Confluent::Logging[$service_name] ~> Service[$service_name]
+    }
   }
 
 }
