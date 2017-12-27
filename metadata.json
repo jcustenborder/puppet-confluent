@@ -1,6 +1,6 @@
 {
   "name": "jcustenborder-confluent",
-  "version": "3.3.12",
+  "version": "4.0.12",
   "author": "jcustenborder@gmail.com",
   "summary": "This puppet module is used to install and configure the Confluent platform.",
   "license": "Apache-2.0",
