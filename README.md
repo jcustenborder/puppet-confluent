@@ -251,6 +251,30 @@ confluent::control::center::connect_cluster:
   - 'kafka-connect-03.example.com:8083'
 ```
 
+## Kafka REST Proxy
+
+### Class installation
+
+```puppet
+class { 'confluent::kafka::rest':
+    rest_id             => '1',
+    schema_registry_url => 'http://localhost:8081',
+    zookeeper_servers   => 'localhost:2181',
+}
+```
+
+### Hiera installation
+```puppet
+include ::confluent::kafka::rest
+```
+
+```yaml
+confluent::kafka::rest::rest_id: '1'
+confluent::kafka::rest::bootstrap_servers: 'localhost:9092'
+confluent::kafka::rest::schema_registry_url: 'http://localhost:8081'
+confluent::kafka::rest::zookeeper_servers: 'localhost:2181'
+```
+
 # Run tests
 
 ```bash
