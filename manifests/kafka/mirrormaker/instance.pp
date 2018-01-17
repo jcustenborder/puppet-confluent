@@ -99,7 +99,7 @@ define confluent::kafka::mirrormaker::instance (
     ensure  => directory,
     owner   => $mm_user,
     group   => 'root',
-    tag     => 'confluent',
+    tag     => '__confluent__',
     require => [
       File['mirrormaker-log_path'],
       File['mirrormaker-config_root'],
@@ -159,7 +159,7 @@ define confluent::kafka::mirrormaker::instance (
     service { $service_name:
       ensure => $mm_service_ensure,
       enable => $mm_service_enable,
-      tag    => 'confluent'
+      tag    => '__confluent__'
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]

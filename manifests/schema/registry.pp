@@ -101,12 +101,12 @@ class confluent::schema::registry (
     owner   => $user,
     group   => $user,
     recurse => true,
-    tag     => 'confluent'
+    tag     => '__confluent__'
   }
 
   package { 'confluent-schema-registry':
     ensure => latest,
-    tag    => 'confluent',
+    tag    => '__confluent__',
   }
 
   confluent::systemd::unit { $service_name:
@@ -128,7 +128,7 @@ class confluent::schema::registry (
     service { $service_name:
       ensure => $service_ensure,
       enable => $service_enable,
-      tag    => 'confluent'
+      tag    => '__confluent__'
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]

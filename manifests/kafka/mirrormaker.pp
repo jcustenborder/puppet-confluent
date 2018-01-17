@@ -24,7 +24,7 @@ class confluent::kafka::mirrormaker (
 
   user { $user:
     ensure => present,
-    tag    => 'confluent'
+    tag    => '__confluent__'
   }
 
   file { $config_root:
@@ -32,7 +32,7 @@ class confluent::kafka::mirrormaker (
     alias  => 'mirrormaker-log_path',
     owner  => 'root',
     group  => 'root',
-    tag    => 'confluent'
+    tag    => '__confluent__'
   }
 
   file { $log_path:
@@ -40,7 +40,7 @@ class confluent::kafka::mirrormaker (
     alias  => 'mirrormaker-config_root',
     owner  => 'root',
     group  => 'root',
-    tag    => 'confluent'
+    tag    => '__confluent__'
   }
 
   $mirror_instance_defaults = {

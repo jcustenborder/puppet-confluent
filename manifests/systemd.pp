@@ -8,5 +8,5 @@ class confluent::systemd {
       '/usr/bin'
     ],
     refreshonly => true
-  } -> Service<| tag == 'confluent' |>
+  } -> Service<| tag == '__confluent__' |>
 }

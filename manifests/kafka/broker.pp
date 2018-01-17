@@ -134,7 +134,7 @@ class confluent::kafka::broker (
     owner   => $user,
     group   => $user,
     recurse => true,
-    tag     => 'confluent'
+    tag     => '__confluent__'
   }
 
   confluent::systemd::unit { $service_name:
@@ -156,7 +156,7 @@ class confluent::kafka::broker (
     service { $service_name:
       ensure => $service_ensure,
       enable => $service_enable,
-      tag    => 'confluent'
+      tag    => '__confluent__'
     }
     Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
     Confluent::Environment[$service_name] ~> Service[$service_name]

@@ -14,7 +14,7 @@ class confluent::repository::redhat (
     enabled  => '1',
     gpgcheck => '1',
     gpgkey   => $gpgkey_url,
-    tag      => 'confluent'
+    tag      => '__confluent__'
   }
   yumrepo { 'Confluent.dist':
     ensure   => 'present',
@@ -23,8 +23,8 @@ class confluent::repository::redhat (
     enabled  => '1',
     gpgcheck => '1',
     gpgkey   => $gpgkey_url,
-    tag      => 'confluent'
+    tag      => '__confluent__'
   }
 
-  Yumrepo<| tag == 'confluent' |> -> Package<| tag == 'confluent' |>
+  Yumrepo<| tag == '__confluent__' |> -> Package<| tag == '__confluent__' |>
 }
