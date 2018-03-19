@@ -4,4 +4,5 @@ require 'helpers.rb'
 
 RSpec.configure do |c|
   c.extend Helpers
+  c.module_path = '/etc/puppetlabs/code/environments/production/modules'
 end

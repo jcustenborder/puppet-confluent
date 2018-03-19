@@ -87,11 +87,31 @@ describe 'confluent::kafka::broker' do
       it {is_expected.to contain_file('/var/lib/kafka').with({'owner' => user, 'group' => group})}
 
       it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}
+      context 'with restart_on_change => false' do
+        let(:params) {super().merge({'restart_on_change' => false})}
+        it {is_expected.to contain_file(unit_file)}
+      end
       it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{config_path}]")}
+      context 'with restart_on_change => false' do
+        let(:params) {super().merge({'restart_on_change' => false})}
+        it {is_expected.not_to contain_service(service_name).that_subscribes_to("File[#{config_path}]")}
+      end
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+      context 'with restart_on_change => false' do
+        let(:params) {super().merge({'restart_on_change' => false})}
+        it {is_expected.not_to contain_service(service_name).that_subscribes_to("File[#{unit_file}]")}
+      end
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+      context 'with restart_on_change => false' do
+        let(:params) {super().merge({'restart_on_change' => false})}
+        it {is_expected.not_to contain_service(service_name).that_subscribes_to("File[#{environment_file}]")}
+      end
       it {is_expected.to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
+      context 'with restart_on_change => false' do
+        let(:params) {super().merge({'restart_on_change' => false})}
+        it {is_expected.not_to contain_service(service_name).that_subscribes_to("File[#{logging_config_path}]")}
+      end
 
       it {is_expected.to contain_file(logging_config_path).that_notifies("Service[#{service_name}]")}
       context 'with restart_on_logging_change => false' do
