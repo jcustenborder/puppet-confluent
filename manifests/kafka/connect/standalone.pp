@@ -70,7 +70,6 @@ class confluent::kafka::connect::standalone (
   Enum['running', 'stopped'] $service_ensure           = $::confluent::params::connect_standalone_service_ensure,
   Boolean $service_enable                              = $::confluent::params::connect_standalone_service_enable,
   Integer $file_limit                                  = $::confluent::params::connect_standalone_file_limit,
-  Boolean $manage_repository                           = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                           = $::confluent::params::connect_standalone_stop_timeout_secs,
   String $heap_size                                    = $::confluent::params::connect_standalone_heap_size,
   Stdlib::Unixpath $offset_storage_path                = $::confluent::params::connect_standalone_offset_storage_path,
@@ -85,11 +84,6 @@ class confluent::kafka::connect::standalone (
   include ::confluent::kafka::connect
 
   $connector_config_array = any2array($connector_configs)
-
-
-  if($manage_repository) {
-    include ::confluent::repository
-  }
 
   user { $user:
     ensure => present,
