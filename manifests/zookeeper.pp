@@ -53,16 +53,11 @@ class confluent::zookeeper (
   Enum['running', 'stopped'] $service_ensure = $::confluent::params::zookeeper_service_ensure,
   Boolean $service_enable                    = $::confluent::params::zookeeper_service_enable,
   Integer $file_limit                        = $::confluent::params::zookeeper_file_limit,
-  Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::zookeeper_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::zookeeper_heap_size,
   Boolean $restart_on_logging_change         = true
 ) inherits confluent::params {
   include ::confluent::kafka
-
-  if($manage_repository) {
-    include ::confluent::repository
-  }
 
   $default_config = {
     'dataDir'                   => $data_path,

@@ -69,7 +69,6 @@ class confluent::kafka::connect::distributed (
   Enum['running', 'stopped'] $service_ensure           = $::confluent::params::connect_distributed_service_ensure,
   Boolean $service_enable                              = $::confluent::params::connect_distributed_service_enable,
   Integer $file_limit                                  = $::confluent::params::connect_distributed_file_limit,
-  Boolean $manage_repository                           = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                           = $::confluent::params::connect_distributed_stop_timeout_secs,
   String $heap_size                                    = $::confluent::params::connect_distributed_heap_size,
   Boolean $restart_on_logging_change                   = $::confluent::params::connect_distributed_restart_on_logging_change,
@@ -87,10 +86,6 @@ class confluent::kafka::connect::distributed (
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
-
-  if($manage_repository) {
-    include ::confluent::repository
-  }
 
   user { $user:
     ensure => present,

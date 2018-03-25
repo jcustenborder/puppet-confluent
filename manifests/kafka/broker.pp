@@ -65,17 +65,12 @@ class confluent::kafka::broker (
   Boolean $service_enable                                               = $::confluent::params::kafka_service_enable,
   Integer $file_limit                                                   = $::confluent::params::kafka_file_limit,
   Integer $stop_timeout_secs                                            = $::confluent::params::kafka_stop_timeout_secs,
-  Boolean $manage_repository                                            = $::confluent::params::manage_repository,
   String $heap_size                                                     = $::confluent::params::kafka_heap_size,
   Boolean $restart_on_logging_change                                    = true,
   Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181'
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
-
-  if($manage_repository) {
-    include ::confluent::repository
-  }
 
   $default_config = {
     'broker.id'                                => $broker_id,

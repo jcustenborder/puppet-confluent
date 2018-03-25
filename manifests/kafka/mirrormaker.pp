@@ -14,13 +14,8 @@ class confluent::kafka::mirrormaker (
   Hash $environment_settings                 = {},
   String $heap_size                          = '1g',
   Hash $instances                            = {},
-  Boolean $manage_repository                 = $::confluent::params::manage_repository,
 ) inherits confluent::params {
   include ::confluent::kafka
-
-  if($manage_repository) {
-    include ::confluent::repository
-  }
 
   user { $user:
     ensure => present,

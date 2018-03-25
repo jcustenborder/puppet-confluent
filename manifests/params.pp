@@ -3,6 +3,7 @@
 #
 class confluent::params {
   $confluent_version = '4.0'
+  $package_name = 'confluent-platform-2.11'
   $manage_repository = true
   $connect_distributed_user = 'connect-distributed'
   $connect_distributed_service = 'connect-distributed'
@@ -156,8 +157,6 @@ class confluent::params {
   $control_center_data_path = '/var/lib/control-center'
   $control_center_stop_timeout_secs = 300
   $control_center_heap_size = '3096m'
-
-  $kafka_package_name = 'confluent-kafka-2.11'
 
   $mirror_maker_user = 'mirrormaker'
   $mirror_maker_service_prefix = 'mirrormaker-'

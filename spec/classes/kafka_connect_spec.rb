@@ -49,7 +49,7 @@ require 'spec_helper'
             it {is_expected.to contain_file(environment_file).with_content(/KAFKA_HEAP_OPTS="#{expected_heap}"/)}
 
             it {is_expected.to contain_file(log_dir).with({'owner' => "connect-#{class_name}", 'group' => "connect-#{class_name}", 'recurse' => true})}
-            it {is_expected.to contain_package('confluent-kafka-2.11')}
+            it {is_expected.to contain_package('confluent-platform-2.11')}
             it {is_expected.to contain_user(user)}
 
             it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}

@@ -63,16 +63,11 @@ class confluent::control::center (
   Enum['running', 'stopped'] $service_ensure      = $::confluent::params::control_center_service_ensure,
   Boolean $service_enable                         = $::confluent::params::control_center_service_enable,
   Integer $file_limit                             = $::confluent::params::control_center_file_limit,
-  Boolean $manage_repository                      = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                      = $::confluent::params::control_center_stop_timeout_secs,
   String $heap_size                               = $::confluent::params::control_center_heap_size,
   Boolean $restart_on_logging_change              = true
 ) inherits confluent::params {
   include ::confluent
-
-  if($manage_repository) {
-    include ::confluent::repository
-  }
 
   $default_environment_settings = {
     'CONTROL_CENTER_HEAP_OPTS' => "-Xmx${heap_size}",
@@ -118,11 +113,6 @@ class confluent::control::center (
     group   => $user,
     recurse => true,
     tag     => '__confluent__'
-  }
-
-  package { 'confluent-control-center':
-    ensure => latest,
-    tag    => '__confluent__',
   }
 
   confluent::systemd::unit { $service_name:

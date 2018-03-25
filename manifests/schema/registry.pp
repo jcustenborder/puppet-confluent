@@ -49,16 +49,12 @@ class confluent::schema::registry (
   Enum['running', 'stopped'] $service_ensure = $::confluent::params::schema_registry_service_ensure,
   Boolean $service_enable                    = $::confluent::params::schema_registry_service_enable,
   Integer $file_limit                        = $::confluent::params::schema_registry_file_limit,
-  Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::schema_registry_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::schema_registry_heap_size,
   Boolean $restart_on_logging_change         = true
 ) inherits confluent::params {
   include ::confluent
 
-  if($manage_repository) {
-    include ::confluent::repository
-  }
   $default_config = {
     'kafkastore.connection.url' => join(any2array($kafkastore_connection_url), ','),
     'listeners'                 => 'http://0.0.0.0:8081',
@@ -102,11 +98,6 @@ class confluent::schema::registry (
     group   => $user,
     recurse => true,
     tag     => '__confluent__'
-  }
-
-  package { 'confluent-schema-registry':
-    ensure => latest,
-    tag    => '__confluent__',
   }
 
   confluent::systemd::unit { $service_name:

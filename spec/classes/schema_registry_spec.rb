@@ -41,7 +41,7 @@ describe 'confluent::schema::registry' do
 
       it {is_expected.to contain_file(environment_file).with_content(/SCHEMA_REGISTRY_HEAP_OPTS="#{expected_heap}"/)}
       it {is_expected.to contain_file(config_path).with_content(/kafkastore.connection.url=zookeeper-01:2181,zookeeper-02:2181,zookeeper-03:2181/)}
-      it {is_expected.to contain_package('confluent-schema-registry')}
+      it {is_expected.to contain_package('confluent-platform-2.11')}
       it {is_expected.to contain_user(user)}
 
       it {is_expected.to contain_file(unit_file).that_notifies('Exec[kafka-systemctl-daemon-reload]')}

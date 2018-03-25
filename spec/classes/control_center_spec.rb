@@ -75,7 +75,7 @@ describe 'confluent::control::center' do
       it {is_expected.to contain_yumrepo('Confluent').with({'ensure' => 'present'})} if osfamily == 'RedHat'
       it {is_expected.to contain_yumrepo('Confluent.dist').with({'ensure' => 'present'})} if osfamily == 'RedHat'
 
-      it {is_expected.to contain_package('confluent-control-center')}
+      it {is_expected.to contain_package('confluent-platform-2.11')}
       it {is_expected.to contain_user(user)}
       it {is_expected.to contain_service(service_name).with({'ensure' => 'running', 'enable' => true})}
       it {is_expected.to contain_file(environment_file).with_content(/CONTROL_CENTER_HEAP_OPTS="#{expected_heap}"/)}
