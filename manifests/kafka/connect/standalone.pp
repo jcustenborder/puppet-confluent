@@ -78,7 +78,9 @@ class confluent::kafka::connect::standalone (
   Array[Stdlib::Unixpath] $plugin_path                 = $::confluent::params::connect_standalone_plugin_path,
   String $key_converter                                = $::confluent::params::connect_standalone_key_converter,
   String $value_converter                              = $::confluent::params::connect_standalone_value_converter,
-  Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/']
+  Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/'],
+  Array[String] $producer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor'],
+  Array[String] $consumer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor']
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
