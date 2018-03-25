@@ -82,7 +82,9 @@ class confluent::kafka::connect::distributed (
   Array[Stdlib::Unixpath] $plugin_path                 = $::confluent::params::connect_distributed_plugin_path,
   String $key_converter                                = $::confluent::params::connect_distributed_key_converter,
   String $value_converter                              = $::confluent::params::connect_distributed_value_converter,
-  Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/']
+  Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/'],
+  Array[String] $producer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor'],
+  Array[String] $consumer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor']
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -132,12 +134,17 @@ class confluent::kafka::connect::distributed (
     'plugin.path'                             => join($plugin_path, ','),
     'group.id'                                => $group_id,
     'key.converter'                           => $key_converter,
-    'key.converter.schema.registry.url'     => join(any2array($schema_registry_urls), ','),
+    'key.converter.schema.registry.url'       => join(any2array($schema_registry_urls), ','),
     'key.converter.schemas.enable'            => false,
     'value.converter'                         => $value_converter,
     'value.converter.schema.registry.url'     => join(any2array($schema_registry_urls), ','),
-    'value.converter.schemas.enable'          => false
+    'value.converter.schemas.enable'          => false,
+    'producer.interceptor.classes'            => join($producer_interceptors, ','),
+    'consumer.interceptor.classes'            => join($consumer_interceptors, ','),
+    'producer.compression.type'               => 'lz4',
+    'producer.retries'                        => 1
   }
+
   $actual_config = merge($default_config, $config)
   confluent::properties { $service_name:
     ensure => present,
