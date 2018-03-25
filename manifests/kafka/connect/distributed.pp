@@ -90,8 +90,8 @@ class confluent::kafka::connect::distributed (
   user { $user:
     ensure => present,
     alias  => 'kafka-connect-distributed'
-  } ->
-  file { $log_path:
+  }
+  -> file { $log_path:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -115,16 +115,6 @@ class confluent::kafka::connect::distributed (
     ensure => present,
     path   => $environment_path,
     config => $actual_environment_settings
-  }
-
-  if($key_converter == 'io.confluent.connect.avro.AvroConverter' and
-    !has_key($config, 'key.converter.schema.registry.url')) {
-    fail('key.converter.schema.registry.url must be defined in $config' )
-  }
-
-  if($value_converter == 'io.confluent.connect.avro.AvroConverter' and
-    !has_key($config, 'value.converter.schema.registry.url')) {
-      fail('value.converter.schema.registry.url must be defined in $config' )
   }
 
   $default_config = {

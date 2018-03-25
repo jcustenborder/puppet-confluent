@@ -91,8 +91,8 @@ class confluent::schema::registry (
 
   user { $user:
     ensure => present
-  } ->
-  file { [$log_path]:
+  }
+  -> file { [$log_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,

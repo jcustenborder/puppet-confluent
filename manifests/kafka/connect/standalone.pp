@@ -87,8 +87,8 @@ class confluent::kafka::connect::standalone (
   user { $user:
     ensure => present,
     alias  => 'kafka-connect-standalone'
-  } ->
-  file { [$log_path, $offset_storage_path]:
+  }
+  -> file { [$log_path, $offset_storage_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -112,16 +112,6 @@ class confluent::kafka::connect::standalone (
     ensure => present,
     path   => $environment_path,
     config => $actual_environment_settings
-  }
-
-  if($key_converter == 'io.confluent.connect.avro.AvroConverter' and
-    !has_key($config, 'key.converter.schema.registry.url')) {
-    fail('key.converter.schema.registry.url must be defined in $config' )
-  }
-
-  if($value_converter == 'io.confluent.connect.avro.AvroConverter' and
-    !has_key($config, 'value.converter.schema.registry.url')) {
-    fail('value.converter.schema.registry.url must be defined in $config' )
   }
 
   $default_config = {

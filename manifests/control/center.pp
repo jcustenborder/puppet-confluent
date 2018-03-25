@@ -106,8 +106,7 @@ class confluent::control::center (
 
   user { $user:
     ensure => present
-  } ->
-  file { [$log_path, $data_path]:
+  } -> file { [$log_path, $data_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,

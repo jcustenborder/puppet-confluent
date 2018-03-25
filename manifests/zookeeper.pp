@@ -99,17 +99,17 @@ class confluent::zookeeper (
 
   user { $user:
     ensure => present
-  } ->
-  file { [$data_path, $log_path]:
+  }
+  -> file { [$data_path, $log_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
     recurse => true,
     tag     => '__confluent__'
-  } ->
-  file { $myid_file:
+  }
+  -> file { $myid_file:
     ensure  => present,
-    content => inline_template("<%=@zookeeper_id%>"),
+    content => inline_template('<%=@zookeeper_id%>'),
     mode    => '0644',
     group   => $user,
     owner   => $user,

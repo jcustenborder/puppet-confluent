@@ -48,7 +48,6 @@ class confluent::params {
   ]
   $connect_standalone_key_converter = 'org.apache.kafka.connect.json.JsonConverter'
   $connect_standalone_value_converter = 'org.apache.kafka.connect.json.JsonConverter'
-  
   $kafka_user = 'kafka'
   $kafka_service = 'kafka'
   $kafka_manage_service = true
