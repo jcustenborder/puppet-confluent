@@ -1,6 +1,6 @@
 class confluent {
-  Package<| tag == 'confluent' |> ->
-  User<| tag == 'confluent' |> ->
-  File<| tag == 'confluent' |> ->
-  Service<| tag == 'confluent' |>
+  Package<| tag == '__confluent__' |> ->
+  User<| tag == '__confluent__' |> ->
+  File<| tag == '__confluent__' |> ->
+  Service<| tag == '__confluent__' |>
 }

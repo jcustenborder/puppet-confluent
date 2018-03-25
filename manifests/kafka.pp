@@ -14,6 +14,6 @@ class confluent::kafka (
 
   package { $package_name:
     ensure => $package_ensure,
-    tag    => 'confluent',
+    tag    => '__confluent__',
   }
 }
