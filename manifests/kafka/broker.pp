@@ -94,7 +94,8 @@ class confluent::kafka::broker (
     'transaction.state.log.replication.factor'     => 3,
     'zookeeper.connect'                            => join(any2array($zookeeper_connect), ','),
     'zookeeper.connection.timeout.ms'              => 6000,
-    'confluent.metrics.reporter.bootstrap.servers' => "${::fqdn}:9092"
+    'confluent.metrics.reporter.bootstrap.servers' => "${::fqdn}:9092",
+    'metric.reporters'                             => join($metric_reporters, ','),
   }
   $actual_config = merge($default_config, $config)
 
