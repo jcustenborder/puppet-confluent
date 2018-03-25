@@ -15,6 +15,19 @@ class confluent::params {
   $connect_distributed_log_path = '/var/log/kafka-connect-distributed'
   $connect_distributed_stop_timeout_secs = 300
   $connect_distributed_heap_size = '512m'
+  $connect_distributed_restart_on_logging_change = true
+  $connect_distributed_config_storage_topic_replication_factor = 3
+  $connect_distributed_config_storage_topic_name = '_connect_configs'
+  $connect_distributed_offset_storage_topic_replication_factor = 3
+  $connect_distributed_offset_storage_topic_name = '_connect_offsets'
+  $connect_distributed_status_storage_topic_replication_factor = 3
+  $connect_distributed_status_storage_topic_name = '_connect_status'
+  $connect_distributed_group_id = 'connect-cluster'
+  $connect_distributed_plugin_path = [
+    '/usr/share/java'
+  ]
+  $connect_distributed_key_converter = 'org.apache.kafka.connect.json.JsonConverter'
+  $connect_distributed_value_converter = 'org.apache.kafka.connect.json.JsonConverter'
 
   $connect_standalone_user = 'connect-standalone'
   $connect_standalone_service = 'connect-standalone'
@@ -28,7 +41,13 @@ class confluent::params {
   $connect_standalone_stop_timeout_secs = 300
   $connect_standalone_heap_size = '512m'
   $connect_standalone_offset_storage_path = '/var/lib/kafka-connect-standalone'
-
+  $connect_standalone_restart_on_logging_change = true
+  $connect_standalone_plugin_path = [
+    '/usr/share/java'
+  ]
+  $connect_standalone_key_converter = 'org.apache.kafka.connect.json.JsonConverter'
+  $connect_standalone_value_converter = 'org.apache.kafka.connect.json.JsonConverter'
+  
   $kafka_user = 'kafka'
   $kafka_service = 'kafka'
   $kafka_manage_service = true

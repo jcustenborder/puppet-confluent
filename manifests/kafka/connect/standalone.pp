@@ -74,7 +74,10 @@ class confluent::kafka::connect::standalone (
   Integer $stop_timeout_secs                 = $::confluent::params::connect_standalone_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::connect_standalone_heap_size,
   Stdlib::Unixpath $offset_storage_path      = $::confluent::params::connect_standalone_offset_storage_path,
-  Boolean $restart_on_logging_change         = true
+  Boolean $restart_on_logging_change         = $::confluent::params::connect_standalone_restart_on_logging_change,
+  Array[Stdlib::Unixpath] $plugin_path       = $::confluent::params::connect_standalone_plugin_path,
+  String $key_converter                      = $::confluent::params::connect_standalone_key_converter,
+  String $value_converter                    = $::confluent::params::connect_standalone_value_converter,
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -116,8 +119,28 @@ class confluent::kafka::connect::standalone (
     config => $actual_environment_settings
   }
 
+  if($key_converter == 'io.confluent.connect.avro.AvroConverter' and
+    !has_key($config, 'key.converter.schema.registry.url')) {
+    fail('key.converter.schema.registry.url must be defined in $config' )
+  }
+
+  if($value_converter == 'io.confluent.connect.avro.AvroConverter' and
+    !has_key($config, 'value.converter.schema.registry.url')) {
+    fail('value.converter.schema.registry.url must be defined in $config' )
+  }
+
   $default_config = {
-    'bootstrap.servers' => join(any2array($bootstrap_servers), ',')
+    'bootstrap.servers'                       => join(any2array($bootstrap_servers), ','),
+    'internal.key.converter.schemas.enable '  => false,
+    'internal.key.converter '                 => 'org.apache.kafka.connect.json.JsonConverter',
+    'internal.value.converter.schemas.enable' => false,
+    'internal.value.converter '               => 'org.apache.kafka.connect.json.JsonConverter',
+    'plugin.path'                             => join($plugin_path, ','),
+    'key.converter'                           => $key_converter,
+    'key.converter.schemas.enable'            => false,
+    'value.converter'                         => $value_converter,
+    'value.converter.schemas.enable'          => false,
+    'offset.storage.file.filename'            => "${offset_storage_path}/connect.offsets"
   }
   $actual_config = merge($default_config, $config)
   confluent::properties { $service_name:
