@@ -132,9 +132,9 @@ class confluent::kafka::connect::standalone (
   $default_config = {
     'bootstrap.servers'                       => join(any2array($bootstrap_servers), ','),
     'internal.key.converter.schemas.enable '  => false,
-    'internal.key.converter '                 => 'org.apache.kafka.connect.json.JsonConverter',
+    'internal.key.converter'                  => 'org.apache.kafka.connect.json.JsonConverter',
     'internal.value.converter.schemas.enable' => false,
-    'internal.value.converter '               => 'org.apache.kafka.connect.json.JsonConverter',
+    'internal.value.converter'                => 'org.apache.kafka.connect.json.JsonConverter',
     'plugin.path'                             => join($plugin_path, ','),
     'key.converter'                           => $key_converter,
     'key.converter.schemas.enable'            => false,
