@@ -6,7 +6,7 @@ class confluent::repository::debian (
 
   apt::key { '41468433':
     source => $key_url,
-    tag    => 'confluent'
+    tag    => '__confluent__'
   } ->
   apt::source { 'confluent':
     comment  => 'Confluent repo',
@@ -17,8 +17,8 @@ class confluent::repository::debian (
       'src' => false,
       'deb' => true,
     },
-    tag      => 'confluent'
+    tag      => '__confluent__'
   }
 
-  Apt::Key<| tag == 'confluent' |> -> Apt::Source<| tag == 'confluent' |> -> Package<| tag == 'confluent' |>
+  Apt::Key<| tag == '__confluent__' |> -> Apt::Source<| tag == '__confluent__' |> -> Package<| tag == '__confluent__' |>
 }

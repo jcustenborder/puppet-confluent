@@ -111,7 +111,7 @@ class confluent::zookeeper (
     owner   => $user,
     group   => $user,
     recurse => true,
-    tag     => 'confluent'
+    tag     => '__confluent__'
   } ->
   file { $myid_file:
     ensure  => present,
@@ -119,7 +119,7 @@ class confluent::zookeeper (
     mode    => '0644',
     group   => $user,
     owner   => $user,
-    tag     => 'confluent'
+    tag     => '__confluent__'
   }
 
   confluent::systemd::unit { $service_name:
@@ -141,7 +141,7 @@ class confluent::zookeeper (
     service { $service_name:
       ensure => $service_ensure,
       enable => $service_enable,
-      tag    => 'confluent'
+      tag    => '__confluent__'
     }
     if($restart_on_change) {
       Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]

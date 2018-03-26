@@ -68,7 +68,8 @@ class confluent::kafka::broker (
   Boolean $manage_repository                                            = $::confluent::params::manage_repository,
   String $heap_size                                                     = $::confluent::params::kafka_heap_size,
   Boolean $restart_on_logging_change                                    = true,
-  Boolean $restart_on_change                                            = true
+  Boolean $restart_on_change                                            = true,
+  Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181'
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
@@ -90,13 +91,13 @@ class confluent::kafka::broker (
     'num.network.threads'                      => 3,
     'num.partitions'                           => 1,
     'num.recovery.threads.per.data.dir'        => 1,
-    'offsets.topic.replication.factor'         => 1,
+    'offsets.topic.replication.factor'         => 3,
     'socket.receive.buffer.bytes'              => 102400,
     'socket.request.max.bytes'                 => 104857600,
     'socket.send.buffer.bytes'                 => 102400,
-    'transaction.state.log.min.isr'            => 1,
-    'transaction.state.log.replication.factor' => 1,
-    'zookeeper.connect'                        => 'localhost:2181',
+    'transaction.state.log.min.isr'            => 2,
+    'transaction.state.log.replication.factor' => 3,
+    'zookeeper.connect'                        => join(any2array($zookeeper_connect), ','),
     'zookeeper.connection.timeout.ms'          => 6000,
   }
   $actual_config = merge($default_config, $config)
@@ -135,7 +136,7 @@ class confluent::kafka::broker (
     owner   => $user,
     group   => $user,
     recurse => true,
-    tag     => 'confluent'
+    tag     => '__confluent__'
   }
 
   confluent::systemd::unit { $service_name:
@@ -157,7 +158,7 @@ class confluent::kafka::broker (
     service { $service_name:
       ensure => $service_ensure,
       enable => $service_enable,
-      tag    => 'confluent'
+      tag    => '__confluent__'
     }
     if($restart_on_change) {
       Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
