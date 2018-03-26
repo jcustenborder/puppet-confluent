@@ -68,6 +68,7 @@ class confluent::kafka::broker (
   Boolean $manage_repository                                            = $::confluent::params::manage_repository,
   String $heap_size                                                     = $::confluent::params::kafka_heap_size,
   Boolean $restart_on_logging_change                                    = true,
+  Boolean $restart_on_change                                            = true,
   Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181'
 ) inherits confluent::params {
   include ::confluent
@@ -159,11 +160,13 @@ class confluent::kafka::broker (
       enable => $service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties[$service_name] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties[$service_name] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
 }

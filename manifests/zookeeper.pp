@@ -56,7 +56,8 @@ class confluent::zookeeper (
   Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::zookeeper_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::zookeeper_heap_size,
-  Boolean $restart_on_logging_change         = true
+  Boolean $restart_on_logging_change         = true,
+  Boolean $restart_on_change                 = true
 ) inherits confluent::params {
   include ::confluent::kafka
 
@@ -142,11 +143,13 @@ class confluent::zookeeper (
       enable => $service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties[$service_name] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties[$service_name] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
 }

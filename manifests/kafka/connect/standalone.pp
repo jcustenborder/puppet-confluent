@@ -75,10 +75,12 @@ class confluent::kafka::connect::standalone (
   String $heap_size                                    = $::confluent::params::connect_standalone_heap_size,
   Stdlib::Unixpath $offset_storage_path                = $::confluent::params::connect_standalone_offset_storage_path,
   Boolean $restart_on_logging_change                   = $::confluent::params::connect_standalone_restart_on_logging_change,
+  Boolean $restart_on_change                           = $::confluent::params::connect_standalone_restart_on_change,
   Array[Stdlib::Unixpath] $plugin_path                 = $::confluent::params::connect_standalone_plugin_path,
   String $key_converter                                = $::confluent::params::connect_standalone_key_converter,
   String $value_converter                              = $::confluent::params::connect_standalone_value_converter,
   Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/']
+>>>>>>> master
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -174,11 +176,13 @@ class confluent::kafka::connect::standalone (
       enable => $service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties[$service_name] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties[$service_name] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
 

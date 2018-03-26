@@ -73,6 +73,7 @@ class confluent::kafka::connect::distributed (
   Integer $stop_timeout_secs                           = $::confluent::params::connect_distributed_stop_timeout_secs,
   String $heap_size                                    = $::confluent::params::connect_distributed_heap_size,
   Boolean $restart_on_logging_change                   = $::confluent::params::connect_distributed_restart_on_logging_change,
+  Boolean $restart_on_change                           = $::confluent::params::connect_distributed_restart_on_change,
   Integer $config_storage_topic_replication_factor     = $::confluent::params::connect_distributed_config_storage_topic_replication_factor,
   String $config_storage_topic_name                    = $::confluent::params::connect_distributed_config_storage_topic_name,
   Integer $offset_storage_topic_replication_factor     = $::confluent::params::connect_distributed_offset_storage_topic_replication_factor,
@@ -180,12 +181,17 @@ class confluent::kafka::connect::distributed (
       enable => $service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties[$service_name] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties[$service_name] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
+<<<<<<< HEAD
+=======
 
+>>>>>>> master
 }

@@ -64,7 +64,8 @@ define confluent::kafka::mirrormaker::instance (
   Variant[Undef, Boolean] $service_enable                    = undef,
   Hash $environment_settings                                 = {},
   Undef $heap_size                                           = undef,
-  Boolean $restart_on_logging_change                         = true
+  Boolean $restart_on_logging_change                         = true,
+  Boolean $restart_on_change                                 = true
 ) {
   include ::confluent::kafka::mirrormaker
 
@@ -161,12 +162,14 @@ define confluent::kafka::mirrormaker::instance (
       enable => $mm_service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties["${service_name}-consumer"] ~> Service[$service_name]
-    Confluent::Properties["${service_name}-producer"] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties["${service_name}-consumer"] ~> Service[$service_name]
+      Confluent::Properties["${service_name}-producer"] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
 }
