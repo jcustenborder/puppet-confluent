@@ -65,37 +65,40 @@ class confluent::kafka::broker (
   Boolean $service_enable                                               = $::confluent::params::kafka_service_enable,
   Integer $file_limit                                                   = $::confluent::params::kafka_file_limit,
   Integer $stop_timeout_secs                                            = $::confluent::params::kafka_stop_timeout_secs,
+  Boolean $manage_repository                                            = $::confluent::params::manage_repository,
   String $heap_size                                                     = $::confluent::params::kafka_heap_size,
   Boolean $restart_on_logging_change                                    = true,
-  Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181',
-  Array[String] $metric_reporters                                       = ['io.confluent.metrics.reporter.ConfluentMetricsReporter']
+  Boolean $restart_on_change                                            = true,
+  Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181'
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
 
+  if($manage_repository) {
+    include ::confluent::repository
+  }
+
   $default_config = {
-    'broker.id'                                    => $broker_id,
-    'log.dirs'                                     => join(any2array($data_path), ','),
-    'confluent.support.customer.id'                => 'anonymous',
-    'confluent.support.metrics.enable'             => true,
-    'group.initial.rebalance.delay.ms'             => 0,
-    'log.retention.check.interval.ms'              => 300000,
-    'log.retention.hours'                          => 168,
-    'log.segment.bytes'                            => 1073741824,
-    'num.io.threads'                               => 8,
-    'num.network.threads'                          => 3,
-    'num.partitions'                               => 1,
-    'num.recovery.threads.per.data.dir'            => 1,
-    'offsets.topic.replication.factor'             => 3,
-    'socket.receive.buffer.bytes'                  => 102400,
-    'socket.request.max.bytes'                     => 104857600,
-    'socket.send.buffer.bytes'                     => 102400,
-    'transaction.state.log.min.isr'                => 2,
-    'transaction.state.log.replication.factor'     => 3,
-    'zookeeper.connect'                            => join(any2array($zookeeper_connect), ','),
-    'zookeeper.connection.timeout.ms'              => 6000,
-    'confluent.metrics.reporter.bootstrap.servers' => "${::fqdn}:9092",
-    'metric.reporters'                             => join($metric_reporters, ','),
+    'broker.id'                                => $broker_id,
+    'log.dirs'                                 => join(any2array($data_path), ','),
+    'confluent.support.customer.id'            => 'anonymous',
+    'confluent.support.metrics.enable'         => true,
+    'group.initial.rebalance.delay.ms'         => 0,
+    'log.retention.check.interval.ms'          => 300000,
+    'log.retention.hours'                      => 168,
+    'log.segment.bytes'                        => 1073741824,
+    'num.io.threads'                           => 8,
+    'num.network.threads'                      => 3,
+    'num.partitions'                           => 1,
+    'num.recovery.threads.per.data.dir'        => 1,
+    'offsets.topic.replication.factor'         => 3,
+    'socket.receive.buffer.bytes'              => 102400,
+    'socket.request.max.bytes'                 => 104857600,
+    'socket.send.buffer.bytes'                 => 102400,
+    'transaction.state.log.min.isr'            => 2,
+    'transaction.state.log.replication.factor' => 3,
+    'zookeeper.connect'                        => join(any2array($zookeeper_connect), ','),
+    'zookeeper.connection.timeout.ms'          => 6000,
   }
   $actual_config = merge($default_config, $config)
 
@@ -127,8 +130,8 @@ class confluent::kafka::broker (
 
   user { $user:
     ensure => present
-  }
-  -> file { [$log_path, $data_path]:
+  } ->
+  file { [$log_path, $data_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -157,11 +160,13 @@ class confluent::kafka::broker (
       enable => $service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties[$service_name] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties[$service_name] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
 }

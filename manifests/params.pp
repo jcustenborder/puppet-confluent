@@ -17,6 +17,7 @@ class confluent::params {
   $connect_distributed_stop_timeout_secs = 300
   $connect_distributed_heap_size = '512m'
   $connect_distributed_restart_on_logging_change = true
+  $connect_distributed_restart_on_change = true
   $connect_distributed_config_storage_topic_replication_factor = 3
   $connect_distributed_config_storage_topic_name = '_connect_configs'
   $connect_distributed_offset_storage_topic_replication_factor = 3
@@ -43,6 +44,7 @@ class confluent::params {
   $connect_standalone_heap_size = '512m'
   $connect_standalone_offset_storage_path = '/var/lib/kafka-connect-standalone'
   $connect_standalone_restart_on_logging_change = true
+  $connect_standalone_restart_on_change = true
   $connect_standalone_plugin_path = [
     '/usr/share/java'
   ]

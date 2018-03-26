@@ -70,27 +70,32 @@ class confluent::kafka::connect::standalone (
   Enum['running', 'stopped'] $service_ensure           = $::confluent::params::connect_standalone_service_ensure,
   Boolean $service_enable                              = $::confluent::params::connect_standalone_service_enable,
   Integer $file_limit                                  = $::confluent::params::connect_standalone_file_limit,
+  Boolean $manage_repository                           = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                           = $::confluent::params::connect_standalone_stop_timeout_secs,
   String $heap_size                                    = $::confluent::params::connect_standalone_heap_size,
   Stdlib::Unixpath $offset_storage_path                = $::confluent::params::connect_standalone_offset_storage_path,
   Boolean $restart_on_logging_change                   = $::confluent::params::connect_standalone_restart_on_logging_change,
+  Boolean $restart_on_change                           = $::confluent::params::connect_standalone_restart_on_change,
   Array[Stdlib::Unixpath] $plugin_path                 = $::confluent::params::connect_standalone_plugin_path,
   String $key_converter                                = $::confluent::params::connect_standalone_key_converter,
   String $value_converter                              = $::confluent::params::connect_standalone_value_converter,
-  Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/'],
-  Array[String] $producer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor'],
-  Array[String] $consumer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor']
+  Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/']
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
 
   $connector_config_array = any2array($connector_configs)
 
+
+  if($manage_repository) {
+    include ::confluent::repository
+  }
+
   user { $user:
     ensure => present,
     alias  => 'kafka-connect-standalone'
-  }
-  -> file { [$log_path, $offset_storage_path]:
+  } ->
+  file { [$log_path, $offset_storage_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,
@@ -114,6 +119,16 @@ class confluent::kafka::connect::standalone (
     ensure => present,
     path   => $environment_path,
     config => $actual_environment_settings
+  }
+
+  if($key_converter == 'io.confluent.connect.avro.AvroConverter' and
+    !has_key($config, 'key.converter.schema.registry.url')) {
+    fail('key.converter.schema.registry.url must be defined in $config' )
+  }
+
+  if($value_converter == 'io.confluent.connect.avro.AvroConverter' and
+    !has_key($config, 'value.converter.schema.registry.url')) {
+    fail('value.converter.schema.registry.url must be defined in $config' )
   }
 
   $default_config = {
@@ -164,11 +179,13 @@ class confluent::kafka::connect::standalone (
       enable => $service_enable,
       tag    => '__confluent__'
     }
-    Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
-    Confluent::Environment[$service_name] ~> Service[$service_name]
-    Confluent::Properties[$service_name] ~> Service[$service_name]
-    if($restart_on_logging_change) {
-      Confluent::Logging[$service_name] ~> Service[$service_name]
+    if($restart_on_change) {
+      Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
+      Confluent::Environment[$service_name] ~> Service[$service_name]
+      Confluent::Properties[$service_name] ~> Service[$service_name]
+      if($restart_on_logging_change) {
+        Confluent::Logging[$service_name] ~> Service[$service_name]
+      }
     }
   }
 
