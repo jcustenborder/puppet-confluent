@@ -190,8 +190,4 @@ class confluent::kafka::connect::distributed (
       }
     }
   }
-<<<<<<< HEAD
-=======
-
->>>>>>> master
 }

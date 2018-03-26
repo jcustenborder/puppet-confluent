@@ -80,7 +80,6 @@ class confluent::kafka::connect::standalone (
   String $key_converter                                = $::confluent::params::connect_standalone_key_converter,
   String $value_converter                              = $::confluent::params::connect_standalone_value_converter,
   Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/']
->>>>>>> master
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
