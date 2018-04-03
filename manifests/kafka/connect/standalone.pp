@@ -118,16 +118,6 @@ class confluent::kafka::connect::standalone (
     config => $actual_environment_settings
   }
 
-  if($key_converter == 'io.confluent.connect.avro.AvroConverter' and
-    !has_key($config, 'key.converter.schema.registry.url')) {
-    fail('key.converter.schema.registry.url must be defined in $config' )
-  }
-
-  if($value_converter == 'io.confluent.connect.avro.AvroConverter' and
-    !has_key($config, 'value.converter.schema.registry.url')) {
-    fail('value.converter.schema.registry.url must be defined in $config' )
-  }
-
   $default_config = {
     'bootstrap.servers'                       => join(any2array($bootstrap_servers), ','),
     'internal.key.converter.schemas.enable '  => false,
