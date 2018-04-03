@@ -69,7 +69,9 @@ class confluent::kafka::broker (
   Boolean $restart_on_logging_change                                    = true,
   Boolean $restart_on_change                                            = true,
   Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181',
-  Array[String] $metric_reporters                                       = ['io.confluent.metrics.reporter.ConfluentMetricsReporter']
+  Array[String] $metric_reporters                                       = ['io.confluent.metrics.reporter.ConfluentMetricsReporter'],
+  Boolean $delete_topic_enable                                          = true,
+  Boolean $auto_create_topics_enable                                    = true
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
@@ -79,12 +81,12 @@ class confluent::kafka::broker (
     'log.dirs'                                     => join(any2array($data_path), ','),
     'confluent.support.customer.id'                => 'anonymous',
     'confluent.support.metrics.enable'             => true,
-    'group.initial.rebalance.delay.ms'             => 0,
+    'group.initial.rebalance.delay.ms'             => 3000,
     'log.retention.check.interval.ms'              => 300000,
     'log.retention.hours'                          => 168,
     'log.segment.bytes'                            => 1073741824,
-    'num.io.threads'                               => 8,
-    'num.network.threads'                          => 3,
+    'num.io.threads'                               => max($::processorcount, 8),
+    'num.network.threads'                          => max($::processorcount, 3),
     'num.partitions'                               => 1,
     'num.recovery.threads.per.data.dir'            => 1,
     'offsets.topic.replication.factor'             => 3,
@@ -95,7 +97,10 @@ class confluent::kafka::broker (
     'transaction.state.log.replication.factor'     => 3,
     'zookeeper.connect'                            => join(any2array($zookeeper_connect), ','),
     'zookeeper.connection.timeout.ms'              => 6000,
-    'confluent.metrics.reporter.bootstrap.servers' => "${::fqdn}:9092"
+    'confluent.metrics.reporter.bootstrap.servers' => "${::fqdn}:9092",
+    'metrics.reporters'                            => join($metric_reporters, ','),
+    'delete.topic.enable'                          => $delete_topic_enable,
+    'auto.create.topics.enable'                    => $auto_create_topics_enable
   }
   $actual_config = merge($default_config, $config)
 
