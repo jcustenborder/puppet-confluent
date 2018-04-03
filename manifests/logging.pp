@@ -14,6 +14,7 @@ define confluent::logging (
     'log4j.appender.roller.File'                     => '${kafka.logs.dir}/server.log',
     'log4j.appender.roller.layout'                   => 'org.apache.log4j.PatternLayout',
     'log4j.appender.roller.layout.ConversionPattern' => '[%d] %p %m (%c)%n',
+    'log4j.logger.org.reflections'                   => 'ERROR'
   }
   $merged_config = merge($default_config, $config)
 
