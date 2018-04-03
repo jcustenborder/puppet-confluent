@@ -80,7 +80,8 @@ class confluent::kafka::connect::standalone (
   String $value_converter                              = $::confluent::params::connect_standalone_value_converter,
   Variant[String, Array[String]] $schema_registry_urls = ['http://localhost:8081/'],
   Array[String] $producer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor'],
-  Array[String] $consumer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor']
+  Array[String] $consumer_interceptors                 = ['io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor'],
+  Integer $rest_port                                   = 7083
 ) inherits ::confluent::params {
   include ::confluent
   include ::confluent::kafka::connect
@@ -144,7 +145,8 @@ class confluent::kafka::connect::standalone (
     'producer.interceptor.classes'            => join($producer_interceptors, ','),
     'consumer.interceptor.classes'            => join($consumer_interceptors, ','),
     'producer.compression.type'               => 'lz4',
-    'producer.retries'                        => 1
+    'producer.retries'                        => 1,
+    'rest.port'                               => $rest_port
   }
   $actual_config = merge($default_config, $config)
   confluent::properties { $service_name:
