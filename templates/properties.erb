@@ -1,4 +1,4 @@
 # Managed by puppet.
 <%- @config.sort.each do |key, value| -%>
-<%=key%>=<%=value%>
+<%= key.strip %>=<%=value%>
 <%- end -%>
