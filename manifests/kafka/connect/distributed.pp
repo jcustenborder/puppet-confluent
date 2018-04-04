@@ -129,7 +129,7 @@ class confluent::kafka::connect::distributed (
     'status.storage.topic'                    => $status_storage_topic_name,
     'offset.storage.replication.factor'       => $offset_storage_topic_replication_factor,
     'offset.storage.topic'                    => $offset_storage_topic_name,
-    'internal.key.converter.schemas.enable '  => false,
+    'internal.key.converter.schemas.enable'   => false,
     'internal.key.converter'                  => 'org.apache.kafka.connect.json.JsonConverter',
     'internal.value.converter.schemas.enable' => false,
     'internal.value.converter'                => 'org.apache.kafka.connect.json.JsonConverter',
