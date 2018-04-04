@@ -53,8 +53,7 @@ class confluent::kafka::broker (
   Hash[String, Variant[String, Integer, Boolean]] $logging_config       = $::confluent::params::kafka_logging_config,
   Hash[String, Variant[String, Integer, Boolean]] $environment_settings = {},
   Stdlib::Unixpath $config_path                                         = $::confluent::params::kafka_config_path,
-  Stdlib::Unixpath $logging_config_path                                 =
-  $::confluent::params::kafka_logging_config_path,
+  Stdlib::Unixpath $logging_config_path                                 = $::confluent::params::kafka_logging_config_path,
   Stdlib::Unixpath $environment_file                                    = $::confluent::params::kafka_environment_path,
   Variant[Stdlib::Unixpath, Array[Stdlib::Unixpath]] $data_path         = $::confluent::params::kafka_data_path,
   Stdlib::Unixpath $log_path                                            = $::confluent::params::kafka_log_path,
