@@ -98,7 +98,7 @@ class confluent::kafka::broker (
     'zookeeper.connect'                            => join(any2array($zookeeper_connect), ','),
     'zookeeper.connection.timeout.ms'              => 6000,
     'confluent.metrics.reporter.bootstrap.servers' => "${::fqdn}:9092",
-    'metrics.reporters'                            => join($metric_reporters, ','),
+    'metric.reporters'                             => join($metric_reporters, ','),
     'delete.topic.enable'                          => $delete_topic_enable,
     'auto.create.topics.enable'                    => $auto_create_topics_enable
   }
