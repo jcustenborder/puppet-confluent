@@ -136,7 +136,8 @@ class confluent::kafka::connect::standalone (
     'consumer.interceptor.classes'            => join($consumer_interceptors, ','),
     'producer.compression.type'               => 'lz4',
     'producer.retries'                        => 1,
-    'rest.port'                               => $rest_port
+    'rest.port'                               => $rest_port,
+    'rest.advertised.host.name'               => $::fqdn
   }
   $actual_config = merge($default_config, $config)
   confluent::properties { $service_name:
