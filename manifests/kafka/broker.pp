@@ -21,7 +21,10 @@
 #     confluent::kafka::broker::broker_id: '1'
 #     confluent::kafka::broker::config:
 #       zookeeper.connect:
-#         value: 'zookeeper-01.example.com:2181,zookeeper-02.example.com:2181,zookeeper-03.example.com:2181'
+#         value:
+#           - 'zookeeper-01.example.com:2181'
+#           - 'zookeeper-02.example.com:2181'
+#           - 'zookeeper-03.example.com:2181'
 #       log.dirs:
 #         value: /var/lib/kafka
 #       advertised.listeners:
@@ -69,7 +72,7 @@ class confluent::kafka::broker (
   String $heap_size                                                     = $::confluent::params::kafka_heap_size,
   Boolean $restart_on_logging_change                                    = true,
   Boolean $restart_on_change                                            = true,
-  Variant[String, Array[String]] $zookeeper_connect                     = 'localhost:2181'
+  Variant[String, Array[String]] $zookeeper_connect                     = $::confluent::kafka::broker::zookeeper_connect
 ) inherits confluent::params {
   include ::confluent
   include ::confluent::kafka
