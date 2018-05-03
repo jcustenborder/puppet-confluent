@@ -136,6 +136,7 @@ class confluent::kafka::broker (
     owner   => $user,
     group   => $user,
     recurse => true,
+    recurselimit => 1,
     tag     => '__confluent__'
   }
 
