@@ -111,6 +111,7 @@ class confluent::zookeeper (
     owner   => $user,
     group   => $user,
     recurse => true,
+    recurselimit => 1,
     tag     => '__confluent__'
   } ->
   file { $myid_file:
