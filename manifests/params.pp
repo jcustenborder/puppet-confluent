@@ -49,7 +49,7 @@ class confluent::params {
   ]
   $connect_standalone_key_converter = 'org.apache.kafka.connect.json.JsonConverter'
   $connect_standalone_value_converter = 'org.apache.kafka.connect.json.JsonConverter'
-  
+
   $kafka_user = 'kafka'
   $kafka_service = 'kafka'
   $kafka_manage_service = true
@@ -146,6 +146,18 @@ class confluent::params {
   $schema_registry_stop_timeout_secs = 300
   $schema_registry_heap_size = '512m'
 
+  $ksql_user = 'ksql'
+  $ksql_service = 'ksql'
+  $ksql_manage_service = true
+  $ksql_service_ensure = 'running'
+  $ksql_service_enable = true
+  $ksql_file_limit = 128000
+  $ksql_config_path = '/etc/ksql/ksql-server.properties'
+  $ksql_logging_config_path = '/etc/ksql/ksql-server.logging.properties'
+  $ksql_log_path = '/var/log/ksql'
+  $ksql_stop_timeout_secs = 300
+  $ksql_heap_size = '512m'
+
   $control_center_user = 'control-center'
   $control_center_service = 'control-center'
   $control_center_manage_service = true
@@ -174,6 +186,7 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/sysconfig/zookeeper'
       $schema_registry_environment_path = '/etc/sysconfig/schema-registry'
       $control_center_environment_path = '/etc/sysconfig/control-center'
+      $ksql_environment_path = '/etc/sysconfig/ksql'
       $mirror_maker_environment_path_prefix = '/etc/sysconfig/mirrormaker-'
 
       case $::operatingsystemmajrelease {
@@ -194,6 +207,7 @@ class confluent::params {
       $zookeeper_environment_path = '/etc/default/zookeeper'
       $schema_registry_environment_path = '/etc/default/schema-registry'
       $control_center_environment_path = '/etc/default/control-center'
+      $ksql_environment_path = '/etc/default/ksql'
       $mirror_maker_environment_path_prefix = '/etc/default/mirrormaker-'
 
       $key_url = "http://packages.confluent.io/deb/${confluent_version}/archive.key"
