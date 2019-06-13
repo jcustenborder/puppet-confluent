@@ -76,6 +76,14 @@ class confluent::zookeeper (
   }
   $actual_config = merge($default_config, $config)
 
+  # Set standaloneEnabled to false in $default_config instead when Zookeeper 3.5.0 is available
+  $mandatory_conf = ['server.1', 'server.2', 'server.3']
+  $mandatory_conf.each |String $entry| {
+    unless $entry in $actual_config {
+      fail("Mandatory configuration entry ${entry} absent. Failing hard to prevent missconfiguration.")
+    }
+  }
+  
   confluent::properties { $service_name:
     ensure => present,
     path   => $config_path,
