@@ -57,7 +57,8 @@ class confluent::zookeeper (
   Integer $stop_timeout_secs                 = $::confluent::params::zookeeper_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::zookeeper_heap_size,
   Boolean $restart_on_logging_change         = true,
-  Boolean $restart_on_change                 = true
+  Boolean $restart_on_change                 = true,
+  Boolean $standalone_mode                   = false
 ) inherits confluent::params {
   include ::confluent::kafka
 
@@ -76,6 +77,16 @@ class confluent::zookeeper (
   }
   $actual_config = merge($default_config, $config)
 
+  # Set standaloneEnabled to false in $default_config instead when Zookeeper 3.5.0 is available
+  unless $standalone_mode {
+    $mandatory_conf = ['server.1', 'server.2', 'server.3']
+    $mandatory_conf.each |String $entry| {
+      unless $entry in $actual_config {
+        fail("Mandatory configuration entry ${entry} absent. Failing hard to prevent missconfiguration.")
+      }
+    }
+  }
+  
   confluent::properties { $service_name:
     ensure => present,
     path   => $config_path,
