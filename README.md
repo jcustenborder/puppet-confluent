@@ -11,7 +11,9 @@ the major and minor versions of the Confluent Platform. Meaning 3.2.1234 of the 
 
 ## Zookeeper
 
-### Class installation
+### Ensemble
+
+#### Class installation
 
 ```puppet
 class{'confluent::zookeeper':
@@ -20,7 +22,7 @@ class{'confluent::zookeeper':
 }
 ```
 
-### Hiera Installation
+#### Hiera Installation
 
 ```puppet
 include ::confluent::zookeeper
@@ -36,6 +38,29 @@ confluent::zookeeper::config:
   server.3:
     value: 'zookeeper-03.example.com:2888:3888'
 confluent::zookeeper::heap_size: '4000M'
+```
+
+### Standalone
+
+#### Class installation
+
+```puppet
+class{'confluent::zookeeper':
+  zookeeper_id => '1',
+  heap_size => '4000M',
+  standalone_mode => true
+}
+```
+
+#### Hiera installation
+
+```yaml
+confluent::zookeeper::zookeeper_id: '1'
+confluent::zookeeper::config:
+  server.1:
+    value: 'zookeeper-01.example.com:2888:3888'
+confluent::zookeeper::heap_size: '4000M'
+confluent::zookeeper::standalone_mode: true
 ```
 
 ## Kafka Broker
