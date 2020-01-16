@@ -2,3 +2,5 @@ doc/
 .yardoc/
 spec/fixtures/
 pkg
+.ruby-version
+.ruby-gemset
