@@ -40,6 +40,7 @@
 # @param environment_file Location of the environment file used to pass environment variables to the Kafka broker.
 # @param log_path Location to write the log files to.
 # @param user User to run the kafka service as.
+# @param manage_user Flag to determine if the user should be managed by puppet.
 # @param service_name Name of the kafka service.
 # @param manage_service Flag to determine if the service should be managed by puppet.
 # @param service_ensure Ensure setting to pass to service resource.
@@ -58,6 +59,7 @@ class confluent::control::center (
   Stdlib::Unixpath $environment_file              = $::confluent::params::control_center_environment_path,
   Stdlib::Unixpath $log_path                      = $::confluent::params::control_center_log_path,
   String $user                                    = $::confluent::params::control_center_user,
+  Boolean $manage_user                            = $::confluent::params::control_center_manage_user,
   String $service_name                            = $::confluent::params::control_center_service,
   Boolean $manage_service                         = $::confluent::params::control_center_manage_service,
   Enum['running', 'stopped'] $service_ensure      = $::confluent::params::control_center_service_ensure,
@@ -109,10 +111,12 @@ class confluent::control::center (
     config => $actual_config
   }
 
+  if($manage_user) {
+    user { $user:
+      ensure => present
+    }
+  }
 
-  user { $user:
-    ensure => present
-  } ->
   file { [$log_path, $data_path]:
     ensure  => directory,
     owner   => $user,

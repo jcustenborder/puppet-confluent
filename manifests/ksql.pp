@@ -30,30 +30,32 @@
 # @param environment_file Location of the environment file used to pass environment variables to the KSQL server.
 # @param log_path Location to write the log files to.
 # @param user User to run the kafka service as.
+# @param manage_user Flag to determine if the user should be managed by puppet.
 # @param service_name Name of the KSQL service.
 # @param manage_service Flag to determine if the service should be managed by puppet.
 # @param service_ensure Ensure setting to pass to service resource.
 # @param service_enable Enable setting to pass to service resource.
 # @param file_limit File limit to set for the KSQL service (SystemD) only.
 class confluent::ksql (
-  $bootstrap_servers,
-  $config                     = {},
-  $environment_settings       = {},
-  $config_path                = $::confluent::params::ksql_config_path,
-  $logging_config_path        = $::confluent::params::ksql_logging_config_path,
-  $environment_file           = $::confluent::params::ksql_environment_path,
-  $log_path                   = $::confluent::params::ksql_log_path,
-  $user                       = $::confluent::params::ksql_user,
-  $service_name               = $::confluent::params::ksql_service,
-  $manage_service             = $::confluent::params::ksql_manage_service,
-  $service_ensure             = $::confluent::params::ksql_service_ensure,
-  $service_enable             = $::confluent::params::ksql_service_enable,
-  $file_limit                 = $::confluent::params::ksql_file_limit,
-  $manage_repository          = $::confluent::params::manage_repository,
-  $stop_timeout_secs          = $::confluent::params::ksql_stop_timeout_secs,
-  $heap_size                  = $::confluent::params::ksql_heap_size,
-  $restart_on_logging_change  = true,
-  $restart_on_change          = true
+  Variant[String, Array[String]] $bootstrap_servers,
+  Hash $config                               = {},
+  Hash $environment_settings                 = {},
+  Stdlib::Unixpath $config_path              = $::confluent::params::ksql_config_path,
+  Stdlib::Unixpath $logging_config_path      = $::confluent::params::ksql_logging_config_path,
+  Stdlib::Unixpath $environment_file         = $::confluent::params::ksql_environment_path,
+  Stdlib::Unixpath $log_path                 = $::confluent::params::ksql_log_path,
+  String $user                               = $::confluent::params::ksql_user,
+  Boolean $manage_user                       = $::confluent::params::ksql_manage_user,
+  String $service_name                       = $::confluent::params::ksql_service,
+  Boolean $manage_service                    = $::confluent::params::ksql_manage_service,
+  Enum['running', 'stopped'] $service_ensure = $::confluent::params::ksql_service_ensure,
+  Boolean $service_enable                    = $::confluent::params::ksql_service_enable,
+  Integer $file_limit                        = $::confluent::params::ksql_file_limit,
+  Boolean $manage_repository                 = $::confluent::params::manage_repository,
+  Integer $stop_timeout_secs                 = $::confluent::params::ksql_stop_timeout_secs,
+  String $heap_size                          = $::confluent::params::ksql_heap_size,
+  Boolean $restart_on_logging_change         = true,
+  Boolean $restart_on_change                 = true
 ) inherits confluent::params {
   include ::confluent
 
@@ -92,10 +94,13 @@ class confluent::ksql (
     path => $logging_config_path,
   }
 
-  user { $user:
-    ensure => present,
+  if($manage_user) {
+    user { $user:
+      ensure => present,
+    }
   }
-  -> file { [$log_path]:
+
+  file { [$log_path]:
     ensure  => directory,
     owner   => $user,
     group   => $user,

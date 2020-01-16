@@ -30,6 +30,7 @@
 # @param environment_file Location of the environment file used to pass environment variables to the Kafka broker.
 # @param log_path Location to write the log files to.
 # @param user User to run the kafka service as.
+# @param manage_user Flag to determine if the user should be managed by puppet.
 # @param service_name Name of the kafka service.
 # @param manage_service Flag to determine if the service should be managed by puppet.
 # @param service_ensure Ensure setting to pass to service resource.
@@ -44,6 +45,7 @@ class confluent::schema::registry (
   Stdlib::Unixpath $environment_file         = $::confluent::params::schema_registry_environment_path,
   Stdlib::Unixpath $log_path                 = $::confluent::params::schema_registry_log_path,
   String $user                               = $::confluent::params::schema_registry_user,
+  Boolean $manage_user                       = $::confluent::params::schema_registry_manage_user,
   String $service_name                       = $::confluent::params::schema_registry_service,
   Boolean $manage_service                    = $::confluent::params::schema_registry_manage_service,
   Enum['running', 'stopped'] $service_ensure = $::confluent::params::schema_registry_service_ensure,
@@ -94,9 +96,12 @@ class confluent::schema::registry (
     path => $logging_config_path
   }
 
-  user { $user:
-    ensure => present
-  } ->
+  if($manage_user) {
+    user { $user:
+      ensure => present
+    }
+  }
+
   file { [$log_path]:
     ensure  => directory,
     owner   => $user,

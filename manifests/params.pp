@@ -5,6 +5,7 @@ class confluent::params {
   $confluent_version = '4.0'
   $manage_repository = true
   $connect_distributed_user = 'connect-distributed'
+  $connect_distributed_manage_user = true
   $connect_distributed_service = 'connect-distributed'
   $connect_distributed_manage_service = true
   $connect_distributed_service_ensure = 'running'
@@ -31,6 +32,7 @@ class confluent::params {
   $connect_distributed_value_converter = 'org.apache.kafka.connect.json.JsonConverter'
 
   $connect_standalone_user = 'connect-standalone'
+  $connect_standalone_manage_user = true
   $connect_standalone_service = 'connect-standalone'
   $connect_standalone_manage_service = true
   $connect_standalone_service_ensure = 'running'
@@ -51,6 +53,7 @@ class confluent::params {
   $connect_standalone_value_converter = 'org.apache.kafka.connect.json.JsonConverter'
 
   $kafka_user = 'kafka'
+  $kafka_manage_user = true
   $kafka_service = 'kafka'
   $kafka_manage_service = true
   $kafka_service_ensure = 'running'
@@ -122,6 +125,7 @@ class confluent::params {
     }
 
   $zookeeper_user = 'zookeeper'
+  $zookeeper_manage_user = true
   $zookeeper_service = 'zookeeper'
   $zookeeper_manage_service = true
   $zookeeper_service_ensure = 'running'
@@ -135,6 +139,7 @@ class confluent::params {
   $zookeeper_heap_size = '512m'
 
   $schema_registry_user = 'schema-registry'
+  $schema_registry_manage_user = true
   $schema_registry_service = 'schema-registry'
   $schema_registry_manage_service = true
   $schema_registry_service_ensure = 'running'
@@ -147,6 +152,7 @@ class confluent::params {
   $schema_registry_heap_size = '512m'
 
   $ksql_user = 'ksql'
+  $ksql_manage_user = true
   $ksql_service = 'ksql'
   $ksql_manage_service = true
   $ksql_service_ensure = 'running'
@@ -159,6 +165,7 @@ class confluent::params {
   $ksql_heap_size = '512m'
 
   $control_center_user = 'control-center'
+  $control_center_manage_user = true
   $control_center_service = 'control-center'
   $control_center_manage_service = true
   $control_center_service_ensure = 'running'

@@ -1,7 +1,8 @@
 class confluent::kafka::mirrormaker (
   String $user                               = $::confluent::params::mirror_maker_user,
-  Stdlib::Unixpath $log_path             = $::confluent::params::mirror_maker_log_path,
-  Stdlib::Unixpath $config_root          = $::confluent::params::mirror_maker_config_root,
+  Boolean $manage_user                       = true,
+  Stdlib::Unixpath $log_path                 = $::confluent::params::mirror_maker_log_path,
+  Stdlib::Unixpath $config_root              = $::confluent::params::mirror_maker_config_root,
   Boolean $abort_on_send_failure             = true,
   Boolean $new_consumer                      = true,
   Integer $num_streams                       = 1,
@@ -22,9 +23,11 @@ class confluent::kafka::mirrormaker (
     include ::confluent::repository
   }
 
-  user { $user:
-    ensure => present,
-    tag    => '__confluent__'
+  if($manage_user) {
+    user { $user:
+      ensure => present,
+      tag    => '__confluent__'
+    }
   }
 
   file { $config_root:

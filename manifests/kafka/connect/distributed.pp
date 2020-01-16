@@ -50,6 +50,7 @@
 # @param environment_file The file used to export environment variables that are consumed by Kafka scripts.
 # @param log_path The directory to write log files to.
 # @param user The user to run Kafka Connect as.
+# @param manage_user Flag to determine if the user should be managed by puppet.
 # @param service_name The name of the service to create
 # @param manage_service Flag to determine if the service should be enabled.
 # @param service_ensure Ensure setting to pass to the service resource.
@@ -64,6 +65,7 @@ class confluent::kafka::connect::distributed (
   Stdlib::Unixpath $environment_path                   = $::confluent::params::connect_distributed_environment_path,
   Stdlib::Unixpath $log_path                           = $::confluent::params::connect_distributed_log_path,
   String $user                                         = $::confluent::params::connect_distributed_user,
+  Boolean $manage_user                                 = $::confluent::params::connect_distributed_manage_user,
   String $service_name                                 = $::confluent::params::connect_distributed_service,
   Boolean $manage_service                              = $::confluent::params::connect_distributed_manage_service,
   Enum['running', 'stopped'] $service_ensure           = $::confluent::params::connect_distributed_service_ensure,
@@ -93,10 +95,13 @@ class confluent::kafka::connect::distributed (
     include ::confluent::repository
   }
 
-  user { $user:
-    ensure => present,
-    alias  => 'kafka-connect-distributed'
-  } ->
+  if($manage_user) {
+    user { $user:
+      ensure => present,
+      alias  => 'kafka-connect-distributed'
+    }
+  }
+
   file { $log_path:
     ensure  => directory,
     owner   => $user,

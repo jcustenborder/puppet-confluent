@@ -33,6 +33,7 @@
 # @param data_path Location to store the data on disk.
 # @param log_path Location to write the log files to.
 # @param user User to run the kafka service as.
+# @param manage_user Flag to determine if the user should be managed by puppet.
 # @param service_name Name of the kafka service.
 # @param manage_service Flag to determine if the service should be managed by puppet.
 # @param service_ensure Ensure setting to pass to service resource.
@@ -48,6 +49,7 @@ class confluent::zookeeper (
   Stdlib::Unixpath $data_path                = $::confluent::params::zookeeper_data_path,
   Stdlib::Unixpath $log_path                 = $::confluent::params::zookeeper_log_path,
   String $user                               = $::confluent::params::zookeeper_user,
+  Boolean $manage_user                       = $::confluent::params::zookeeper_manage_user,
   String $service_name                       = $::confluent::params::zookeeper_service,
   Boolean $manage_service                    = $::confluent::params::zookeeper_manage_service,
   Enum['running', 'stopped'] $service_ensure = $::confluent::params::zookeeper_service_ensure,
@@ -103,9 +105,12 @@ class confluent::zookeeper (
 
   $myid_file = "${data_path}/myid"
 
-  user { $user:
-    ensure => present
-  } ->
+  if($manage_user) {
+    user { $user:
+      ensure => present
+    }
+  }
+
   file { [$data_path, $log_path]:
     ensure  => directory,
     owner   => $user,
