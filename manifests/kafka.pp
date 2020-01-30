@@ -7,7 +7,7 @@
 # @param package_ensure Ensure to be passed to the package installation.
 # @param package_name Name of the package to install. This rarely needs to be changed unless you need to install a different version of Scala.
 class confluent::kafka (
-  String $package_ensure = 'installed',
+  String $package_ensure = 'latest',
   String $package_name   = $confluent::params::kafka_package_name
 ) inherits confluent::params {
   include ::confluent

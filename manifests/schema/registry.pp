@@ -31,6 +31,7 @@
 # @param log_path Location to write the log files to.
 # @param user User to run the kafka service as.
 # @param manage_user Flag to determine if the user should be managed by puppet.
+# @param package_ensure Ensure to be passed to the package installation
 # @param service_name Name of the kafka service.
 # @param manage_service Flag to determine if the service should be managed by puppet.
 # @param service_ensure Ensure setting to pass to service resource.
@@ -54,6 +55,7 @@ class confluent::schema::registry (
   Boolean $manage_repository                 = $::confluent::params::manage_repository,
   Integer $stop_timeout_secs                 = $::confluent::params::schema_registry_stop_timeout_secs,
   String $heap_size                          = $::confluent::params::schema_registry_heap_size,
+  String $package_ensure                     = 'latest',
   Boolean $restart_on_logging_change         = true,
   Boolean $restart_on_change                 = true
 ) inherits confluent::params {
@@ -111,7 +113,7 @@ class confluent::schema::registry (
   }
 
   package { 'confluent-schema-registry':
-    ensure => latest,
+    ensure => $package_ensure,
     tag    => '__confluent__',
   }
 
