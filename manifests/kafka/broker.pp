@@ -137,12 +137,12 @@ class confluent::kafka::broker (
   }
 
   file { [$log_path, $data_path]:
-    ensure  => directory,
-    owner   => $user,
-    group   => $user,
-    recurse => true,
+    ensure       => directory,
+    owner        => $user,
+    group        => $user,
+    recurse      => true,
     recurselimit => 1,
-    tag     => '__confluent__'
+    tag          => '__confluent__'
   }
 
   confluent::systemd::unit { $service_name:
@@ -167,6 +167,7 @@ class confluent::kafka::broker (
       tag    => '__confluent__'
     }
     if($restart_on_change) {
+      Class['confluent::kafka'] ~> Service[$service_name]
       Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
       Confluent::Environment[$service_name] ~> Service[$service_name]
       Confluent::Properties[$service_name] ~> Service[$service_name]

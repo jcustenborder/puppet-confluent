@@ -137,6 +137,7 @@ class confluent::ksql (
       tag    => '__confluent__',
     }
     if($restart_on_change) {
+      Package['confluent-ksql'] ~> Service[$service_name]
       Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
       Confluent::Environment[$service_name] ~> Service[$service_name]
       Confluent::Properties[$service_name] ~> Service[$service_name]

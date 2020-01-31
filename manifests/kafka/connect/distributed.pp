@@ -187,6 +187,7 @@ class confluent::kafka::connect::distributed (
       tag    => '__confluent__'
     }
     if($restart_on_change) {
+      Class['confluent::kafka'] ~> Service[$service_name]
       Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
       Confluent::Environment[$service_name] ~> Service[$service_name]
       Confluent::Properties[$service_name] ~> Service[$service_name]
