@@ -117,6 +117,8 @@ class confluent::schema::registry (
     tag    => '__confluent__',
   }
 
+  ensure_packages('confluent-rest-utils', {'ensure' => $package_ensure, 'tag' => '__confluent__'})
+
   confluent::systemd::unit { $service_name:
     config => {
       'Unit'    => {
@@ -140,6 +142,7 @@ class confluent::schema::registry (
     }
     if($restart_on_change) {
       Package['confluent-schema-registry'] ~> Service[$service_name]
+      Package['confluent-rest-utils'] ~> Service[$service_name]
       Confluent::Systemd::Unit[$service_name] ~> Service[$service_name]
       Confluent::Environment[$service_name] ~> Service[$service_name]
       Confluent::Properties[$service_name] ~> Service[$service_name]
