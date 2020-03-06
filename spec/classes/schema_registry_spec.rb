@@ -1,13 +1,9 @@
 require 'spec_helper'
 
 describe 'confluent::schema::registry' do
-  supported_osfamalies.each do |operating_system, default_facts|
-    context "on #{operating_system}" do
-      osfamily = default_facts['osfamily']
-      default_params = {
-          'kafkastore_connection_url' => %w(zookeeper-01:2181 zookeeper-02:2181 zookeeper-03:2181)
-      }
-
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
+      default_params = { 'kafkastore_connection_url' => %w(zookeeper-01:2181 zookeeper-02:2181 zookeeper-03:2181) }
       user = 'schema-registry'
       group = 'schema-registry'
       service_name = 'schema-registry'
@@ -16,16 +12,14 @@ describe 'confluent::schema::registry' do
       config_path='/etc/schema-registry/schema-registry.properties'
       logging_config_path='/etc/schema-registry/schema-registry.logging.properties'
 
-      environment_file = nil
-
-      case osfamily
+      case os_facts[:osfamily]
         when 'Debian'
           environment_file = '/etc/default/schema-registry'
         when 'RedHat'
           environment_file = '/etc/sysconfig/schema-registry'
       end
 
-      let(:facts) {default_facts}
+      let(:facts) {os_facts}
       let(:params) {default_params}
 
       log_paths = %w(/var/log/schema-registry /logs/var/lib/schema-registry)

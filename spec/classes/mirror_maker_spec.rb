@@ -1,9 +1,8 @@
 require 'spec_helper'
 
 describe 'confluent::kafka::mirrormaker' do
-  supported_osfamalies.each do |operating_system, default_facts|
-    context "on #{operating_system}" do
-      osfamily = default_facts['osfamily']
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
       default_params = {
           'bootstrap_servers' => %w(kafka-01:9092 kafka-02:9092 kafka-03:9092),
           'connect_cluster' => %w(kafka-connect-01:8083 kafka-connect-02:8083 kafka-connect-03:8083),

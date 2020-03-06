@@ -1,19 +1,16 @@
 require 'spec_helper'
 
 describe 'confluent::ksql' do
-  supported_osfamalies.each do |operating_system, default_facts|
-    context "on #{operating_system}" do
-      osfamily = default_facts['osfamily']
-
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
       user = 'ksql'
       group = 'ksql'
       config_path = '/etc/ksql/ksql-server.properties'
       logging_config_path='/etc/ksql/ksql-server.logging.properties'
       service_name = 'ksql'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
-      environment_file = nil
 
-      let(:facts) {default_facts}
+      let(:facts) {os_facts}
       let(:params) {
         {
             'bootstrap_servers' => 'localhost',
@@ -21,7 +18,7 @@ describe 'confluent::ksql' do
         }
       }
 
-      case osfamily
+      case os_facts[:osfamily]
         when 'Debian'
           environment_file = '/etc/default/ksql'
         when 'RedHat'

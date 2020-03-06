@@ -1,17 +1,10 @@
 require 'spec_helper'
 
 describe 'confluent::kafka::broker' do
-  supported_osfamalies.each do |operating_system, default_facts|
-    context "on #{operating_system}" do
-      osfamily = default_facts['osfamily']
-
-      let(:facts) {default_facts}
-      let(:params) {
-        {
-            'broker_id' => 0
-        }
-      }
-
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
+      let(:facts) {os_facts}
+      let(:params) {{ 'broker_id' => 0 }}
 
       user = 'kafka'
       group = 'kafka'
@@ -19,10 +12,8 @@ describe 'confluent::kafka::broker' do
       logging_config_path='/etc/kafka/server.logging.properties'
       service_name = 'kafka'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
-      environment_file = nil
 
-
-      case osfamily
+      case os_facts[:osfamily]
         when 'Debian'
           environment_file = '/etc/default/kafka'
         when 'RedHat'

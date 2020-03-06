@@ -1,31 +1,23 @@
 require 'spec_helper'
 
-
 %w(distributed standalone).each do |class_name|
   describe "confluent::kafka::connect::#{class_name}" do
-    supported_osfamalies.each do |operating_system, default_facts|
-      context "on #{operating_system}" do
-        osfamily = default_facts['osfamily']
-        default_params = {
-            'bootstrap_servers' => %w(kafka-01:9093 kafka-02:9093 kafka-03:9093)
-        }
+    on_supported_os.each do |os, os_facts|
+      context "on #{os}" do
+        default_params = { 'bootstrap_servers' => %w(kafka-01:9093 kafka-02:9093 kafka-03:9093) }
         default_params['connector_configs'] = %w(/etc/kafka/connector1.properties /etc/kafka/connector2.properties) if class_name == 'standalone'
         let(:params) {default_params}
-        let(:facts) {default_facts}
+        let(:facts) {os_facts}
 
         user = "connect-#{class_name}"
-        group = "connect-#{class_name}"
         service_name = "connect-#{class_name}"
         unit_file = "/usr/lib/systemd/system/#{service_name}.service"
-        environment_file = nil
-
         config_path = "/etc/kafka/connect-#{class_name}.properties"
         logging_config_path="/etc/kafka/connect-#{class_name}.logging.properties"
 
-        case osfamily
+        case os_facts[:osfamily]
           when 'Debian'
             environment_file = "/etc/default/kafka-connect-#{class_name}"
-
           when 'RedHat'
             environment_file = "/etc/sysconfig/kafka-connect-#{class_name}"
         end

@@ -1,10 +1,9 @@
 require 'spec_helper'
 
 describe 'confluent::control::center' do
-  supported_osfamalies.each do |operating_system, default_facts|
-    context "on #{operating_system}" do
-      osfamily = default_facts['osfamily']
-      let(:facts) {default_facts}
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
+      let(:facts) {os_facts}
       let(:params) {
         {
             'bootstrap_servers' => %w(kafka-01:9092 kafka-02:9092 kafka-03:9092),
@@ -16,14 +15,13 @@ describe 'confluent::control::center' do
         }
       }
 
+      osfamily = os_facts[:osfamily]
       user='control-center'
       group='control-center'
       service_name = 'control-center'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       config_path = '/etc/confluent-control-center/control-center.properties'
       logging_config_path='/etc/confluent-control-center/control-center.logging.properties'
-
-      environment_file = nil
 
       case osfamily
         when 'Debian'

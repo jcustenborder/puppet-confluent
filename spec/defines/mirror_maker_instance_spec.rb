@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe 'confluent::kafka::mirrormaker::instance' do
-  supported_osfamalies.each do |operating_system, default_facts|
-    context "on #{operating_system}" do
-      osfamily = default_facts['osfamily']
+  on_supported_os.each do |os, os_facts|
+    context "on #{os}" do
       title = 'testing'
-      let(:facts) {default_facts}
+
+      let(:facts) {os_facts}
       let(:title) {title}
 
       default_params = {
@@ -20,13 +20,6 @@ describe 'confluent::kafka::mirrormaker::instance' do
       }
 
       service_name = "mirrormaker-#{title}"
-
-      case osfamily
-        when 'Debian'
-          environment_file = "/etc/default/mirrormaker-#{title}"
-        when 'RedHat'
-          environment_file = "/etc/sysconfig/mirrormaker-#{title}"
-      end
 
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
       producer_config='/etc/kafka/mirrormaker/testing/consumer.properties'
