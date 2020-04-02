@@ -22,5 +22,8 @@ Puppet::Type.newtype(:kafka_connector_config) do
 
   newproperty(:config) do
     desc 'A Hash containing the connector configurations to add.'
+    munge do |value|
+      value.transform_values!(&:to_s)
+    end
   end
 end
