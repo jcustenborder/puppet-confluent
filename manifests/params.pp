@@ -13,6 +13,7 @@ class confluent::params {
   $connect_distributed_file_limit = 128000
   $connect_distributed_config_path = '/etc/kafka/connect-distributed.properties'
   $connect_distributed_logging_config_path = '/etc/kafka/connect-distributed.logging.properties'
+  $connect_distributed_logging_config = {}
   $connect_distributed_log_path = '/var/log/kafka-connect-distributed'
   $connect_distributed_stop_timeout_secs = 300
   $connect_distributed_heap_size = '512m'
@@ -40,6 +41,7 @@ class confluent::params {
   $connect_standalone_file_limit = 128000
   $connect_standalone_config_path = '/etc/kafka/connect-standalone.properties'
   $connect_standalone_logging_config_path = '/etc/kafka/connect-standalone.logging.properties'
+  $connect_standalone_logging_config = {}
   $connect_standalone_log_path = '/var/log/kafka-connect-standalone'
   $connect_standalone_stop_timeout_secs = 300
   $connect_standalone_heap_size = '512m'
@@ -65,6 +67,7 @@ class confluent::params {
   $kafka_data_path = '/var/lib/kafka'
   $kafka_stop_timeout_secs = 300
   $kafka_heap_size = '1024m'
+  # lint:ignore:single_quote_string_with_variables
   $kafka_logging_config = {
     'log4j.rootLogger'                                   => 'INFO, stdout, roller, authorizer',
     'log4j.appender.stdout'                              => 'org.apache.log4j.ConsoleAppender',
@@ -122,7 +125,8 @@ class confluent::params {
     'log4j.additivity.state.change.logger'               => false,
     'log4j.logger.kafka.authorizer.logger'               => 'WARN, authorizer',
     'log4j.additivity.kafka.authorizer.logger'           => false,
-    }
+  }
+  # lint:endignore
 
   $zookeeper_user = 'zookeeper'
   $zookeeper_manage_user = true
