@@ -41,6 +41,7 @@
 # @param environment_file Location of the environment file used to pass environment variables to the Kafka broker.
 # @param data_path Location to store the data on disk.
 # @param log_path Location to write the log files to.
+# @param logging_config Hash of log configuration values.
 # @param user User to run the kafka service as.
 # @param manage_user Flag to determine if the user should be managed by puppet.
 # @param service_name Name of the kafka service.
