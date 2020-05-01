@@ -43,7 +43,13 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
     conn = new_client
     request = Net::HTTP::Get.new('/connectors')
     Puppet.debug("Retrieving connectors with GET request to #{conn.address}:#{conn.port}#{request.path}")
-    response = conn.request(request)
+    begin
+      response = conn.request(request)
+    rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
+      EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+      return []
+    end
+    return [] if response.code.to_i < 400
     connectors = JSON.parse(response.body)
     connectors.collect do |connector|
       c = {}
