@@ -88,6 +88,8 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
       response = conn.request(request)
       response.value
       Puppet.debug("    Response was #{response.code}: #{response.body}")
+    rescue Net::HTTPServerException => e
+      Puppet.debug("    #{resource[:name]} connector config has already been created.") if response.code == '409'
     rescue Net::HTTPError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
        Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
       raise Puppet::Error, "Failed to create connector config. Received error: #{e.inspect}"
