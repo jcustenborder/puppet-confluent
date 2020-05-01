@@ -49,7 +49,7 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
       EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
       return []
     end
-    return [] if response.code.to_i < 400
+    return [] unless response.code == '200'
     connectors = JSON.parse(response.body)
     connectors.collect do |connector|
       c = {}
