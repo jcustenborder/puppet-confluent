@@ -89,7 +89,7 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
       response = conn.request(request)
       response.value
       Puppet.debug("    Response was #{response.code}: #{response.body}")
-    rescue Net::HTTPError, Net::HTTPServerException, Net::HTTPFatalError => e
+    rescue Errno::ECONNREFUSED, Net::HTTPError, Net::HTTPServerException, Net::HTTPFatalError => e
       Puppet.debug("    #{resource[:name]} connector config has already been created.") if response.code == '409'
       Puppet.debug("    Connect API service is currently unavailable.") if response.code == '503'
       if (retries += 1) <= 5
