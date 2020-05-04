@@ -46,7 +46,7 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
     begin
       response = conn.request(request)
     rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED,
-      EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
+      EOFError, Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError
       return []
     end
     return [] unless response.code == '200'
@@ -84,13 +84,22 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
     body = { 'name' => resource[:name], 'config' => resource[:config] }
     Puppet.debug("Sending POST request to #{conn.address}:#{conn.port}#{request.path} with data #{body}")
     request.body = body.to_json
+    retries = 0
     begin
       response = conn.request(request)
       response.value
       Puppet.debug("    Response was #{response.code}: #{response.body}")
-    rescue Net::HTTPServerException => e
+    rescue Net::HTTPError, Net::HTTPServerException, Net::HTTPFatalError => e
       Puppet.debug("    #{resource[:name]} connector config has already been created.") if response.code == '409'
-    rescue Net::HTTPError, Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
+      Puppet.debug("    Connect API service is currently unavailable.") if response.code == '503'
+      if (retries += 1) <= 5
+        puts "Failed to create connector config, retrying in #{retries} second(s)..."
+        sleep(retries)
+        retry
+      else
+        raise Puppet::Error, "Failed to create connector config. Received error: #{e.inspect}"
+      end
+    rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
        Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
       raise Puppet::Error, "Failed to create connector config. Received error: #{e.inspect}"
     end
