@@ -96,8 +96,9 @@ Puppet::Type.type(:kafka_connector_config).provide(:api) do
       end
       Puppet.debug("    Connect API service is currently unavailable.") if response.code == '503'
       if (retries += 1) <= 5
-        puts "Failed to create connector config, retrying in #{retries} second(s)..."
-        sleep(retries)
+        sleep_seconds = rand(3..Float(3 ** retries))
+        puts "Failed to create connector config, retrying in #{sleep_seconds} second(s)..."
+        sleep sleep_seconds
         retry
       else
         raise Puppet::Error, "Failed to create connector config. Received error: #{e.inspect}"
