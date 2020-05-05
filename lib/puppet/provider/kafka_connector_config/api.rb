@@ -7,6 +7,9 @@ require 'socket'
 
 Puppet::Type.type(:kafka_connector_config).provide(:api) do
   confine :exists => '/etc/kafka/'
+  
+  commands :connect_distributed => '/usr/bin/connect-distributed'
+  commands :connect_standalone  => '/usr/bin/connect-standalone'
 
   mk_resource_methods
 
