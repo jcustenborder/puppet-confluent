@@ -3,8 +3,10 @@ require 'net/http'
 require 'json'
 require 'yaml'
 require 'uri'
+require 'socket'
 
 Puppet::Type.type(:kafka_connector_config).provide(:api) do
+  confine :exists => '/etc/kafka/'
 
   mk_resource_methods
 
