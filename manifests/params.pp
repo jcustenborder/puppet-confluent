@@ -2,7 +2,7 @@
 #
 #
 class confluent::params {
-  $confluent_version = '4.0'
+  $confluent_version = '5.5'
   $manage_repository = true
   $connect_distributed_user = 'connect-distributed'
   $connect_distributed_manage_user = true
