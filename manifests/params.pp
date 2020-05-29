@@ -182,7 +182,7 @@ class confluent::params {
   $control_center_stop_timeout_secs = 300
   $control_center_heap_size = '3096m'
 
-  $kafka_package_name = 'confluent-kafka-2.11'
+  $kafka_package_name = 'confluent-kafka-2.12'
 
   $mirror_maker_user = 'mirrormaker'
   $mirror_maker_service_prefix = 'mirrormaker-'
