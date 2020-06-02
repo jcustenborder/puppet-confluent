@@ -17,7 +17,7 @@ Puppet::Type.type(:kafka_acl).provide(:cli) do
     args << [ '--list' ]
     acls = []
     output = kafka_acls(args).split(/^Current ACLs for resource\s+/)
-    output.reject! { |i| i.empty? }
+    output.reject! { |i| i.empty? || i !~ /^`ResourcePattern/ }
     output.each do |a|
       data = a.split("\n").map(&:strip)
       resource = data.shift
