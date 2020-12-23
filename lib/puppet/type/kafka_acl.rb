@@ -75,11 +75,11 @@ Puppet::Type.newtype(:kafka_acl) do
   end
 
   newparam(:resource_pattern_type) do
-    desc 'A String identifying the type of the resource pattern or pattern filter. Acceptible values are "literal", "prefix", "match", or "any". Defaults to "literal".'
+    desc 'A String identifying the type of the resource pattern or pattern filter. Acceptible values are "literal", "prefixed", "match", or "any". Defaults to "literal".'
     defaultto 'literal'
     validate do |value|
-      unless value.is_a? String and ['literal', 'prefix', 'match', 'any'].any? { |s| s.casecmp(value) == 0 }
-        raise ArgumentError, 'resource_pattern_type must be one of "literal", "prefix", "match", or "any"'
+      unless value.is_a? String and ['literal', 'prefixed', 'match', 'any'].any? { |s| s.casecmp(value) == 0 }
+        raise ArgumentError, 'resource_pattern_type must be one of "literal", "prefixed", "match", or "any"'
       end
     end
     munge { |value| value.downcase }
