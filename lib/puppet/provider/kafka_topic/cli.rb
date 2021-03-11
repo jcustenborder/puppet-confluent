@@ -26,7 +26,7 @@ Puppet::Type.type(:kafka_topic).provide(:cli) do
       config = config_hash.map do |k, v|
                  k = k.strip
                  v = v.strip
-                 v = v.to_i if /^\d+$/.match(v)
+                 v = v.to_i if /^[-]?\d+$/.match(v)
                  [ k, v ]
                end.to_h
       topic[:name] = name
