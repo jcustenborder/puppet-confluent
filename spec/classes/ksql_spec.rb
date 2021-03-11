@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe 'confluent::ksql' do
+describe 'confluent::ksqldb' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
       user = 'ksql'
