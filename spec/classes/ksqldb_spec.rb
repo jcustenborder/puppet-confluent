@@ -5,8 +5,8 @@ describe 'confluent::ksqldb' do
     context "on #{os}" do
       user = 'ksql'
       group = 'ksql'
-      config_path = '/etc/ksql/ksql-server.properties'
-      logging_config_path='/etc/ksql/ksql-server.logging.properties'
+      config_path = '/etc/ksqldb/ksql-server.properties'
+      logging_config_path='/etc/ksqldb/ksql-server.logging.properties'
       service_name = 'ksql'
       unit_file = "/usr/lib/systemd/system/#{service_name}.service"
 
@@ -20,9 +20,9 @@ describe 'confluent::ksqldb' do
 
       case os_facts[:osfamily]
         when 'Debian'
-          environment_file = '/etc/default/ksql'
+          environment_file = '/etc/default/ksqldb'
         when 'RedHat'
-          environment_file = '/etc/sysconfig/ksql'
+          environment_file = '/etc/sysconfig/ksqldb'
       end
 
       %w(/var/log/ksql /logvol/var/log/ksql).each do |log_dir|
