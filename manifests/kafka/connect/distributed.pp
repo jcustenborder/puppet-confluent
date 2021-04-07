@@ -2,47 +2,45 @@
 #
 # @example Installation through class.
 #     class{'confluent::kafka::connect::distributed':
-#       config => {
-#         'bootstrap.servers' => {
-#           'value' => 'broker-01:9092,broker-02:9092,broker-03:9092'
-#         },
-#         'key.converter' => {
-#           'value' => 'io.confluent.connect.avro.AvroConverter'
-#         },
-#         'value.converter' => {
-#           'value' => 'io.confluent.connect.avro.AvroConverter'
-#         },
-#         'key.converter.schema.registry.url' => {
-#           'value' => 'http://schema-registry-01:8081'
-#         },
-#         'value.converter.schema.registry.url' => {
-#           'value' => 'http://schema-registry-01:8081'
-#         },
-#       },
-#       java_settings => {
-#         'KAFKA_HEAP_OPTS' => {
-#           'value' => '-Xmx4000M'
-#         }
-#       }
+#      heap_size => '4000M',
+#      bootstrap_servers => [
+#        'broker-01:9092',
+#        'broker-02:9092',
+#        'broker-03:9092'
+#      ],
+#      config => {
+#        'key.converter' => {
+#          'value' => 'io.confluent.connect.avro.AvroConverter'
+#        },
+#        'value.converter' => {
+#          'value' => 'io.confluent.connect.avro.AvroConverter'
+#        },
+#        'key.converter.schema.registry.url' => {
+#          'value' => 'http://schema-registry-01:8081'
+#        },
+#        'value.converter.schema.registry.url' => {
+#          'value' => 'http://schema-registry-01:8081'
+#        },
+#      },
 #     }
 #
 # @example Hiera based installation
 #     include ::confluent::kafka::connect::distributed
 #
-#      confluent::kafka::connect::distributed::config:
-#        'bootstrap.servers':
-#          value: 'broker-01:9092,broker-02:9092,broker-03:9092'
-#        'key.converter':
-#          value: 'io.confluent.connect.avro.AvroConverter'
-#        'value.converter':
-#          value: 'io.confluent.connect.avro.AvroConverter'
-#        'key.converter.schema.registry.url':
-#          value: 'http://schema-registry-01.example.com:8081'
-#        'value.converter.schema.registry.url':
-#          value: 'http://schema-registry-01.example.com:8081'
-#      confluent::kafka::connect::distributed::connect_settings:java_settings:
-#        KAFKA_HEAP_OPTS:
-#          value: '-Xmx4000M'
+#     confluent::kafka::connect::distributed::heap_size: '4000M'
+#     confluent::kafka::connect::distributed::bootstrap_servers:
+#       - broker-01:9092
+#       - broker-02:9092
+#       - broker-03:9092
+#     confluent::kafka::connect::distributed::config:
+#       'key.converter':
+#         value: 'io.confluent.connect.avro.AvroConverter'
+#       'value.converter':
+#         value: 'io.confluent.connect.avro.AvroConverter'
+#       'key.converter.schema.registry.url':
+#         value: 'http://schema-registry-01.example.com:8081'
+#       'value.converter.schema.registry.url':
+#         value: 'http://schema-registry-01.example.com:8081'
 #
 # @param config Settings to pass to the Kafka Connect properties file.
 # @param environment_settings Settings to put in the environment file used to pass environment variables to the kafka startup scripts.
