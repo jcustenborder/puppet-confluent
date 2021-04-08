@@ -178,6 +178,17 @@ class confluent::params {
   $mirror_maker_log_path = '/var/log/mirrormaker'
   $mirror_maker_config_root = '/etc/kafka/mirrormaker'
 
+  $rest_user = 'rest'
+  $rest_service = 'kafka-rest'
+  $rest_manage_service = true
+  $rest_service_ensure = 'running'
+  $rest_service_enable = true
+  $rest_file_limit = 128000
+  $rest_config_path = '/etc/kafka-rest/kafka-rest.properties'
+  $rest_log_path = '/var/log/kafka-rest'
+  $rest_logging_config_path = '/etc/kafka-rest/kafka-rest.logging.properties'
+  $rest_heap_size = '512m'
+
   case $::osfamily {
     'RedHat': {
       $connect_distributed_environment_path = '/etc/sysconfig/kafka-connect-distributed'
@@ -188,6 +199,7 @@ class confluent::params {
       $control_center_environment_path = '/etc/sysconfig/control-center'
       $ksql_environment_path = '/etc/sysconfig/ksql'
       $mirror_maker_environment_path_prefix = '/etc/sysconfig/mirrormaker-'
+      $rest_environment_path = '/etc/sysconfig/kafka-rest'
 
       case $::operatingsystemmajrelease {
         '7': {
@@ -209,6 +221,7 @@ class confluent::params {
       $control_center_environment_path = '/etc/default/control-center'
       $ksql_environment_path = '/etc/default/ksql'
       $mirror_maker_environment_path_prefix = '/etc/default/mirrormaker-'
+      $rest_environment_path = '/etc/default/kafka-rest'
 
       $key_url = "http://packages.confluent.io/deb/${confluent_version}/archive.key"
       $repository_url = "http://packages.confluent.io/deb/${confluent_version}"
@@ -217,6 +230,4 @@ class confluent::params {
       fail("${::osfamily} is not currently supported.")
     }
   }
-
-
 }
