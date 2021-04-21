@@ -96,6 +96,7 @@ class confluent::kafka::connect::distributed (
   user { $user:
     ensure => present,
     shell  => $user_shell,
+    system => true,
     alias  => 'kafka-connect-distributed'
   } ->
   file { $log_path:
