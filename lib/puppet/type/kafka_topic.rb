@@ -26,6 +26,9 @@ Puppet::Type.newtype(:kafka_topic) do
       unless value.is_a? Integer
         raise ArgumentError, "partitions should be an Integer"
       end
+      unless value > 0
+        raise ArgumentError, "the number of partitions should be greater than 0"
+      end
     end
   end
 

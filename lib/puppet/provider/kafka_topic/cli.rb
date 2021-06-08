@@ -7,7 +7,7 @@ Puppet::Type.type(:kafka_topic).provide(:cli) do
   mk_resource_methods
 
   def self.connection_args
-    args = [ '--zookeeper', Socket.gethostname + ":2181" ]
+    args = [ '--bootstrap-server', Socket.gethostbyname(Socket.gethostname).first + ":9092" ]
     args << [ '--command-config', '/etc/kafka/client.properties'] if File.file? '/etc/kafka/client.properties'
     args
   end
@@ -15,25 +15,37 @@ Puppet::Type.type(:kafka_topic).provide(:cli) do
   def self.instances
     args = connection_args
     args << [ '--describe' ]
-    output = kafka_topics(args).split("\n")
-    topics = output.select do |line|
-      line.match?(/^Topic:/i)
+
+    configs = {}
+    topic = nil
+    config_regex = /^Dynamic configs for topic (.*) are:\s*$/i
+    configs_output = kafka_configs(args << ['--entity-type', 'topics']).split("\n")
+    configs_output.each do |line|
+      if match = line.match(config_regex)
+        topic = match.captures[0]
+        configs[topic] = {}
+        next
+      end
+      if match = line.match(/^\s+([^=;\s]+)=([^;\s]*)\s+.*$/)
+        k, v = match.captures
+        v = v.to_i if /^[-]?\d+$/.match(v)
+        configs[topic][k] = v
+      end
+    end
+
+    topics_regex = /^Topic:\s+([0-9a-zA-Z_.-]+)\s+PartitionCount:\s+([0-9]+)\s+ReplicationFactor:\s+([0-9]+)\s+Configs:\s+(.*)$/i
+    topics_output = kafka_topics(args).split("\n")
+    topics = topics_output.select do |line|
+      line.match?(topics_regex)
     end
     topics.collect do |line|
       topic = {}
-      name, parts, repl, configs = line.match(/^Topic:\s+(.*)\s+PartitionCount:\s+([0-9]+)\s+ReplicationFactor:\s+([0-9]+)\s+Configs:\s+(.*)$/i).captures
-      config_hash = Hash[configs.scan(/([^=]+)=([^,]+)[,$]?/i)]
-      config = config_hash.map do |k, v|
-                 k = k.strip
-                 v = v.strip
-                 v = v.to_i if /^[-]?\d+$/.match(v)
-                 [ k, v ]
-               end.to_h
+      name, parts, repl, _ = line.match(topics_regex).captures
       topic[:name] = name
       topic[:ensure] = :present
       topic[:partitions] = parts
       topic[:replication_factor] = repl
-      topic[:config] = config
+      topic[:config] = configs[name]
       new(topic)
     end
   end
@@ -51,13 +63,14 @@ Puppet::Type.type(:kafka_topic).provide(:cli) do
   end
 
   def create
+    fail("the 'partitions' parameter is mandatory when creating topics") if resource[:partitions].nil?
     args = self.class.connection_args
     args << [ '--partitions', resource[:partitions] ]
     args << [ '--replication-factor', resource[:replication_factor] ]
     args << [ '--create', '--topic', resource[:name] ]
     if ! resource[:config].nil?
       resource[:config].each do |k, v|
-        args << [' --config', "#{k}=#{v}" ]
+        args << ['--config', "#{k}=#{v}" ]
       end
     end
     begin
@@ -99,29 +112,29 @@ Puppet::Type.type(:kafka_topic).provide(:cli) do
   #  args = [ '--describe', '--topic', resource[:name] ]
   #  args += connection_args
   #  begin
-  #    output = kafka_topics(args)
+  #    topics_output = kafka_topics(args)
   #  rescue Puppet::ExecutionFailure => e
   #    raise "Failed to list topic. Received error: #{e.inspect}"
   #  end
-  #  output.match(/PartitionCount:\s*([0-9]+)\s*$/i).captures
+  #  topics_output.match(/PartitionCount:\s*([0-9]+)\s*$/i).captures
   #end
 
-  #def partitions=
-  #  raise 'Changing partition count not implemented yet'
-  #end
+  def partitions=(value)
+    warning("changing number of partitions after topic creation is not currently supported")
+  end
 
   #def replication_factor
   #  args = [ '--describe', '--topic', resource[:name] ]
   #  args += connection_args
   #  begin
-  #    output = kafka_topics(args)
+  #    topics_output = kafka_topics(args)
   #  rescue Puppet::ExecutionFailure => e
   #    raise "Failed to list topic. Received error: #{e.inspect}"
   #  end
-  #  output.match(/ReplicationFactor:\s*([0-9]+)\s*$/i).captures
+  #  topics_output.match(/ReplicationFactor:\s*([0-9]+)\s*$/i).captures
   #end
 
-  #def replication_factor=
-  #  raise 'Changing replication factor not implemented yet'
-  #end
+  def replication_factor=(value)
+    warning("changing the replication factor after topic creation is not currently supported")
+  end
 end
